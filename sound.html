@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman's Portfolio | Website Designing and Development</title> 
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+
+    <div id="overlay">
+        <button id="startButton">Play</button>
+    </div>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+
+        varying vec2 vUv;
+
+        void main() {
+
+            vUv = uv;
+
+            gl_Position = vec4( position, 1.0 );
+
+        }
+
+    </script>
+
+    <script id="fragmentShader" type="x-shader/x-fragment">
+
+        uniform sampler2D tAudioData;
+        varying vec2 vUv;
+
+        void main() {
+
+            vec3 backgroundColor = vec3( 0.125, 0.125, 0.125 );
+            vec3 color = vec3( 1.0, 1.0, 0.0 );
+
+            float f = texture2D( tAudioData, vec2( vUv.x, 0.0 ) ).r;
+
+            float i = step( vUv.y, f ) * step( f - 0.0125, vUv.y );
+
+            gl_FragColor = vec4( mix( backgroundColor, color, i ), 1.0 );
+
+        }
+
+    </script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const container = document.getElementById('container');
+        let scene, camera, renderer, analyser, uniforms;
+
+        const startButton = document.getElementById( 'startButton' );
+		startButton.addEventListener( 'click', init );
+
+        function init(){
+
+            const fftSize = 128;
+            const overlay = document.getElementById( 'overlay' );
+            overlay.remove();
+
+
+
+            scene = new THREE.Scene();
+            
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+            camera.position.z = 5;
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            container.appendChild( renderer.domElement );
+            
+            const listener = new THREE.AudioListener();
+
+            const audio = new THREE.Audio( listener );
+            const file = './assets/sounds/02.mp3';
+
+            if ( /(iPad|iPhone|iPod)/g.test( navigator.userAgent ) ) {
+
+                const loader = new THREE.AudioLoader();
+                loader.load( file, function ( buffer ) {
+
+                    audio.setBuffer( buffer );
+                    audio.play();
+
+                } );
+
+            } else {
+
+                const mediaElement = new Audio( file );
+                mediaElement.play();
+
+                audio.setMediaElementSource( mediaElement );
+
+            }
+
+            analyser = new THREE.AudioAnalyser( audio, fftSize );
+
+            //
+
+            const format = ( renderer.capabilities.isWebGL2 ) ? THREE.RedFormat : THREE.LuminanceFormat;
+
+            uniforms = {
+
+                tAudioData: { value: new THREE.DataTexture( analyser.data, fftSize / 2, 1, format ) }
+
+            };
+
+            const material = new THREE.ShaderMaterial( {
+
+                uniforms: uniforms,
+                vertexShader: document.getElementById( 'vertexShader' ).textContent,
+                fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+
+            } );
+
+            const geometry = new THREE.PlaneGeometry( 1, 1 );
+
+            const mesh = new THREE.Mesh( geometry, material );
+            scene.add( mesh );
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        
+        init();
+
+        function animate() {
+            requestAnimationFrame( animate );
+            analyser.getFrequencyData();
+			uniforms.tAudioData.value.needsUpdate = true;
+            renderer.render( scene, camera );
+        }
+        
+        animate();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman's Portfolio | Website Designing and Development</title> 
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <video id="video" loop muted crossOrigin="anonymous" playsinline style="display:none">
+        <source src="./assets/videos/13.mp4">
+    </video>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const container = document.getElementById('container');
+        let scene, camera, renderer, analyser, uniforms;
+
+        let isUserInteracting = false,
+            lon = 0, lat = 0,
+            phi = 0, theta = 0,
+            onPointerDownPointerX = 0,
+            onPointerDownPointerY = 0,
+            onPointerDownLon = 0,
+            onPointerDownLat = 0;
+
+        const distance = 50;
+
+
+        function init(){
+
+            scene = new THREE.Scene();
+            
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+            camera.position.z = 5;
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            container.appendChild( renderer.domElement );
+
+            const geometry = new THREE.SphereGeometry( 500, 60, 40 );
+            // invert the geometry on the x-axis so that all of the faces point inward
+            geometry.scale( - 1, 1, 1 );
+
+            const video = document.getElementById( 'video' );
+            video.play();
+
+            const texture = new THREE.VideoTexture( video );
+            const material = new THREE.MeshBasicMaterial( { map: texture } );
+
+            const mesh = new THREE.Mesh( geometry, material );
+				scene.add( mesh );
+
+                document.addEventListener( 'pointerdown', onPointerDown );
+				document.addEventListener( 'pointermove', onPointerMove );
+				document.addEventListener( 'pointerup', onPointerUp );
+            
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onPointerDown( event ) {
+
+isUserInteracting = true;
+
+onPointerDownPointerX = event.clientX;
+onPointerDownPointerY = event.clientY;
+
+onPointerDownLon = lon;
+onPointerDownLat = lat;
+
+}
+
+function onPointerMove( event ) {
+
+if ( isUserInteracting === true ) {
+
+    lon = ( onPointerDownPointerX - event.clientX ) * 0.1 + onPointerDownLon;
+    lat = ( onPointerDownPointerY - event.clientY ) * 0.1 + onPointerDownLat;
+
+}
+
+}
+
+function onPointerUp() {
+
+isUserInteracting = false;
+
+}
+
+function update() {
+
+lat = Math.max( - 85, Math.min( 85, lat ) );
+phi = THREE.MathUtils.degToRad( 90 - lat );
+theta = THREE.MathUtils.degToRad( lon );
+
+camera.position.x = distance * Math.sin( phi ) * Math.cos( theta );
+camera.position.y = distance * Math.cos( phi );
+camera.position.z = distance * Math.sin( phi ) * Math.sin( theta );
+
+camera.lookAt( 0, 0, 0 );
+
+renderer.render( scene, camera );
+
+}
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        
+        init();
+
+        function animate() {
+            requestAnimationFrame( animate );
+            update();
+            renderer.render( scene, camera );
+        }
+        
+        animate();
+    </script>
+
+</body>
+</html>

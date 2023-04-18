@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman's Portfolio | Website Designing and Development</title> 
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+
+    <ul class="chairColorPicker">
+        <li><input type="color" value="#ffffff" class="colorPicker" id="body-color"></li>
+        <!--<li><input type="color" value="#ffffff" class="colorPicker" id="leg-color"></li>-->
+    </ul>
+
+    <input type="range" min="0" max="10" value="0" step="0.1" id="slider" orient="vertical" style="position:absolute; z-index: 10; left: 10px; bottom: 10px;">
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        import { OrbitControls } from './assets/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from './assets/jsm/loaders/GLTFLoader.js';
+        import { RGBELoader } from './assets/jsm/loaders/RGBELoader.js';
+        import { RoomEnvironment } from './assets/jsm/environments/RoomEnvironment.js';
+        //import { LightProbeGenerator } from './assets/jsm/lights/LightProbeGenerator.js';
+        //import { TWEEN } from './assets/jsm/libs/tween.module.min.js';
+
+        const container = document.getElementById('container');
+        let stats;
+        let camera, scene, renderer, controls, textureLoader, obj;
+        let texture, hemiLight, light;
+        let grid;
+
+        function init(){
+            scene = new THREE.Scene();           
+            
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+            camera.position.set( 0, 0, 3);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.shadowMap.enabled = true;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 0.45;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+		    renderer.shadowMap.type = THREE.BasicShadowMap;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild( renderer.domElement );
+            
+            scene.add( new THREE.AmbientLight( 0xffffff, 1 ) );
+
+            light = new THREE.DirectionalLight(0xeeeeee, 1);
+            light.position.set(-40,15,15);
+            scene.add(light);
+            const helper = new THREE.DirectionalLightHelper( light, 5 );
+            //scene.add( helper );
+
+            hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.1 );
+            hemiLight.color.setHSL( 0.6, 1, 0.6 );
+            hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+            hemiLight.position.set( 0, -3, 0 );
+            scene.add( hemiLight );
+            const hemihelper = new THREE.HemisphereLightHelper( hemiLight, 5 );
+            //scene.add( hemihelper );
+
+            new GLTFLoader().load('./assets/models/chair.gltf', function (gltf) {
+
+                obj = gltf.scene;
+                obj.traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.side = THREE.DoubleSide;
+                        o.castShadow = true;
+                        o.receiveShadow = true; //o.material.wireframe = true;
+                        if(o.material.map) o.material.map.anisotropy = 16; 
+                        o.material.wrapS = THREE.RepeatWrapping;
+                    }
+                });
+                //obj.children[0].material.color.setHex(0xffffff);
+                //obj.children[1].material.color.setHex(0xffffff);
+                const plastiColor = document.getElementById( 'body-color' );
+                const legColor = document.getElementById( 'leg-color' );
+                /*
+				legColor.addEventListener( 'input', function () {
+                    obj.children[0].material.color.set( legColor.value );
+				});
+                */
+				plastiColor.addEventListener( 'input', function () {
+                    obj.children[1].material.color.set( plastiColor.value );
+				} );
+                scene.add(obj);
+                console.log(obj);
+                animate();
+
+            }, function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+            // called when loading has errors
+            function ( error ) {
+                console.log( 'An error happened' );
+            });
+
+            const environment = new RoomEnvironment();
+            const pmremGenerator = new THREE.PMREMGenerator(renderer);
+            scene.background = new THREE.Color(0x333333);
+            //scene.environment = pmremGenerator.fromScene(environment).texture;
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.minDistance = 2;
+            controls.maxDistance = 4;
+            controls.target.set(0,0,0);
+            controls.enablePan = false;
+            controls.update();
+
+            grid = new THREE.GridHelper( 70, 70, 0x666666, 0x666666 );
+            grid.material.opacity = 0.05;
+            grid.position.set(0,-0.5,0)
+            grid.material.depthWrite = false;
+            grid.material.transparent = true;            
+            scene.add( grid );
+            
+            var slider = document.getElementById("slider");
+            slider.addEventListener("input", rotateCube);            
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function rotateCube(e){
+            var target = (e.target) ? e.target : e.srcElement;
+            obj.rotation.y = target.value;
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        
+        init();
+
+        function animate() {
+            requestAnimationFrame( animate );
+            controls.update(); // required if damping enabled
+            //TWEEN.update();
+            renderer.render( scene, camera );
+        }
+        
+        animate();
+    </script>
+
+</body>
+</html>

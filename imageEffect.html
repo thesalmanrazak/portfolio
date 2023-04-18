@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html,body{
+            width: 100vw;
+            height: 100vh;
+        }
+        .landing{
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 100vh;
+        }
+        .distoration{
+            width: 800px;
+            height: 600px;
+        }
+        h2{
+            font-size: 50px;
+        }
+        p{
+            font-size: 25px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="landing">
+        <div class="intro">
+            <h2>Blend your emotions</h2>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa sint est error in corrupti sit animi! Cum nostrum corporis perspiciatis natus animi, tempore optio odio sapiente nobis praesentium, molestias nam?</p>
+        </div>
+        <div class="distoration"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
+    <script src="./assets/js/hover-effect.umd.js"></script>
+
+    <script>
+        new hoverEffect({
+            parent: document.querySelector('.distoration'),
+            intensity1: 0.1,
+            intensity2: 0.1,
+            angle2: Math.PI / 2,
+            image1: './assets/media/hover/01.jpg',
+            image2: './assets/media/hover/02.jpg',
+            displacementImage: './assets/media/hover/heightMap.png'
+        });
+    </script>
+
+</body>
+</html>

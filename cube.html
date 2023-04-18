@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman's Portfolio | Website Designing and Development</title> 
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const container = document.getElementById('container');
+        let cube, scene, camera, renderer;
+
+        function init(){
+            scene = new THREE.Scene();
+            
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+            camera.position.z = 5;
+            
+            renderer = new THREE.WebGLRenderer();
+            //renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            container.appendChild( renderer.domElement );
+            
+            const geometry = new THREE.BoxGeometry( 3, 3, 3 );
+            const material = new THREE.MeshNormalMaterial();
+            cube = new THREE.Mesh( geometry, material );
+            scene.add( cube );
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        
+        init();
+
+        function animate() {
+            requestAnimationFrame( animate );
+            cube.rotation.x += 0.001;
+            cube.rotation.y += 0.001;
+            renderer.render( scene, camera );
+        }
+        
+        animate();
+    </script>
+
+</body>
+</html>

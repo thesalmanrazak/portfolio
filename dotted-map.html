@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman's Portfolio | Website Designing and Development</title>
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+                
+        const container = document.getElementById('container');
+
+        var renderer, scene, camera, ww, wh, particles;
+
+        ww = window.innerWidth,
+        wh = window.innerHeight;
+
+        var centerVector = new THREE.Vector3(0, 0, 0);
+        var previousTime = 0;
+
+        init();
+
+        function init(){
+            scene = new THREE.Scene();
+
+			camera = new THREE.PerspectiveCamera(50, ww / wh, 0.1, 10000);
+            camera.position.set(-100, 0, 220);
+            camera.lookAt(centerVector);
+            scene.add(camera);
+
+            var geometry = new THREE.PlaneGeometry( 1, 1 );
+            var material = new THREE.PointsMaterial({
+                size: 3,
+                color: 0x313742,
+                sizeAttenuation: false
+            });
+            for (var y = 0, y2 = imagedata.height; y < y2; y += 2) {
+                for (var x = 0, x2 = imagedata.width; x < x2; x += 2) {
+                    if (imagedata.data[(x * 4 + y * 4 * imagedata.width) + 3] > 128) {
+
+                        var vertex = new THREE.Vector3();
+                        vertex.x = Math.random() * 1000 - 500;
+                        vertex.y = Math.random() * 1000 - 500;
+                        vertex.z = -Math.random() * 500;
+
+                        vertex.destination = {
+                            x: x - imagedata.width / 2,
+                            y: -y + imagedata.height / 2,
+                            z: 0
+                        };
+
+                        vertex.speed = Math.random() / 200 + 0.015;
+
+                        geometry.vertices.push(vertex);
+                    }
+                }
+            }
+
+            particles = new THREE.Points(geometry, material);
+
+            scene.add(particles);
+
+	        requestAnimationFrame(animate);
+
+            
+            renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.shadowMap.enabled = true;
+            renderer.setClearColor(0x1d1f23);
+            container.appendChild( renderer.domElement );
+            
+            THREE.ImageUtils.crossOrigin = '';
+
+            texture = new THREE.TextureLoader().load( 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/127738/transparentMap.png', function() {
+                imagedata = getImageData(texture.image);
+                drawTheMap();
+            });
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            animate();
+        }
+        
+        function animate(time) {
+            requestAnimationFrame(render);
+
+            for (var i = 0, j = particles.geometry.vertices.length; i < j; i++) {
+                var particle = particles.geometry.vertices[i];
+                particle.x += (particle.destination.x - particle.x) * particle.speed;
+                particle.y += (particle.destination.y - particle.y) * particle.speed;
+                particle.z += (particle.destination.z - particle.z) * particle.speed;
+            }
+
+            if(a-previousTime>100){
+                var index = Math.floor(Math.random()*particles.geometry.vertices.length);
+                var particle1 = particles.geometry.vertices[index];
+                var particle2 = particles.geometry.vertices[particles.geometry.vertices.length-index];
+                TweenMax.to(particle, Math.random()*2+1,{x:particle2.x, y:particle2.y, ease:Power2.easeInOut});
+                TweenMax.to(particle2, Math.random()*2+1,{x:particle1.x, y:particle1.y, ease:Power2.easeInOut});
+                previousTime = a;
+            }
+
+            particles.geometry.verticesNeedUpdate = true;
+            camera.position.x = Math.sin(a / 5000) * 100;
+            camera.lookAt(centerVector);
+
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+
+        $(function(){
+            
+            $('.camera-positions button').on('click', function(){
+                var posX = $(this).data('x');
+                var posY = $(this).data('y');
+                var posZ = $(this).data('z');
+                new TWEEN.Tween(camera.position).to({x: posX, y: posY, z: posZ}).start();
+            })
+            
+            $('.shoes-colors div').each(function(index, elem){
+                $(this).css('background',$(this).data('hex'));
+            });
+
+            $('.shoes-colors div').on('click', function(){
+                $('.colors div').removeClass('active');
+                $(this).addClass('active');
+                var bg = $(this).data('hex');            
+                var colorValue = parseInt ( bg.replace("#","0x"), 16 );
+                var colored = new THREE.Color( colorValue );                
+                scene.background = colored;
+            });
+
+            $('.shoes-texture div').each(function(){
+                $(this).css({'background':'url('+ $(this).data('image') +') center center no-repeat', 'background-size':'cover'});
+            });
+
+            $('.shoes-texture div').on('click', function(){
+                var newTexture = $(this).data('image');
+                shoe.traverse(function (node) {                    
+                    if (node.isMesh) {
+                        node.material.map = new THREE.TextureLoader().load(newTexture, texture => {
+                            texture.flipY = false
+                        });
+                        node.castShadow = true;
+                        node.receiveShadow = false;
+                    }
+                });
+                shoe.updateMatrix();
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>

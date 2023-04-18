@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Razak :|: Being creative mean be different...</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+
+<body>
+
+    <div id="overlay">
+        <div id="progstat"></div>
+        <div id="progress"></div>
+    </div>
+
+    <header class="inside"></header>
+    <main>
+        <section class="work" id="work">
+            <ul class="work-nav">
+                <li><a href="branding.html">Branding</a><span>22</span></li>
+                <li><a href="digital.html">Digital Media</a><span>60</span></li>
+                <li><a href="logo.html">Logo Designing</a><span>60</span></li>
+                <li><a href="threejs.html">Three.js</a><span>20</span></li>
+                <li><a href="uiux.html">UI / UX</a><span>13</span></li>
+                <li><a href="website.html">Web Designing</a><span>40</span></li>
+            </ul>
+        </section>
+    </main>
+    <footer class="inside">
+        <span>copyright &copy; 2013 - 2022.</span>
+        <div class="social">
+            <a href="https://www.instagram.com/" target="_blank">instagram</a>
+            <a href="https://www.dribbble.com/" target="_blank">dribbble</a>
+            <a href="https://www.behance.net/" target="_blank">behance</a>
+        </div>
+    </footer>
+    <aside class="inside"></aside>
+
+    <script src="./assets/js/jquery.min.js"></script>
+    <script src="./assets/js/scripts.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        let work_wrapper = document.getElementById('work');
+        let scene, camera, renderer, controls;
+        let clock = new THREE.Clock();
+
+        let uniforms, vertex, meme, plane, ring, mesh, shaderMaterial;
+
+        init();
+
+        function init(){
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0x101010 );
+                
+            // camera + controls
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            camera.position.z = 100;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.domElement.id = 'workPage';
+            renderer.setSize(window.innerWidth, window.innerHeight);        
+            work_wrapper.appendChild(renderer.domElement);
+
+            uniforms = {
+                time: { value: 0 },
+                resolution: { value: new THREE.Vector3() },
+            };
+            const fragmentShader = `
+                #include <common>
+                // follow the time flow
+                #ifdef GL_ES
+                precision mediump float;
+                #endif
+
+                uniform vec2 resolution;
+                uniform vec2 mouse;
+                uniform float time;
+
+                vec3 flag(vec2 uv, float threshold ) {
+                    float d = distance(vec2(0.5,0.5),uv) * 5.0; // distance
+                    d = abs(sin(d - time * 3.0));
+                    return vec3(step(threshold ,d));
+                }
+
+                void main() {
+                    vec2 st = (gl_FragCoord.xy * 3.0 - resolution) / min(resolution.x, resolution.y);
+                    vec3 ci = flag(st, 0.65);
+                    float al = 3.0*sin(time)/time;
+                    gl_FragColor = vec4(ci,0.05);
+                    
+                }            
+            `;
+
+            shaderMaterial = new THREE.ShaderMaterial({
+                fragmentShader,
+                uniforms,
+            });
+
+            ring = new THREE.PlaneGeometry( window.innerWidth, window.innerHeight );
+            ring.startTime = Date.now();
+            ring.uniforms = uniforms;
+            mesh = new THREE.Mesh( ring, shaderMaterial );
+            mesh.position.set(0,0,0);
+            scene.add( mesh );
+            
+            window.addEventListener( 'resize', onWindowResize, false );
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            animate();
+        }
+
+        function animate(time){
+            
+            requestAnimationFrame( animate );
+
+            if(ring){
+                time *= 0.001; //convert to seconds
+                uniforms.resolution.value.set(window.innerWidth, window.innerHeight, 1);
+                var elapsedMilliseconds = Date.now() - ring.startTime;
+                var elapsedSeconds = elapsedMilliseconds / 1000;
+                ring.uniforms.time.value = time;
+            }
+
+            renderer.render( scene, camera );
+
+        }
+
+        animate();
+
+    </script>
+
+</body>
+
+</html>

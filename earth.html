@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman's Portfolio | Website Designing and Development</title>
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';        
+        import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+
+        const container = document.getElementById('container');
+
+        let scene, camera, renderer;
+        let controls, group, starMesh, earth;
+        let eTexture = './assets/media/2_no_clouds_4k.jpg'; // earthTexture.jpg //
+        let mTexture = './assets/media/mar1kuu2.jpg';
+        let starTexture = './assets/media/2k_stars_milky_way.jpg';
+        var targetRotation = 0;
+        var targetRotationOnMouseDown = 0;
+        var mouseX = 0;
+        var mouseXOnMouseDown = 0;
+        var windowHalfX = window.innerWidth / 2;
+        var windowHalfY = window.innerHeight / 2;
+
+        function init(){
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );            
+            camera.position.z = 5;
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            //renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.gammaInput = true;
+            renderer.gammaOutput = true;
+            container.appendChild( renderer.domElement );
+            
+            group = new THREE.Group();
+            group.position.y = 0;
+            scene.add(group);
+
+            addEarchSphere(0,0,0,1.6,eTexture,1);
+            
+            addStars(8,starTexture,1000,1000);
+
+            addDirectionalLight(5,5,5, 0xffffff, 1, 0);
+            addDirectionalLight(0,5,-5, 0xffffff, 1, 0);
+            addDirectionalLight(-5,-2,5, 0xffffff, 1, 0);
+            
+            var light = new THREE.PointLight(0xffffff, 0.8);
+            camera.add(light);
+
+            const loader = new FontLoader();
+
+            $.getJSON( "assets/json/countries.json", function(data){
+                $.each(data, function(index,value){
+                    
+                    // add cone markers
+                    var rad = Math.PI / 180;
+                    var pointer = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.01, 0, 0.3, 32, 1),
+                        new THREE.MeshPhongMaterial({ color: 0xff0000 })
+                    );
+                    pointer.position.set(1.5, 0, 0);
+                    pointer.quaternion.setFromUnitVectors( new THREE.Vector3(0, 1, 0), new THREE.Vector3(1, 0, 0) );
+                    var marker = new THREE.Object3D();
+                    marker.add(pointer);
+                    scene.add(marker);
+                    group.add(marker);
+                    marker.quaternion.setFromEuler(
+                        new THREE.Euler(0, value.longitude * rad, value.latitude * rad, "YZX")
+                    );
+
+                    // add countries name
+                    loader.load( 'assets/fonts/gentilis_regular.typeface.json', function ( font ) {
+                        const matLite = new THREE.MeshBasicMaterial( { color: 0xffffff, transparent: true, opacity: 1, side: THREE.DoubleSide } );
+                        const message = value.country;
+                        const shapes = font.generateShapes( message, 0.08 );
+                        const geometry = new THREE.ShapeGeometry( shapes );
+                        geometry.computeBoundingBox();
+                        // const xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+                        const xMid = 1.65;
+                        geometry.translate( xMid, 0, 0 );
+                        const text = new THREE.Mesh( geometry, matLite );
+                        
+                        //Object.assign( text.rotation , new THREE.Vector3(x,y,z).normalize().multiplyScalar( radius+2 ) );
+                        //Object.assign( text.position , new THREE.Vector3(x,y,z).normalize().multiplyScalar( radius+2 ) );
+                        text.quaternion.setFromEuler(
+                            new THREE.Euler(0, value.longitude * rad, value.latitude * rad, "YZX")
+                        );
+                        scene.add( text );
+                        group.add(text);
+                    } );
+                });                
+            });
+
+            document.addEventListener('mousedown', onDocumentMouseDown, false);
+            document.addEventListener('touchstart', onDocumentTouchStart, false);
+            document.addEventListener('touchmove', onDocumentTouchMove, false);
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        
+        init();
+
+        function addStars(radius,stars,cBuster,sGeo){
+            // add star sphere
+            var loader = new THREE.TextureLoader();
+            var cachebuster = Math.round(new Date().getTime() / cBuster);
+            var starGeo = new THREE.SphereGeometry (radius, 10, sGeo);
+            var starMaterial = new THREE.MeshBasicMaterial();
+            starMaterial.map = loader.load( stars+'?d='+cachebuster); // zabardast            
+            starMaterial.side = THREE.BackSide;
+            starMesh = new THREE.Mesh(starGeo, starMaterial);
+            scene.add(starMesh);
+            
+        }
+
+        function addEarchSphere(x,y,z,radius,earthTexture,addGroup){
+            // add earth
+            var texture = new THREE.TextureLoader().load(earthTexture);
+            earth = new THREE.Mesh(
+                new THREE.SphereGeometry(radius, 32, 64),
+                new THREE.MeshStandardMaterial( {      
+                    map: texture,
+                    roughness: 1,
+                    bumpMap: texture,
+                    bumpScale: 0.02,
+                })
+            );
+            earth.position.set(x,y,z);
+            scene.add( earth );
+            if(addGroup>0){
+                group.add( earth );
+            }
+        }
+
+        function addBlackSphere(x,y,z,color,roughness){
+
+            var geometry = new THREE.SphereGeometry(1, 64, 64); 
+            var material = new THREE.MeshStandardMaterial({ color: color, roughness: roughness });
+
+            var envMap = new THREE.TextureLoader().load("../_assets/images/earthTexture.jpg");
+            envMap.mapping = THREE.SphericalReflectionMapping;
+            material.envMap = envMap;
+
+            var roughnessMap = new THREE.TextureLoader().load("../_assets/images/earthTexture.jpg");
+            roughnessMap.magFilter = THREE.NearestFilter;
+            material.roughnessMap = roughnessMap;
+            roughnessMap.magFilter = THREE.NearestFilter;
+            material.roughnessMap = roughnessMap;
+
+            var mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(x,y,z);
+            scene.add(mesh);
+
+            console.log(mesh);
+
+        }
+
+        function addDirectionalLight(x,y,z, color, intensity, show){
+            const directionalLight = new THREE.DirectionalLight( color, intensity );
+            directionalLight.position.set(x, y, z);
+            scene.add( directionalLight );
+            if(show>0){
+                const helper = new THREE.DirectionalLightHelper( directionalLight, 5 );
+                scene.add( helper );
+            }
+        }
+
+        function onDocumentMouseDown(event) {
+            event.preventDefault();
+            document.addEventListener('mousemove', onDocumentMouseMove, false);
+            document.addEventListener('mouseup', onDocumentMouseUp, false);
+            document.addEventListener('mouseout', onDocumentMouseOut, false);
+            mouseXOnMouseDown = event.clientX - windowHalfX;
+            targetRotationOnMouseDown = targetRotation;
+        }
+        function onDocumentMouseMove(event) {
+            mouseX = event.clientX - windowHalfX;
+            targetRotation = targetRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
+        }
+        function onDocumentMouseUp(event) {
+            document.removeEventListener('mousemove', onDocumentMouseMove, false);
+            document.removeEventListener('mouseup', onDocumentMouseUp, false);
+            document.removeEventListener('mouseout', onDocumentMouseOut, false);
+        }
+        function onDocumentMouseOut(event) {
+            document.removeEventListener('mousemove', onDocumentMouseMove, false);
+            document.removeEventListener('mouseup', onDocumentMouseUp, false);
+            document.removeEventListener('mouseout', onDocumentMouseOut, false);
+        }
+        function onDocumentTouchStart(event) {
+            if (event.touches.length == 1) {
+                event.preventDefault();
+                mouseXOnMouseDown = event.touches[0].pageX - windowHalfX;
+                targetRotationOnMouseDown = targetRotation;
+            }
+        }
+        function onDocumentTouchMove(event) {
+            if (event.touches.length == 1) {
+                event.preventDefault();
+                mouseX = event.touches[0].pageX - windowHalfX;
+                targetRotation = targetRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.05;
+            }
+        }
+        function animate() {
+            requestAnimationFrame( animate );
+            starMesh.rotation.y += 0.0001;
+            group.rotation.y += ( targetRotation - group.rotation.y ) * 0.05;
+            renderer.render( scene, camera );
+        }
+        
+        animate();
+    </script>
+
+</body>
+</html>

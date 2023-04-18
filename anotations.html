@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman's Portfolio | Website Designing and Development</title> 
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+
+    <div class="annotation">        
+        <p>
+            <strong>Cube</strong>
+            In geometry, a cube is a three-dimensional solid object bounded by six square faces, facets or sides, with three meeting at each vertex.
+        </p>
+    </div>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        import { OrbitControls } from './assets/jsm/controls/OrbitControls.js';
+
+        const container = document.getElementById('container');
+        const annotation = document.querySelector(".annotation");
+        let cube, scene, camera, renderer, sprite, mesh, spriteBehindObject, controls;
+
+        function init(){
+            scene = new THREE.Scene();
+            
+            camera = new THREE.PerspectiveCamera( 55, window.innerWidth/window.innerHeight, 2, 2000 );
+            camera.position.set(750,500,1250);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            //renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setClearColor(0xfb2470, 1);
+            container.appendChild( renderer.domElement );
+
+            const lights = [];
+            lights[0] = new THREE.PointLight(0xffffff, 1, 0);
+            lights[1] = new THREE.PointLight(0xffffff, 1, 0);
+            lights[2] = new THREE.PointLight(0xffffff, 1, 0);
+
+            lights[0].position.set(0, 2000, 0);
+            lights[1].position.set(1000, 2000, 1000);
+            lights[2].position.set(-1000, -2000, -1000);
+
+            scene.add(lights[0]);
+            scene.add(lights[1]);
+            scene.add(lights[2]);
+            
+            const cubeGeometry = new THREE.BoxGeometry(500, 500, 500);
+            const meshMaterial = new THREE.MeshPhongMaterial({
+                color: 0xfb1270,
+                emissive: 0xfb1170,
+                side: THREE.DoubleSide,
+            })
+            mesh = new THREE.Mesh( cubeGeometry, meshMaterial );
+            scene.add(mesh);
+
+            const wireframe = new THREE.WireframeGeometry(cubeGeometry);
+            const lineBasic = new THREE.LineBasicMaterial({
+                color: 0xfb9490,
+                linewidth: 1,
+                opacity: 1,
+                transparent: true
+            });
+            const line = new THREE.LineSegments( wireframe, lineBasic );            
+            scene.add(line);
+
+            const numberTexture = new THREE.CanvasTexture(
+                document.querySelector("#number")
+            );
+
+            const spriteMaterial = new THREE.SpriteMaterial({
+                map: numberTexture,
+                alphaTest: 0.5,
+                transparent: true,
+                depthTest: true,
+                depthWrite: false
+            });
+
+            sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.set(250, 250, 250);
+            sprite.scale.set(60, 60, 1);
+
+            scene.add(sprite);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableZoom = false;
+            //controls.enableDamping = true;
+            //controls.minDistance = 2;
+            //controls.maxDistance = 4;
+            //controls.target.set(0,0,0);
+            //controls.enablePan = false;
+            controls.update();
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function updateAnnotationOpacity() {
+            const meshDistance = camera.position.distanceTo(mesh.position);
+            const spriteDistance = camera.position.distanceTo(sprite.position);
+            spriteBehindObject = spriteDistance > meshDistance;
+            sprite.material.opacity = spriteBehindObject ? 0.25 : 1;
+
+            // Do you want a number that changes size according to its position?
+            // Comment out the following line and the `::before` pseudo-element.
+            sprite.material.opacity = 1;
+        }
+
+        function updateScreenPosition() {
+            const vector = new THREE.Vector3(250, 250, 250);
+            const canvas = renderer.domElement;
+
+            vector.project(camera);
+
+            vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width / window.devicePixelRatio));
+            vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height / window.devicePixelRatio));
+
+            annotation.style.top = `${vector.y}px`;
+            annotation.style.left = `${vector.x}px`;
+            annotation.style.opacity = spriteBehindObject ? 0.25 : 1;
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        
+        init();
+
+        function animate() {
+            requestAnimationFrame( animate );
+            updateAnnotationOpacity();
+            updateScreenPosition();
+            controls.update();
+            renderer.render( scene, camera );
+        }
+        
+        animate();
+    </script>
+
+</body>
+</html>

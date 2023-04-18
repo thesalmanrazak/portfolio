@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman's Portfolio | Website Designing and Development</title>
+    <link rel="stylesheet" href="./assets/css/three.css">
+    <style>
+        canvas{
+            background: linear-gradient(to bottom, #412f50 0%,#131837 100%);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="shoes-colors">
+        <div class="white active" data-color="0xffffff" data-hex="#ffffff"></div>
+        <div class="blue" data-color="0x3a86ff" data-hex="#3a86ff"></div>
+        <div class="red" data-color="0xe63946" data-hex="#e63946"></div>
+        <div class="orange" data-color="0xf4a261" data-hex="#f4a261"></div>
+        <div class="green" data-color="0x06d6a0" data-hex="#06d6a0"></div>
+    </div>
+
+    <div class="camera-positions">
+        <button type="button" id="one" data-x="0" data-y="0" data-z="2.5">P1</button>
+        <button type="button" id="two" data-x="1.042689334221174" data-y="1.73" data-z="1.4626119094006151">P2</button>
+        <button type="button" id="three" data-x="-1.075212654196661" data-y="1.438810171429225" data-z="-1.429567820467573">P3</button>
+        <button type="button" id="four" data-x="0.4049735540879563" data-y="2.1868571920750055" data-z="-0.32397884327036514">P4</button>
+    </div>
+    <div class="shoes-texture">
+        <div class="yellow" data-image="./assets/media/shoes/material_1_baseColor.jpg"></div>
+        <div class="white" data-image="./assets/media/shoes/material_2_baseColor.jpg"></div>
+        <div class="orange" data-image="./assets/media/shoes/material_3_baseColor.jpg"></div>
+    </div>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';        
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { TWEEN } from 'three/addons/libs/tween.module.min.js';
+
+        const container = document.getElementById('container');
+
+        let camera, controls, scene, renderer;
+        let hlight, light, light2, light3, light4, directionalLight, shoe;
+        var color = 0xf0f0f0, textureLoader, texture;
+
+        init();
+
+        function init(){
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 5000);
+            //camera.rotation.y = 45/180*Math.PI;
+            camera.position.set(0,0,2.5);
+            
+            renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight ); // renderer.setAnimationLoop( render );
+            renderer.shadowMap.enabled = true;
+            container.appendChild( renderer.domElement );
+            
+            scene.add( new THREE.AmbientLight( 0xf0f0f0 ) );
+
+            const planeGeometry = new THREE.PlaneGeometry( 2000, 2000 );
+            planeGeometry.rotateX( - Math.PI / 2 );
+            const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.2 } );
+
+            const plane = new THREE.Mesh( planeGeometry, planeMaterial );
+            plane.position.y = -5; // plane.position.y = - 200;
+            plane.receiveShadow = true;
+            scene.add( plane );
+
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
+            
+            new GLTFLoader().load( './assets/models/shoes.gltf', function ( gltf ) {                
+                gltf.scene.traverse(function (node) {                    
+                    if (node.isMesh) {
+                        node.castShadow = true;
+                        node.receiveShadow = false;
+                    }
+                });
+                shoe = gltf.scene;
+                shoe.scale.set(1,1,1);
+                shoe.position.set(0,0,0);
+                scene.add( shoe );
+                animate();
+            } );
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            animate();
+        }
+        
+        function animate() {
+            requestAnimationFrame( animate );            
+            TWEEN.update();
+            const time = performance.now() / 800;
+            if(shoe){
+                shoe.position.y = Math.cos( time ) * 0.1;
+            }
+            console.log(camera.position);
+            controls.update();
+            renderer.render( scene, camera );
+        }
+        
+        animate();
+
+        $(function(){
+            
+            $('.camera-positions button').on('click', function(){
+                var posX = $(this).data('x');
+                var posY = $(this).data('y');
+                var posZ = $(this).data('z');
+                new TWEEN.Tween(camera.position).to({x: posX, y: posY, z: posZ}).start();
+            })
+            
+            $('.shoes-colors div').each(function(index, elem){
+                $(this).css('background',$(this).data('hex'));
+            });
+
+            $('.shoes-colors div').on('click', function(){
+                $('.colors div').removeClass('active');
+                $(this).addClass('active');
+                var bg = $(this).data('hex');            
+                var colorValue = parseInt ( bg.replace("#","0x"), 16 );
+                var colored = new THREE.Color( colorValue );                
+                scene.background = colored;
+            });
+
+            $('.shoes-texture div').each(function(){
+                $(this).css({'background':'url('+ $(this).data('image') +') center center no-repeat', 'background-size':'cover'});
+            });
+
+            $('.shoes-texture div').on('click', function(){
+                var newTexture = $(this).data('image');
+                shoe.traverse(function (node) {                    
+                    if (node.isMesh) {
+                        node.material.map = new THREE.TextureLoader().load(newTexture, texture => {
+                            texture.flipY = false
+                        });
+                        node.castShadow = true;
+                        node.receiveShadow = false;
+                    }
+                });
+                shoe.updateMatrix();
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>

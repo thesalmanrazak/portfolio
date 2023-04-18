@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman's Portfolio | Website Designing and Development</title> 
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+
+    <!--
+    <ul class="chairColorPicker">
+        <li><input type="color" value="#ffffff" class="colorPicker" id="body-color"></li>
+        <li><input type="color" value="#ffffff" class="colorPicker" id="leg-color"></li>
+    </ul>
+    <input type="range" min="0" max="10" value="0" step="0.1" id="slider" orient="vertical" style="position:absolute; z-index: 10; left: 10px; bottom: 10px;">
+    -->
+
+    <div id="container" class="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+        <div class="wrapper" id="wrapper">
+            <div class="content">
+                <ul class="texture">
+                    <li><img src="./assets/media/leather/1.png" alt=""></li>
+                    <li><img src="./assets/media/leather/2.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/3.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/4.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/5.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/6.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/7.jpeg" alt=""></li>
+                    <li><img src="./assets/media/leather/8.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/9.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/10.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/11.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/12.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/13.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/14.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/15.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/16.jpg" alt=""></li>
+                    <li><img src="./assets/media/leather/17.jpg" alt=""></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        import { OrbitControls } from './assets/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from './assets/jsm/loaders/GLTFLoader.js';
+        import { RGBELoader } from './assets/jsm/loaders/RGBELoader.js';
+        import { RoomEnvironment } from './assets/jsm/environments/RoomEnvironment.js';
+        import Stats from 'three/addons/libs/stats.module.js';
+
+        const wrapper = document.querySelector('.wrapper');
+        let camera, scene, scene1, scene2, renderer, controls, obj;
+        let light, stats;
+
+        function init(){
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true/*, alpha: true*/ }); //renderer.setPixelRatio( wrapper.devicePixelRatio );
+
+            scene1 = new THREE.Scene();
+            scene1.background = new THREE.Color( 0xf2f7ff );
+			scene1.fog = new THREE.Fog( 0xf2f7ff, 1, 25000 );
+            scene1.add( new THREE.AmbientLight( 0x00ffa4 ) );
+
+            scene2 = new THREE.Scene();
+            scene2.background = new THREE.Color( 0xffccaa );
+			scene2.fog = new THREE.Fog( 0xf2f7ff, 1, 25000 );            
+			scene2.add( new THREE.AmbientLight( 0xeef0ff ) );
+            
+            camera = new THREE.PerspectiveCamera(75, wrapper.clientWidth / wrapper.clientHeight, 0.2, 1500); //camera.rotation.y = 45/180*Math.PI;
+            camera.position.set( 0, 0, 1);
+
+            new GLTFLoader().load('./assets/models/sofa.gltf', function (gltf) {
+                obj = gltf.scene;
+                gltf.scene.traverse( function( node ){
+                    if ( node.isMesh ) {
+                        node.castShadow = true;
+                        node.receiveShadow = true;
+
+                    }
+                });
+                obj.position.set(0,0,0);
+                scene1.add(obj); //console.log(obj);
+                animate();
+            }, function ( xhr ) {
+                //console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+            // called when loading has errors
+            function ( error ) {
+                //console.log( 'An error happened' );
+            });
+
+            const geometry = new THREE.PlaneGeometry( 10, 10 );
+            geometry.rotateX( - Math.PI / 2 );
+
+            const material = new THREE.ShadowMaterial();
+            material.opacity = 0.15;
+
+            const plane = new THREE.Mesh( geometry, material );
+            plane.position.y = 0;
+            plane.receiveShadow = true;
+            scene1.add( plane );
+
+            const geometry1 = new THREE.SphereGeometry( 0.5, 64, 128 );
+            const material1 = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+            const sphere = new THREE.Mesh( geometry1, material1 );
+            //sphere.position.set(0,0,0);
+            scene2.add( sphere );
+            console.log(sphere);            
+            
+            
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
+            controls.minDistance = 1;
+            controls.maxDistance = 10;
+            //controls.target.set( 0, 0.35, 0 );
+            controls.update();
+            
+            
+            light = new THREE.DirectionalLight( 0xffffff );
+            light.position.set( 1, 3, 0 );
+            light.castShadow = true;
+            light.shadow.camera.top = 3;
+            light.shadow.camera.bottom = - 3;
+            light.shadow.camera.left = - 3;
+            light.shadow.camera.right = 3;
+            light.shadow.camera.near = 0.1;
+            light.shadow.camera.far = 10;
+            scene1.add( light ); // const cameraHelper = new THREE.CameraHelper(light.shadow.camera); scene.add(cameraHelper);
+            
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( wrapper.clientWidth, wrapper.clientHeight );
+            renderer.autoClear = false; // important!
+            renderer.shadowMap.enabled = true;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 0.50;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.domElement.style.position = 'relative';
+            wrapper.appendChild( renderer.domElement );
+           
+            stats = new Stats();
+			container.appendChild( stats.dom );
+        }
+
+        function rotateCube(e){
+            var target = (e.target) ? e.target : e.srcElement;
+            obj.rotation.y = target.value;
+        }
+
+        function onWindowResize() {
+            camera.aspect = wrapper.clientWidth / wrapper.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
+        }
+        
+        init();
+
+        function animate() {
+            requestAnimationFrame( animate );
+            if(controls){
+                controls.update();
+            }
+            stats.update();
+
+            renderer.clear();
+            renderer.setScissorTest( true );
+            renderer.setScissor( 0, 0, wrapper.clientWidth / 2 - 2, wrapper.clientHeight );
+            renderer.render( scene1, camera );
+            renderer.setScissor( wrapper.clientWidth / 2, 0, wrapper.clientWidth / 2 - 2, wrapper.clientHeight );
+            renderer.render( scene2, camera );
+            renderer.setScissorTest( false );
+        }
+        
+        animate();
+
+        $(function(){
+            $('ul.texture li img').on('click', function(e){
+                
+                //var texturex = $(this).data('image');
+                const texture = new THREE.TextureLoader().load(e.target.currentSrc, texture => {
+                    texture.flipY = false;
+                    texture.wrapS = THREE.RepeatWrapping;
+                    texture.wrapT = THREE.RepeatWrapping;
+                    texture.repeat.set( 1, 1 );
+                });
+                obj.traverse(function (node) {                    
+                    if (node.isMesh) {
+                        node.material.map = texture;
+                    }
+                });
+                obj.updateMatrix();
+            });
+        })
+    </script>
+    
+</body>
+</html>
