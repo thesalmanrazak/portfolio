@@ -1,0 +1,18 @@
+$barWidth : 8px;
+* {
+    &::-webkit-scrollbar{
+        background: $white;
+        width: $barWidth;
+    }
+    &::-webkit-scrollbar-button { display: none; background-color: #07f; }
+    &::-webkit-scrollbar-track {
+        background-color: $white;
+    }
+    //&::-webkit-scrollbar-track-piece { }
+    &::-webkit-scrollbar-thumb {
+        background-color: $bg;
+    }
+    &::-webkit-scrollbar-corner {
+        display: none;
+    }
+}

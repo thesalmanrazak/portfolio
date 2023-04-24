@@ -1,0 +1,193 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: $poppins !important;
+}
+
+html, body{
+    background: $bg;
+    color: $white;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6{
+    font-family: $poppins;
+    margin: 0;
+    padding: 0;
+    line-height: 1em;
+    
+}
+
+a{
+    text-decoration: none;
+    outline: none;
+    transition: 0.3s ease;
+    color: $white;
+    &::after{
+        transition: 0.3s ease;
+    }
+    &:hover{
+        color: $black;
+    }
+}
+button{
+    outline: none;
+    transition: 0.3s ease;
+}
+
+header{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 12;    
+    max-height: 60px;
+    height: 60px;
+    width: 100vw;    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    a.logo{
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    a.menu{
+        position: relative;
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 400;
+        transition: 0.3s;        
+        &::after{
+            content: '';
+            width: 15px;
+            height: 1px;
+            position: absolute;
+            right: calc(100% + 5px);
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: $white;
+        }
+        &:hover{
+            &::after{
+                width: 35px;
+                background-color: $black;
+            }
+        }
+        &.active{
+            color: $black;
+            &::after{
+                background-color: $black;
+            }
+        }
+    }
+    &.inside{
+        a.logo{
+            color: $black;
+        }
+        a.menu{
+            color: $black;
+            &::after{
+                background-color: $black;
+            }
+            &:hover{
+                color: $bg;
+                &::after{
+                    width: 35px;
+                    background-color: $bg;
+                }
+            }
+        }
+    }
+}
+
+footer{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 12;
+    max-height: 40px;
+    height: 40px;
+    width: 100vw;    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    .social{
+        display: flex;
+        gap: 15px;
+        a{
+            color: $white;
+            display: block;
+            &:hover{
+                color: $black;
+            }
+        }
+    }
+    &.inside{
+        color: $black;
+        .social{
+            a{
+                color: $black;
+                &:hover{
+                    color: $bg;
+                }
+            }
+        }
+    }
+}
+
+aside{
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 0vw;
+    height: 100vh;
+    background: $white;
+    color: $black;
+    z-index: 11;
+    overflow: hidden;
+    transition: 0.8s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0;
+    a{
+        display: table;
+        color: $black;
+        text-transform: capitalize;
+        font-size: 7.0em;
+        line-height: 1em;
+        font-weight: 800;
+        white-space: nowrap !important;
+        &:hover{
+            color: $bg;
+        }
+    }
+    &.inside{
+        background: $bg;
+        color: $white;        
+        a{
+            color: $white;
+            &:hover{
+                color: $black;
+            }
+        }
+    }
+    &.full{
+        width: 100vw;
+        padding: 0 10%;
+    }
+}
+
+ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}

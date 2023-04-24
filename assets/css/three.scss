@@ -1,0 +1,291 @@
+@import 'colors', 'fonts', 'basic', 'scrollbar', 'preloader';
+
+main{
+    section{
+
+        &.home{
+            canvas#homePage{
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: -1;
+            }
+        }
+    }
+}
+div#container{
+    width: inherit;
+    height: inherit;
+    position: relative;
+    z-index: 0;
+    &>canvas{
+        width: 100% !important;
+        height: 100% !important;
+        background-color: $white;
+    }
+    .backBtn{
+        position: absolute;
+        left: 15px;
+        top: 15px;
+        z-index: 2;
+        font-size: 15px;
+        font-weight: 500;
+        background-color: #fff;
+        color: #000;
+        border: none;
+        padding: 0 15px;
+        height: 35px;
+        cursor: pointer;
+        &:hover{
+            color: $white;
+            background-color: $bg;
+        }
+    }
+}
+ul.textures{
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    bottom: 10px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    list-style: none;
+    border: 1px solid #eee;
+    padding: 5px;
+    background-color: #fff;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.16);
+    overflow-y: auto;    
+    li{
+        margin: 0;
+        img{
+            width: 60px;
+            height: 60px;
+            margin: 0;
+            padding: 0;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;            
+            &:hover{
+                transform: scale(1.1,1.1);
+                z-index: 1;
+            }
+        }
+        
+    }
+}
+div.camera-positions{
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    z-index: 10;
+    button{
+        font-size: 14px;
+        font-weight: 600;
+        padding: 0 15px;
+        height: 22px;
+        border: none;
+        background-color: #073b4c;            
+        color: #fff;
+        cursor: pointer;
+    }
+}
+div.shoes-colors{
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    z-index: 10;
+    div{
+        width: 30px;
+        height: 22px;            
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 0 3px 5px rgba(0,0,0,0.25);
+        transition: 0.6s;
+        cursor: pointer;
+        &.active{
+            box-shadow: 0 0px 5px rgba(0,0,0,0.25);
+        }
+    }
+}
+
+div.shoes-texture{
+    position: absolute;
+    z-index: 10;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    background: #fff;
+    z-index: 10;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    div{
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+    }
+}
+.chairColorPicker{
+    position: absolute;
+    left: 50%;
+    z-index: 11;
+    bottom: 10px;
+    transform: translate(-50%);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    li{
+        padding: 0 10px;
+        input[class="colorPicker"]{
+            appearance: auto;
+            width: 50px;
+            height: 35px;
+            cursor: default;
+            box-sizing: border-box;
+            background-color: #fff;
+            color: #30b361;
+            border: 1px solid #ddd;
+            padding: 1px 2px;
+        }
+    }
+}
+.annotation {
+    font-family: Arial, Helvetica, sans-serif;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    margin-left: 15px;
+    margin-top: 15px;
+    padding: 1em;
+    max-width: 400px;
+    color: #000;
+    background: rgba(255,255, 255, 1);
+    border-radius: .5em;
+    font-size: 16px;
+    line-height: 1.2;
+    transition: opacity .5s;
+    &::before {
+        content: '1';
+        position: absolute;
+        color: #fff;
+        top: -30px;
+        left: -30px;
+        width: 30px;
+        height: 30px;
+        border: 2px solid rgba(255,255, 255, 0.5);
+        border-radius: 50%;
+        font-size: 16px;
+        line-height: 30px;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.4);
+    }
+}
+
+#number {
+    position: absolute;
+    z-index: -1;
+    width: 100vw;
+    height: 100vh;
+}
+
+.container {
+    width: 100vw;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .wrapper{
+        display: flex;
+        flex-wrap: nowrap;
+        width: 80vw;
+        height: 80vh;
+        background: $white;
+        &>canvas{            
+            //width: calc(100% - 120px) !important;
+            height: 100% !important;
+            background: bisque;
+        }
+        .content{            
+            width: 120px;
+            overflow: hidden;
+            padding: 10px;
+            display: none;
+            ul.texture{
+                display: flex;
+                gap: 10px;
+                flex-direction: column;
+                overflow: hidden;
+                overflow-y: auto;
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 200px;
+                li{
+                    width: 200px;
+                    height: 130px;
+                    img{
+                        width: inherit;
+                        height: inherit;
+                    }
+                }
+            }
+        }
+    }   
+}
+
+.webgl-canvas {
+position: fixed;
+top: 0;
+left: 0;
+width: 100vw;
+height: 100vh;
+z-index: -1;
+}
+
+.webgl-canvas__body {
+width: 100%;
+height: 100%;
+}
+
+.image-list {
+width: 800px;
+margin: 0 auto;
+padding: 180px 0;
+}
+
+.image-item {
+width: 100%;
+}
+
+.image-item:not(:first-of-type) {
+margin-top: 180px;
+}
+
+.image-wrapper {
+display: block;
+width: 100%;
+height: 500px;
+}
+
+.image-wrapper > img {
+height: 100%;
+object-fit: cover;
+opacity: 0;
+}
