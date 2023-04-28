@@ -456,6 +456,7 @@ div.shoes-texture div {
   background: #fff;
 }
 .container .wrapper > canvas {
+  width: calc(100% - 120px) !important;
   height: 100% !important;
   background: bisque;
 }
@@ -463,7 +464,6 @@ div.shoes-texture div {
   width: 120px;
   overflow: hidden;
   padding: 10px;
-  display: none;
 }
 .container .wrapper .content ul.texture {
   display: flex;

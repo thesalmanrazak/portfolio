@@ -1,0 +1,168 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v3.4.50",
+        "version" : "2.0"
+    },
+    "extensionsUsed" : [
+        "KHR_materials_specular",
+        "KHR_materials_ior"
+    ],
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "T_Shirt",
+            "rotation" : [
+                0.70710688829422,
+                0,
+                0,
+                0.7071066498756409
+            ],
+            "scale" : [
+                0.18337154388427734,
+                0.18337154388427734,
+                0.18337154388427734
+            ],
+            "translation" : [
+                0,
+                0.23415425419807434,
+                0
+            ]
+        }
+    ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "extensions" : {
+                "KHR_materials_specular" : {
+                    "specularColorFactor" : [
+                        0.011272727251052857,
+                        0.011272727251052857,
+                        0.011272727251052857
+                    ]
+                },
+                "KHR_materials_ior" : {
+                    "ior" : 0
+                }
+            },
+            "name" : "Material.002",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 0
+                },
+                "metallicFactor" : 0
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "T_Shirt",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "TEXCOORD_0" : 1,
+                        "NORMAL" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/png",
+            "name" : "texture1",
+            "uri" : "texture1.png"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 281816,
+            "max" : [
+                8.898161888122559,
+                5.658402442932129,
+                9.482810020446777
+            ],
+            "min" : [
+                -8.87333869934082,
+                -3.635397434234619,
+                -8.372689247131348
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 281816,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 281816,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5125,
+            "count" : 422724,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 3381792,
+            "byteOffset" : 0,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2254528,
+            "byteOffset" : 3381792,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 3381792,
+            "byteOffset" : 5636320,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1690896,
+            "byteOffset" : 9018112,
+            "target" : 34963
+        }
+    ],
+    "samplers" : [
+        {
+            "magFilter" : 9729,
+            "minFilter" : 9987
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 10709008,
+            "uri" : "tshirt1.bin"
+        }
+    ]
+}

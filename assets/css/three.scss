@@ -218,7 +218,7 @@ div.shoes-texture{
         height: 80vh;
         background: $white;
         &>canvas{            
-            //width: calc(100% - 120px) !important;
+            width: calc(100% - 120px) !important;
             height: 100% !important;
             background: bisque;
         }
@@ -226,7 +226,7 @@ div.shoes-texture{
             width: 120px;
             overflow: hidden;
             padding: 10px;
-            display: none;
+            //display: none;
             ul.texture{
                 display: flex;
                 gap: 10px;
