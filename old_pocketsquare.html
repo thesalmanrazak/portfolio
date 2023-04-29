@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Razak :|: Being creative mean be different...</title>
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+
+    <ul class="textures"></ul>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        //import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+        //import { LightProbeGenerator } from 'three/addons/lights/LightProbeGenerator.js';
+
+        const container = document.getElementById('container');
+        let camera, scene, renderer, controls, textureLoader, pocketsquare, grid;
+        let light, loader;
+
+        // Textures Array
+        var arabic = ['1-2.jpg', '2-2.jpg', '3-1.jpg', '4-1.jpg', '4-2.jpg', '5-1.jpg', '6-1.jpg', '8-2.jpg', '9-2.jpg', '10-1.jpg', 'extra-1.png', 'extra-2.png'], haroof = ['2-1.jpg', '2-2.jpg', '3-1.jpg', '3-2.jpg', '3-3.jpg', '3-4.jpg', '5-1.jpg', '5-2.jpg', '6-1.jpg', '7-1.jpg', '9-1.jpg', '9-2.jpg'], sufi = ['2-1.jpg', '2-2.jpg', '4-1.jpg', '4-2.jpg', '5-1.jpg', '7-1.jpg', '8-1.jpg', '8-2.jpg', '9-1.jpg', '9-2.jpg', '10-1.jpg', '10-2.jpg'], tabrizi = ['1-2.jpg', '3-1.jpg', '4-3.jpg', '5-3.jpg', '6-2.jpg', '8-2.jpg', '9-1.jpg', '10-1.jpg'];
+
+        jQuery(function($){
+            $.each(arabic, function (keyName, keyValue) {
+                $('.textures').append('<li data-texture="./assets/media/arabic/' + keyValue + '"><img src="assets/media/arabic/' + keyValue + '"></li>');            
+            });
+            $.each(haroof, function (keyName, keyValue) {
+                $('.textures').append('<li data-texture="./assets/media/haroof/' + keyValue + '"><img src="assets/media/haroof/' + keyValue + '"></li>');            
+            });
+            $.each(sufi, function (keyName, keyValue) {
+                $('.textures').append('<li data-texture="./assets/media/sufi/' + keyValue + '"><img src="assets/media/sufi/' + keyValue + '"></li>');            
+            });
+            $.each(tabrizi, function (keyName, keyValue) {
+                $('.textures').append('<li data-texture="./assets/media/tabrizi/' + keyValue + '"><img src="assets/media/tabrizi/' + keyValue + '"></li>');            
+            });
+        });
+
+        function init(){
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0xffffff );
+
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set( 0, 5, 8);
+
+            // renderer
+            renderer = new THREE.WebGLRenderer( { antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            //light = new THREE.AmbientLight( 0xffffff, 0.5 ); // soft white light
+            //scene.add( light );
+
+            const Hemisphere = new THREE.HemisphereLight( 0xffffff, 0xffffff, 2 );
+            scene.add( Hemisphere );
+
+            const spotLight = new THREE.SpotLight( 0xffffff );
+            spotLight.position.set( 100, 1500, 100 );
+
+            spotLight.castShadow = true;
+
+            spotLight.shadow.bias = - 0.000222;
+            spotLight.angle = Math.PI * 0.2;
+            spotLight.shadow.mapSize.width = 1024;
+            spotLight.shadow.mapSize.height = 1024;
+
+            spotLight.shadow.camera.near = 10;
+            spotLight.shadow.camera.far = 500;
+            //spotLight.shadow.camera.fov = 100;
+
+            scene.add( spotLight );
+
+            new GLTFLoader().load( './assets/models/pocketsquare.gltf', function ( gltf ) {
+                pocketsquare = gltf.scene;
+                gltf.scene.traverse( function( node ) {
+                    if ( node.isMesh ) {
+                        node.castShadow = true;
+                    }
+                } );
+                pocketsquare.position.set(0,0.75,0);
+                pocketsquare.scale.set(0.5,0.5,0.5);
+                scene.add( pocketsquare );                
+                animate();
+            } );
+
+            const planeGeometry = new THREE.PlaneGeometry( 2000, 2000 );
+            planeGeometry.rotateX( - Math.PI / 2 );
+            const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.5 } );
+
+            const plane = new THREE.Mesh( planeGeometry, planeMaterial );
+            plane.position.y = -0.1;
+            plane.receiveShadow = true;
+            plane.castShadow = true;
+            scene.add( plane );
+            console.log(plane);
+
+            // controls
+            controls = new OrbitControls(camera, renderer.domElement);
+            //controls.enableDamping = true;
+            //controls.minDistance = 2;
+            //controls.maxDistance = 8;
+            //controls.enablePan = true;
+            controls.update();
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        
+        init();
+
+        function animate() {
+            
+            requestAnimationFrame( animate );            
+            renderer.render( scene, camera );
+            
+            controls.update();
+        }
+        
+        animate();
+
+        $('.textures li').on('click', function () {
+            //texture1 = $(this).data('texture');
+            //var text = './assets/images/arabic/'+$(this).data('texture');                
+            var text = $(this).data('texture');                
+            texture = textureLoader.load(text, texture => {
+                texture.flipY = false
+            });
+            obj.children[1].material.map = texture;
+            obj.matrixAutoUpdate  = false;
+            obj.updateMatrix();
+            //console.log(obj.children[1].material.map.image);
+            //console.log(text);            
+        });
+
+    </script>
+
+</body>
+</html>

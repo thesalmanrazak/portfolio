@@ -28,6 +28,7 @@
 
         const container = document.getElementById('container');
         let scene, camera, renderer, controls, light, hemiLight, moon, stars, particleSystem;
+        let texture = new THREE.TextureLoader();
 
         function init(){
             scene = new THREE.Scene(); // scene.background = new THREE.Color( 144,144,144 );
@@ -40,87 +41,72 @@
             renderer.setSize( window.innerWidth, window.innerHeight );
             container.appendChild( renderer.domElement );
 
-            light = new THREE.DirectionalLight(0xFFFFFF, 1);
-            light.position.set(-50,20,20);
+            lights(1,-20,20,20,0);
+            moonPlanet(1);
+            starsGeometry();
+            
+            controls = new OrbitControls( camera, renderer.domElement );
+            
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function starsGeometry(){
+            const radius = 200, particles = 10000, positions = [], colors = [], sizes = [], color = new THREE.Color();
+            const geometry = new THREE.BufferGeometry();
+            for ( let i = 0; i < particles; i ++ ) {
+                positions.push( ( Math.random() * 1.5 - 1 ) * radius );
+                positions.push( ( Math.random() * 1.5 - 1 ) * radius );
+                positions.push( ( Math.random() * 1.5 - 1 ) * radius );
+                color.setHSL( i / particles, 1.0, 0.5 );
+                colors.push( color.r, color.g, color.b );
+                sizes.push( 20 );
+            }
+            geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+            geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+            geometry.setAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1 ).setUsage( THREE.DynamicDrawUsage ) );
+            const material = new THREE.PointsMaterial({
+                size: 0.001,
+                alphaMap: new THREE.TextureLoader().load( './assets/media/lensflare/star.png' ),
+                map: new THREE.TextureLoader().load( './assets/media/lensflare/star.png' ),
+                color: 0xffffff,
+                transparent: true
+            });
+            particleSystem = new THREE.Points( geometry, material );
+            scene.add( particleSystem );
+        }
+
+        function moonPlanet(radius){
+                const moonSphare = new THREE.SphereGeometry( radius, 64, 128);
+                const moonMaterial = new THREE.MeshStandardMaterial ({
+                    color: 0xffffff,
+                    map: texture.load('./assets/media/moon/lroc_color_poles_2k.png'),                
+                    displacementScale: 0.01,
+                    displacementMap: texture.load('./assets/media/moon/ldem_4_uint.png'),
+                    bumpMap: texture.load('./assets/media/moon/ldem_4_uint.png'),
+                    bumpScale: 0.04,
+                });
+                moon = new THREE.Mesh( moonSphare, moonMaterial );
+                moon.scale.set(1.5,1.5,1.5)
+                moon.rotation.x = 3.1415*0.02;
+                moon.rotation.y = 3.1415*1.54;
+                scene.add( moon );
+            }
+
+        function lights(intensity,x,y,z,showHelper){
+            light = new THREE.DirectionalLight(0xFFFFFF, intensity);
+            light.position.set(x,y,z);
             scene.add(light);
-            const helper = new THREE.DirectionalLightHelper( light, 5 );
-            //scene.add( helper );
 
             hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.1 );
             hemiLight.color.setHSL( 0.6, 1, 0.6 );
             hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
             hemiLight.position.set( 0, 0, 0 );
             scene.add( hemiLight );
-            const hemihelper = new THREE.HemisphereLightHelper( hemiLight, 5 );
-            //scene.add( hemihelper );
 
-            const moonSphare = new THREE.SphereGeometry( 1, 64, 128);
-            const moonMaterial = new THREE.MeshStandardMaterial ({
-                color: 0xffffff,
-                map: new THREE.TextureLoader().load('./assets/media/moon/lroc_color_poles_2k.png'),                
-                displacementScale: 0.01,
-                displacementMap: new THREE.TextureLoader().load('./assets/media/moon/ldem_4_uint.png'),
-                bumpMap: new THREE.TextureLoader().load('./assets/media/moon/ldem_4_uint.png'),
-                bumpScale: 0.04,
-            });
-            moon = new THREE.Mesh( moonSphare, moonMaterial );
-            moon.scale.set(1.5,1.5,1.5)
-            moon.rotation.x = 3.1415*0.02;
-            moon.rotation.y = 3.1415*1.54;
-            scene.add( moon );
-            
-            const radius = 200;
-            const particles = 10000;
-
-            const geometry = new THREE.BufferGeometry();
-
-            const positions = [];
-            const colors = [];
-            const sizes = [];
-
-            const color = new THREE.Color();
-
-            for ( let i = 0; i < particles; i ++ ) {
-
-                positions.push( ( Math.random() * 1.5 - 1 ) * radius );
-                positions.push( ( Math.random() * 1.5 - 1 ) * radius );
-                positions.push( ( Math.random() * 1.5 - 1 ) * radius );
-
-                color.setHSL( i / particles, 1.0, 0.5 );
-
-                colors.push( color.r, color.g, color.b );
-
-                sizes.push( 20 );
-
+            if(showHelper == 1){
+                scene.add( new THREE.DirectionalLightHelper( light, 5 ) );
+                scene.add( new THREE.HemisphereLightHelper( hemiLight, 5 ) );
             }
-
-            geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-            //geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-            //geometry.setAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1 ).setUsage( THREE.DynamicDrawUsage ) );
-            const material = new THREE.PointsMaterial({
-                size: 0.001,
-                //color: 0xffffff,
-                alphaMap: new THREE.TextureLoader().load('./assets/media/moon/star.png'),
-                map: new THREE.TextureLoader().load('./assets/media/moon/star.png'),
-            });
-            particleSystem = new THREE.Points( geometry, material );
-            scene.add( particleSystem );
-
-
-
-
-
-
-
-
-            
-            controls = new OrbitControls( camera, renderer.domElement );
-            controls.autoRotate = false;
-            controls.enableDamping = false;
-            controls.dampingFactor = 0.3;
-            controls.enablePan = true;
-            
-            window.addEventListener('resize', onWindowResize);
         }
 
         function onWindowResize() {

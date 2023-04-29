@@ -30,7 +30,7 @@
         const container = document.getElementById('container');
         var camera, scene, renderer, controls, mesh, start = Date.now();
         let uniforms;
-        let sun, earth;
+        let sun, earth, stars;
 
         let texture = new THREE.TextureLoader();
 
@@ -193,18 +193,29 @@
         }
 
         function starsGeometry(){
+            const radius = 2000, particles = 10000, starVertices = [], colors = [], sizes = [], color = new THREE.Color();
             const starGeometry = new THREE.BufferGeometry();
-            const starVertices = [];
-            for(let i = 0; i < 10000; i++){
-                const x = (Math.random() - 0.5) * 2000;
-                const y = (Math.random() - 0.5) * 2000;
-                const z = (Math.random() - 0.5) * 2000;
+            for ( let i = 0; i < particles; i ++ ) {
+                const x = ( Math.random() * 1.5 - 1 ) * radius;
+                const y = ( Math.random() * 1.5 - 1 ) * radius;
+                const z = ( Math.random() * 1.5 - 1 ) * radius;
                 starVertices.push(x,y,z);
+                color.setHSL( i / particles, 1.0, 0.5 );
+                colors.push( color.r, color.g, color.b );
+                sizes.push( 20 );
             }
             starGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute(starVertices, 3) );
-            starGeometry.setAttribute( 'size', new THREE.Float32BufferAttribute(starVertices, 3) );
-            const stars = new THREE.Points( starGeometry, new THREE.PointsMaterial({ color: 0xffffff, /* map: new THREE.TextureLoader().load('./assets/media/lensflare/lensflare0_alpha.png'), */ }) );
-            scene.add(stars);
+            starGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+            starGeometry.setAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 0.5 ).setUsage( THREE.DynamicDrawUsage ) );
+            stars = new THREE.Points( starGeometry, new THREE.PointsMaterial({
+                size: 0.001,
+                alphaMap: new THREE.TextureLoader().load( './assets/media/lensflare/star.png' ),
+                map: new THREE.TextureLoader().load( './assets/media/lensflare/star.png' ),
+                color: 0xffffff,
+                transparent: true
+            }) );
+            scene.add( stars );
+            
         }
 
         function onWindowResize() {
@@ -240,6 +251,8 @@
 
             renderer.render( scene, camera );
             requestAnimationFrame( animate );
+
+            stars.rotation.y -= 0.0005;
 
             theta -= dTheta;
 

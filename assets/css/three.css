@@ -274,6 +274,29 @@ div#container .backBtn:hover {
   color: #fff;
   background-color: #fe2b01;
 }
+div#container ul.leather {
+  position: fixed;
+  z-index: 10;
+  display: flex;
+  gap: 5px;
+  flex-direction: column;
+  overflow: hidden;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  width: 100px;
+  top: 40px;
+  right: 40px;
+  bottom: 40px;
+}
+div#container ul.leather li {
+  width: inherit;
+  height: auto;
+}
+div#container ul.leather li img {
+  width: inherit;
+  height: inherit;
+}
 
 ul.textures {
   margin: 0;
@@ -447,42 +470,6 @@ div.shoes-texture div {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-.container .wrapper {
-  display: flex;
-  flex-wrap: nowrap;
-  width: 80vw;
-  height: 80vh;
-  background: #fff;
-}
-.container .wrapper > canvas {
-  width: calc(100% - 120px) !important;
-  height: 100% !important;
-  background: bisque;
-}
-.container .wrapper .content {
-  width: 120px;
-  overflow: hidden;
-  padding: 10px;
-}
-.container .wrapper .content ul.texture {
-  display: flex;
-  gap: 10px;
-  flex-direction: column;
-  overflow: hidden;
-  overflow-y: auto;
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 200px;
-}
-.container .wrapper .content ul.texture li {
-  width: 200px;
-  height: 130px;
-}
-.container .wrapper .content ul.texture li img {
-  width: inherit;
-  height: inherit;
 }
 
 .webgl-canvas {

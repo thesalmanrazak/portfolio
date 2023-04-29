@@ -6,14 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salman Razak :|: Being creative mean be different...</title>
     <link rel="stylesheet" href="./assets/css/three.css">
+    <style>
+        body{
+            background: linear-gradient(to bottom, #d6d6d6 0%,#c5c5c5 100%);
+        }
+        canvas{
+            background: transparent !important;
+        }
+    </style>
 </head>
 <body>
 
-    <ul class="textures"></ul>
-
-    <div id="container">
-        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
-    </div>
+<div id="container">
+    <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+</div>
 
     <script src="./assets/js/jquery.js"></script>
     <script type="importmap">
@@ -28,124 +34,190 @@
     <script type="module">
         import * as THREE from 'three';
 
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';        
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-        import { LightProbeGenerator } from 'three/addons/lights/LightProbeGenerator.js';
+
+        THREE.ColorManagement.enabled = false;
 
         const container = document.getElementById('container');
-        let camera, scene, renderer, controls, textureLoader, obj, grid;
-        let light, loader;
 
-        // Textures Array
-        var arabic = ['1-2.jpg', '2-2.jpg', '3-1.jpg', '4-1.jpg', '4-2.jpg', '5-1.jpg', '6-1.jpg', '8-2.jpg', '9-2.jpg', '10-1.jpg', 'extra-1.png', 'extra-2.png'], haroof = ['2-1.jpg', '2-2.jpg', '3-1.jpg', '3-2.jpg', '3-3.jpg', '3-4.jpg', '5-1.jpg', '5-2.jpg', '6-1.jpg', '7-1.jpg', '9-1.jpg', '9-2.jpg'], sufi = ['2-1.jpg', '2-2.jpg', '4-1.jpg', '4-2.jpg', '5-1.jpg', '7-1.jpg', '8-1.jpg', '8-2.jpg', '9-1.jpg', '9-2.jpg', '10-1.jpg', '10-2.jpg'], tabrizi = ['1-2.jpg', '3-1.jpg', '4-3.jpg', '5-3.jpg', '6-2.jpg', '8-2.jpg', '9-1.jpg', '10-1.jpg'];
+        let scene, camera, controls, renderer, pocketsquare;
+        let light, ambient;
+        let spotLight, lightHelper;
 
-        jQuery(function($){
-            $.each(arabic, function (keyName, keyValue) {
-                $('.textures').append('<li data-texture="./assets/media/arabic/' + keyValue + '"><img src="assets/media/arabic/' + keyValue + '"></li>');            
-            });
-            $.each(haroof, function (keyName, keyValue) {
-                $('.textures').append('<li data-texture="./assets/media/haroof/' + keyValue + '"><img src="assets/media/haroof/' + keyValue + '"></li>');            
-            });
-            $.each(sufi, function (keyName, keyValue) {
-                $('.textures').append('<li data-texture="./assets/media/sufi/' + keyValue + '"><img src="assets/media/sufi/' + keyValue + '"></li>');            
-            });
-            $.each(tabrizi, function (keyName, keyValue) {
-                $('.textures').append('<li data-texture="./assets/media/tabrizi/' + keyValue + '"><img src="assets/media/tabrizi/' + keyValue + '"></li>');            
-            });
-        });
+        init();
 
         function init(){
             scene = new THREE.Scene();
-            scene.background = new THREE.Color( 0xffffff );
+            scene.background = new THREE.Color( 0xf7f7f7 );
+			//scene.fog = new THREE.Fog( 0x443333, 0.2, 0.5 );
 
-            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set( 0, 5, 8);
+            camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
+			camera.position.set( 0, 6, 12 );
 
-            // renderer
-            renderer = new THREE.WebGLRenderer( { antialias: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer = new THREE.WebGLRenderer( { antialias: true } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );            
+            container.appendChild( renderer.domElement );
+
             renderer.shadowMap.enabled = true;
-            container.appendChild(renderer.domElement);
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-            //light = new THREE.AmbientLight( 0xffffff, 0.5 ); // soft white light
-            //scene.add( light );
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1;
 
-            const Hemisphere = new THREE.HemisphereLight( 0xffffff, 0xffffff, 2 );
-            scene.add( Hemisphere );
+            ambient = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.05 );
+			scene.add( ambient );
 
-            const spotLight = new THREE.SpotLight( 0xffffff );
-            spotLight.position.set( 100, 1500, 100 );
+            const loader = new THREE.TextureLoader().setPath( './assets/media/pocketsquare/' );
+            const filenames = [ '01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg', '07.jpg', '08.jpg', '09.jpg', '10.jpg', '11.jpg', '12.jpg', '13.jpg', '14.jpg', '15.jpg', '16.jpg', '17.jpg', '18.jpg', '19.jpg', '20.jpg', '21.jpg', '22.jpg', '23.jpg', '24.jpg', '25.jpg', '26.jpg', '27.jpg', '28.jpg', '29.jpg', '30.jpg', '31.jpg', '32.jpg', '33.jpg', '34.jpg', '35.jpg', '36.jpg', '37.jpg', '38.jpg', '39.jpg', '40.jpg', '41.jpg', '42.jpg', '43.jpg' ];
+            const textures = { none: null }
+            const hdriPath = './assets/hdri/';
+            const hdrifiles = [ 'industrial_sunset_puresky_4k.hdr', 'snow_field_2_puresky_4k.hdr' ];
+            const hdris = { none: null }
 
-            spotLight.castShadow = true;
+            const mat = new THREE.MeshStandardMaterial({
+                //map: loader.load( filenames[0] )
+                map: loader.load(loader.load( filenames[0] ), texture => {
+                    texture.flipY = false
+                })
+            })
 
-            spotLight.shadow.bias = - 0.000222;
-            spotLight.angle = Math.PI * 0.2;
-            spotLight.shadow.mapSize.width = 1024;
-            spotLight.shadow.mapSize.height = 1024;
+            scene.add( new THREE.AmbientLight( 0x404040 ) );
+            scene.add( new THREE.HemisphereLight( 0xffffff, 0xaaaaaa, 1 ) );
+            sceneLight(0);
 
-            spotLight.shadow.camera.near = 10;
-            spotLight.shadow.camera.far = 500;
-            //spotLight.shadow.camera.fov = 100;
+            new RGBELoader().load( './assets/hdri/'+ hdrifiles[0], function ( texture ) {
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+                scene.background = texture;
+                scene.environment = texture;
+                texture.dispose();
+            });
+            //changeHDRI();
+            function changeHDRI(hdris) {                
+                new RGBELoader().load( hdris, function ( texture ) {
+                    texture.mapping = THREE.EquirectangularReflectionMapping;
+                    scene.background = texture;
+                    scene.environment = texture;
+                    texture.dispose();
+                    console.log(scene);
+                });
+            }
 
-            scene.add( spotLight );
-
-            loader = new GLTFLoader().setPath( 'assets/models/' );
-            loader.load( 'pocketsquare.gltf', function ( gltf ) {
-                obj = gltf.scene;
-                gltf.scene.traverse( function( node ) {
-                    if ( node.isMesh ) { node.castShadow = true; }
+            new GLTFLoader().load('./assets/models/pocketsquare.gltf', function(gltf){
+                
+                pocketsquare = gltf.scene;
+                pocketsquare.traverse( function ( o ) {
+                    if ( o.material ) {
+                        o.material.map = loader.load( filenames[0] );
+                    }
                 } );
-                obj.position.set(0,0.75,0);
-                obj.scale.set(0.5,0.5,0.5);
-                scene.add( gltf.scene );                
-                animate();
+                //pocketsquare.scale.set(2,2,2);
+                pocketsquare.position.set(0,0,0);
+                pocketsquare.castShadow = true;
+                pocketsquare.receiveShadow = true;
+                scene.add( pocketsquare );
+
+            }, function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            }, function ( error ) {
+                console.log( 'An error happened' );
+            });
+
+            for ( let i = 0; i < hdrifiles.length; i ++ ) {
+                const filename = hdrifiles[ i ];
+                const hdri = './assets/hdri/'+ filename;
+                hdris[ filename ] = hdri;
+            }
+
+            for ( let i = 0; i < filenames.length; i ++ ) {
+                const filename = filenames[ i ];
+                const texture = loader.load( filename );
+                texture.minFilter = THREE.LinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                texture.colorSpace = THREE.SRGBColorSpace;
+                textures[ filename ] = texture;
+            }
+
+            const gui = new GUI();
+
+            const params = {
+                hdri: hdris['industrial_sunset_puresky_4k.hdr'],
+                pocketsquare: textures[ '01.jpg' ],
+                shadows: true
+            };
+
+            gui.add( params, 'hdri', hdris).onChange( function ( val ) {
+                changeHDRI(val);
             } );
 
-            const planeGeometry = new THREE.PlaneGeometry( 2000, 2000 );
-            planeGeometry.rotateX( - Math.PI / 2 );
-            const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.1 } );
+            gui.add( params, 'pocketsquare', textures ).onChange( function ( val ) {
+                pocketsquare.traverse( function ( o ) {
+                    if ( o.material ) {
+                        o.material.map = val;
+                    }
+                } );
+            } );
 
-            const plane = new THREE.Mesh( planeGeometry, planeMaterial );
-            plane.position.y = -2;
-            plane.receiveShadow = true;
-            plane.castShadow = true;
-            scene.add( plane );
-            console.log(plane);
+            gui.add( params, 'shadows' ).onChange( function ( val ) {
+                renderer.shadowMap.enabled = val;
+                bandana.traverse( function ( o ) {
+                    if ( o.material ) {
+                        o.material.needsUpdate = true;
+                    }
+                } );
+            } );
 
-            // controls
-            controls = new OrbitControls(camera, renderer.domElement);
-            //controls.enableDamping = true;
-            //controls.minDistance = 2;
-            //controls.maxDistance = 8;
-            //controls.enablePan = true;
+            gui.open();
+
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.minDistance = 4;
+            controls.maxDistance = 50;
+            controls.maxPolarAngle = Math.PI / 2; //controls.target.set( 0, 15, 10 );
             controls.update();
 
             window.addEventListener('resize', onWindowResize);
         }
 
-        function onWindowResize() {
+        function sceneLight(show){
+            spotLight = new THREE.SpotLight( 0xffffff, 5 );
+            spotLight.position.set( 0, 50, 25 );
+            spotLight.angle = Math.PI / 6;
+            spotLight.penumbra = 1;
+            spotLight.decay = 2;
+            spotLight.distance = 100;
 
+            spotLight.castShadow = true;
+            spotLight.shadow.mapSize.width = 1024;
+            spotLight.shadow.mapSize.height = 1024;
+            spotLight.shadow.camera.near = 10;
+            spotLight.shadow.camera.far = 200;
+            spotLight.shadow.focus = 1;
+            scene.add( spotLight );
+            if(show == 1){
+                lightHelper = new THREE.SpotLightHelper( spotLight );
+                scene.add( lightHelper );
+            }
+        }
+
+        function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-
-            renderer.setSize(window.innerWidth, window.innerHeight);
-
+            renderer.setSize( window.innerWidth, window.innerHeight );            
         }
-        
-        init();
 
         function animate() {
-            
-            requestAnimationFrame( animate );            
+            requestAnimationFrame( animate );
             renderer.render( scene, camera );
-            
-            controls.update();
+            pocketsquare.rotation.y += 0.001;
+            if(controls){
+                controls.update();
+            }            
         }
-        
         animate();
+
     </script>
 
 </body>

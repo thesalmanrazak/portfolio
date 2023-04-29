@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Razak :|: Being creative mean be different...</title>
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+        <ul class="leather">
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-oeIsbzZUpV.jpg" data-color="./assets/models/Material_baseColor1.jpeg" alt=""></li>
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-CLYZ5sc9Ty.jpg" data-color="./assets/models/Material_baseColor2.jpeg" alt=""></li>
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-1f8wN6LOvJ.jpg" data-color="./assets/models/Material_baseColor1.jpeg" alt=""></li>
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-lR7jbgUyLs.jpg" data-color="./assets/models/Material_baseColor2.jpeg" alt=""></li>
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-mNL4Hk3UjD.jpg" data-color="./assets/models/Material_baseColor1.jpeg" alt=""></li>
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-BL9sE7jHnl.jpg" data-color="./assets/models/Material_baseColor2.jpeg" alt=""></li>
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-Y8XkT29GQe.jpg" data-color="./assets/models/Material_baseColor1.jpeg" alt=""></li>
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-3EjIyQUpHf.jpg" data-color="./assets/models/Material_baseColor2.jpeg" alt=""></li>
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-ntxSqrD5aI.jpg" data-color="./assets/models/Material_baseColor1.jpeg" alt=""></li>
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-QzgMWL7doR.jpg" data-color="./assets/models/Material_baseColor2.jpeg" alt=""></li>
+            <li><img src="./assets/media/leather/dl.beatsnoop.com-3000-9GRzbvUsBn.jpg" data-color="./assets/models/Material_baseColor2.jpeg" alt=""></li>
+        </ul>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        import { OrbitControls } from './assets/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from './assets/jsm/loaders/GLTFLoader.js';
+        import { RGBELoader } from './assets/jsm/loaders/RGBELoader.js';
+
+        const wrapper = document.querySelector('.wrapper');
+        let camera, scene, renderer, controls, sofa, plane;
+        let light;
+
+        function init(){
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog( 0xff0000, 10, 15 );
+
+            renderer = new THREE.WebGLRenderer( { antialias: true, /*alpha: true*/ } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight ); //renderer.setAnimationLoop( animate );
+            renderer.shadowMap.enabled = true;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            container.appendChild( renderer.domElement );
+            
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 2000); //camera.rotation.y = 45/180*Math.PI;
+            camera.position.set(0,2,4.5);
+
+            const light = new THREE.HemisphereLight( 0xffffff, 0xaaaaaa, 0.75);
+            scene.add( light );
+
+            const dirLight = new THREE.DirectionalLight( 0xffffff, 0.1 );
+            //dirLight.color.setHSL( 0.1, 1, 0.95 );
+            dirLight.position.set( 4, 4, 4 );
+            //dirLight.position.multiplyScalar( 30 );
+            dirLight.castShadow = true;
+            scene.add( dirLight );
+            
+            /*
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+
+            const d = 200;
+            dirLight.shadow.camera.left = - d;
+            dirLight.shadow.camera.right = d;
+            dirLight.shadow.camera.top = d;
+            dirLight.shadow.camera.bottom = - d;
+
+            dirLight.shadow.camera.far = 35000;
+            dirLight.shadow.bias = - 0.0001;
+            */
+
+            //scene.add( new THREE.DirectionalLightHelper( dirLight, 5 ) );
+            
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.enablePan = true;
+            //controls.enableZoom = false;
+            controls.enableDamping = true;
+
+            new GLTFLoader().load( './assets/models/sofa.gltf', function ( gltf ) {
+                sofa = gltf.scene;
+                sofa.traverse( function( node ){
+                    if ( node.isMesh ) {
+                        node.castShadow = true;
+                        node.receiveShadow = true;
+                    }
+                });
+                //sofa.scale.set(0.03,0.03,0.03)
+                sofa.position.set(0,0,0);
+                sofa.rotation.y = -0.5;
+                scene.add(sofa);
+                console.log(sofa);
+            
+                const planeGeometry = new THREE.PlaneGeometry( 1000, 1000 );
+                planeGeometry.rotateX( - Math.PI / 2 );
+                const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.5 } );
+                
+                plane = new THREE.Mesh( planeGeometry, planeMaterial );
+                plane.position.y =  sofa.position.y - 1 ;
+                plane.receiveShadow = true;
+                scene.add( plane );
+
+            }, function ( xhr ) {
+                //console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+            // called when loading has errors
+            function ( error ) {
+                console.log( 'An error happened' );
+            } );
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        init();
+
+        function animate() {
+            requestAnimationFrame( animate );
+            renderer.render( scene, camera );
+            if(controls){
+                controls.update();
+            }            
+        }
+        
+        animate();
+
+        $(function(){
+            $('ul.leather li img').on('click', function(e){
+                
+                var texturex = $(this).attr('src');
+                const texture = new THREE.TextureLoader().load(texturex, texture => {
+                    texture.flipY = true;
+                    texture.wrapS = THREE.RepeatWrapping;
+                    texture.wrapT = THREE.RepeatWrapping;
+                    texture.repeat.set( 0.5, 0.25 );
+                });
+                var newMaterial = new THREE.MeshStandardMaterial({
+                    //color: 0xff0000,
+                    map: new THREE.TextureLoader().load(texturex, texture => {
+                        texture.flipY = false;
+                        texture.wrapS = THREE.RepeatWrapping;
+                        texture.wrapT = THREE.RepeatWrapping;
+                        texture.repeat.set( 1, 1 );
+                    })
+                });
+                sofa.traverse(function (node) {
+                    if (node.isMesh) {
+                        //node.material.color = new THREE.Color( 0xff00f0 );
+                        node.material = newMaterial;
+                    }
+                });
+                sofa.updateMatrix();
+            });
+        })
+    </script>
+    
+</body>
+</html>
