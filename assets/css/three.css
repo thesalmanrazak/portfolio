@@ -187,6 +187,22 @@ ul {
   padding: 0;
 }
 
+@media (min-width: 320px) and (max-width: 768px) {
+  header a.logo {
+    font-size: 1.25rem;
+  }
+  header a.menu {
+    font-size: 1rem;
+  }
+  footer {
+    position: fixed;
+    flex-direction: column;
+    justify-content: center;
+  }
+  aside a {
+    font-size: 3em;
+  }
+}
 *::-webkit-scrollbar {
   background: #fff;
   width: 8px;
