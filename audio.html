@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Razak :|: Being creative mean be different...</title>
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<body>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const container = document.getElementById('container');
+        let cube, scene, camera, renderer, analyser, loader, listener, format, data, bufferLength, dataArray, sound, audioLoader, audio, salman;
+        let mesh;
+        let file = './assets/sounds/02.mp3';
+        let fftSize = 128;
+        
+        init().then( animate );
+        async function init(){
+             
+            scene = new THREE.Scene();
+            
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+            camera.position.z = 8;
+            
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            container.appendChild( renderer.domElement );
+            
+            listener = new THREE.AudioListener();
+
+            audio = new THREE.Audio( listener );
+
+            loader = new THREE.AudioLoader();
+            loader.load( file, function ( buffer ) {
+
+                audio.setBuffer( buffer );
+                audio.setLoop( true );
+	            audio.setVolume( 0.5 );
+                audio.play();
+
+            } );
+
+            analyser = new THREE.AudioAnalyser( audio, fftSize );
+
+            bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+
+            salman = new THREE.DataTexture( analyser.data, fftSize / 2, 1, format );
+
+            var theLength = salman.source.data.data.length;
+
+            var pos = 0.1;
+
+            const geo = new THREE.IcosahedronGeometry(2.5, 1);
+            const material = new THREE.MeshBasicMaterial( {
+                color: 0x555555,
+                side: THREE.DoubleSide,
+                //wireframe: true
+            } );
+            mesh = new THREE.Mesh( geo, material );
+            scene.add( mesh );
+
+            /*
+            for(let i = 0; i <= theLength; i++){
+                const geometry = new THREE.BoxGeometry( 0.1,1,0.1 );
+                const material = new THREE.MeshNormalMaterial();
+                cube = new THREE.Mesh( geometry, material );
+                //cube.rotation.set(1,1,1);
+                cube.position.x = cube.position.x + pos;
+                cube.name = 'cube'+pos;
+                scene.add( cube );
+                pos=pos + 0.15;
+            }
+            */
+            console.log(scene.children);
+
+            const controls = new OrbitControls( camera, renderer.domElement );
+            //console.log(mesh.geometry.attributes.position);
+            console.log(mesh);
+
+            window.addEventListener('resize', onWindowResize);
+        }
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        var divide = 250;
+
+        function animate() {
+            requestAnimationFrame( animate ); 
+            analyser.getFrequencyData(dataArray);
+            mesh.material.color.r = salman.source.data.data[0]/divide;
+            mesh.material.color.g = salman.source.data.data[1]/divide;
+            mesh.material.color.b = salman.source.data.data[2]/divide;
+            /*
+            scene.children[0].scale.y = salman.source.data.data[0]/divide;
+            scene.children[1].scale.y = salman.source.data.data[1]/divide;
+            scene.children[2].scale.y = salman.source.data.data[2]/divide;
+            scene.children[3].scale.y = salman.source.data.data[3]/divide;
+            scene.children[4].scale.y = salman.source.data.data[4]/divide;
+            scene.children[5].scale.y = salman.source.data.data[5]/divide;
+            scene.children[6].scale.y = salman.source.data.data[6]/divide;
+            scene.children[7].scale.y = salman.source.data.data[7]/divide;
+            scene.children[8].scale.y = salman.source.data.data[8]/divide;
+            scene.children[9].scale.y = salman.source.data.data[9]/divide;
+            scene.children[10].scale.y = salman.source.data.data[10]/divide;
+            scene.children[11].scale.y = salman.source.data.data[11]/divide;
+            scene.children[12].scale.y = salman.source.data.data[12]/divide;
+            scene.children[13].scale.y = salman.source.data.data[13]/divide;
+            scene.children[14].scale.y = salman.source.data.data[14]/divide;
+            scene.children[15].scale.y = salman.source.data.data[15]/divide;
+            scene.children[16].scale.y = salman.source.data.data[16]/divide;
+            scene.children[17].scale.y = salman.source.data.data[17]/divide;
+            scene.children[18].scale.y = salman.source.data.data[18]/divide;
+            scene.children[19].scale.y = salman.source.data.data[19]/divide;
+            scene.children[20].scale.y = salman.source.data.data[20]/divide;
+            scene.children[21].scale.y = salman.source.data.data[21]/divide;
+            scene.children[22].scale.y = salman.source.data.data[22]/divide;
+            scene.children[23].scale.y = salman.source.data.data[23]/divide;
+            scene.children[24].scale.y = salman.source.data.data[24]/divide;
+            scene.children[25].scale.y = salman.source.data.data[25]/divide;
+            scene.children[26].scale.y = salman.source.data.data[26]/divide;
+            scene.children[27].scale.y = salman.source.data.data[27]/divide;
+            scene.children[28].scale.y = salman.source.data.data[28]/divide;
+            scene.children[29].scale.y = salman.source.data.data[29]/divide;
+            scene.children[30].scale.y = salman.source.data.data[30]/divide;
+            scene.children[31].scale.y = salman.source.data.data[31]/divide;
+            scene.children[32].scale.y = salman.source.data.data[32]/divide;
+            scene.children[33].scale.y = salman.source.data.data[33]/divide;
+            scene.children[34].scale.y = salman.source.data.data[34]/divide;
+            scene.children[35].scale.y = salman.source.data.data[35]/divide;
+            scene.children[36].scale.y = salman.source.data.data[36]/divide;
+            scene.children[37].scale.y = salman.source.data.data[37]/divide;
+            scene.children[38].scale.y = salman.source.data.data[38]/divide;
+            scene.children[39].scale.y = salman.source.data.data[39]/divide;
+            scene.children[40].scale.y = salman.source.data.data[40]/divide;
+            scene.children[41].scale.y = salman.source.data.data[41]/divide;
+            scene.children[42].scale.y = salman.source.data.data[42]/divide;
+            scene.children[43].scale.y = salman.source.data.data[43]/divide;
+            scene.children[44].scale.y = salman.source.data.data[44]/divide;
+            scene.children[45].scale.y = salman.source.data.data[45]/divide;
+            scene.children[46].scale.y = salman.source.data.data[46]/divide;
+            scene.children[47].scale.y = salman.source.data.data[47]/divide;
+            scene.children[48].scale.y = salman.source.data.data[48]/divide;
+            scene.children[49].scale.y = salman.source.data.data[49]/divide;
+            scene.children[50].scale.y = salman.source.data.data[50]/divide;
+            scene.children[51].scale.y = salman.source.data.data[51]/divide;
+            scene.children[52].scale.y = salman.source.data.data[52]/divide;
+            scene.children[53].scale.y = salman.source.data.data[53]/divide;
+            scene.children[54].scale.y = salman.source.data.data[54]/divide;
+            scene.children[55].scale.y = salman.source.data.data[55]/divide;
+            scene.children[56].scale.y = salman.source.data.data[56]/divide;
+            scene.children[57].scale.y = salman.source.data.data[57]/divide;
+            scene.children[58].scale.y = salman.source.data.data[58]/divide;
+            scene.children[59].scale.y = salman.source.data.data[59]/divide;
+            scene.children[60].scale.y = salman.source.data.data[60]/divide;
+            scene.children[61].scale.y = salman.source.data.data[61]/divide;
+            scene.children[62].scale.y = salman.source.data.data[62]/divide;
+            scene.children[63].scale.y = salman.source.data.data[63]/divide;
+            scene.children[64].scale.y = salman.source.data.data[64]/divide;
+            console.log(salman.source.data.data.length);
+            */
+            renderer.render( scene, camera );
+        }
+    </script>
+
+</body>
+</html>

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="./assets/css/three.css">
     <style>
         body{
-            background: linear-gradient(to bottom, #d6d6d6 0%,#c5c5c5 100%);
+            background: #ffffff; /* linear-gradient(to bottom, #ebebeb 0%,#e0e0e0 100%)*/;
         }
         canvas{
             background: transparent !important;
@@ -19,24 +19,19 @@
 
     <div class="shoes-colors">
         <div class="white active" data-color="0xffffff" data-hex="#ffffff"></div>
+        <div class="white" data-color="0x97FFA5" data-hex="#97FFA5"></div>
         <div class="blue" data-color="0x3a86ff" data-hex="#3a86ff"></div>
         <div class="red" data-color="0xe63946" data-hex="#e63946"></div>
-        <div class="orange" data-color="0xf4a261" data-hex="#f4a261"></div>
-        <div class="green" data-color="0x06d6a0" data-hex="#06d6a0"></div>
-        <div class="newGradient" data-color="linear-gradient(to bottom, #00ff00 0%,#ff0000 100%);" data-hex="linear-gradient(to bottom, #00ff00 0%,#ff0000 100%);"></div>
+        <div class="green" data-color="0xFFD733" data-hex="#FFD733"></div>
+        <div class="newGradient" data-color="0x4633FF" data-hex="#4633FF"></div>
     </div>
 
-    <div class="camera-positions">
-        <button type="button" id="one" data-x="0" data-y="0" data-z="4.5">P1</button>
-        <button type="button" id="two" data-x="1.042689334221174" data-y="1.73" data-z="1.4626119094006151">P2</button>
-        <button type="button" id="three" data-x="-1.075212654196661" data-y="1.438810171429225" data-z="-1.429567820467573">P3</button>
-        <button type="button" id="four" data-x="0.4049735540879563" data-y="2.1868571920750055" data-z="-0.32397884327036514">P4</button>
-    </div>
     <div class="shoes-texture">
         <div class="yellow" data-image="./assets/media/tshirt/texture1.png" data-thumbnail="./assets/media/tshirt/shirt1.png"></div>
         <div class="yellow" data-image="./assets/media/tshirt/texture2.png" data-thumbnail="./assets/media/tshirt/shirt2.png"></div>
         <div class="yellow" data-image="./assets/media/tshirt/texture3.png" data-thumbnail="./assets/media/tshirt/shirt3.png"></div>
         <div class="yellow" data-image="./assets/media/tshirt/texture4.png" data-thumbnail="./assets/media/tshirt/shirt4.png"></div>
+        <div class="yellow" data-image="./assets/media/tshirt/texture5.png" data-thumbnail="./assets/media/tshirt/shirt5.png"></div>
     </div>
 
     <div id="container">
@@ -57,81 +52,121 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';        
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { TWEEN } from 'three/addons/libs/tween.module.min.js';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
         const container = document.getElementById('container');
 
         let camera, controls, scene, renderer;
         let hlight, light, light2, light3, light4, directionalLight, tshirt;
-        var color = 0xf0f0f0, textureLoader, texture;
+        var color = 0xfffff0, textureLoader = new THREE.TextureLoader(), texture;
 
         init();
 
         function init(){
             scene = new THREE.Scene();
-            scene.fog = new THREE.Fog( 0xff0000, 10, 15 );
+            scene.fog = new THREE.Fog( 0xffffff, 10, 15 );
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 2000); //camera.rotation.y = 45/180*Math.PI;
             camera.position.set(0,0,3.5);
             
             renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.setSize( window.innerWidth, window.innerHeight ); //renderer.setAnimationLoop( animate );
-            renderer.shadowMap.enabled = true;
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1;
-            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.setSize( window.innerWidth, window.innerHeight );            
             container.appendChild( renderer.domElement );
 
-            const light = new THREE.HemisphereLight( 0xffffff, 0xaaaaaa, 0.5 );
-            scene.add( light );
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-            const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-            dirLight.color.setHSL( 0.1, 1, 0.95 );
-            dirLight.position.set( 0, 4, 4 );
-            dirLight.position.multiplyScalar( 30 );
-            scene.add( dirLight );
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1;
 
-            dirLight.castShadow = true;
-
-            dirLight.shadow.mapSize.width = 1024;
-            dirLight.shadow.mapSize.height = 1024;
-
-            const d = 200;
-            dirLight.shadow.camera.left = - d;
-            dirLight.shadow.camera.right = d;
-            dirLight.shadow.camera.top = d;
-            dirLight.shadow.camera.bottom = - d;
-
-            dirLight.shadow.camera.far = 3500;
-            dirLight.shadow.bias = - 0.0001;
-
-            const dirLightHelper = new THREE.DirectionalLightHelper( dirLight, 5 );
-            scene.add( dirLightHelper );
-            
-            const planeGeometry = new THREE.PlaneGeometry( 1000, 1000 );
-            planeGeometry.rotateX( - Math.PI / 2 );
-            const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.2 } );
-            
-            const plane = new THREE.Mesh( planeGeometry, planeMaterial );
-            plane.position.y = -2; // plane.position.y = - 200;
-            plane.receiveShadow = true;
-            scene.add( plane );            
+            lights(1,0);
 
             controls = new OrbitControls( camera, renderer.domElement );
-            controls.enablePan = false;
-            controls.enableZoom = true;
-            controls.enableDamping = true;
-            
-            new GLTFLoader().load( './assets/models/tshirt1.gltf', function ( gltf ) {
-                tshirt = gltf.scene; //.children[0];
-                gltf.scene.scale.set(1,1,1);
-                gltf.scene.position.set(0,0.50,0);
+            controls.minPolarAngle = Math.PI/2;
+            controls.maxPolarAngle = Math.PI/2;
+
+            new RGBELoader().load( './assets/hdri/industrial_sunset_puresky_4k.hdr', function ( hdri ) {
+                hdri.mapping = THREE.EquirectangularReflectionMapping;
+                //scene.background = hdri;
+                scene.environment = hdri;
+            });
+
+            texture = textureLoader.load( './assets/media/tshirt/texture1.png' );
+            texture.flipY = false;
+
+            const bump = textureLoader.load( './assets/media/tshirt/bump.png' );
+            bump.flipY = false;
+
+            const tshirtMaterial = new THREE.MeshStandardMaterial({
+                bumpMap: bump,
+                bumpScale: 0.1,
+                map: texture,
+                transparent: true,
+                depthWrite: true,
+                side: THREE.DoubleSide,
+
+            });
+
+            texture.generateMipmaps = false;
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.needsUpdate = true;
+
+            new GLTFLoader().load( './assets/models/tshirt.gltf', function ( gltf ) {
+
+                tshirt = gltf.scene;
+                tshirt.traverse(function (o) {
+                    if (o.isMesh) {                        
+                        o.material = tshirtMaterial;
+                        o.material.sheen = 0.75;
+                        o.castShadow = true;
+                        o.receiveShadow = false;
+                        o.material.needsUpdate = true
+                    }
+                });
+                gltf.scene.position.set(0,0.25,0);
                 scene.add( gltf.scene );
-                animate();
+                
+                const planeGeometry = new THREE.PlaneGeometry( 10, 10 );
+                planeGeometry.rotateX( - Math.PI / 2 );
+                const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.1 } );
+                
+                const plane = new THREE.Mesh( planeGeometry, planeMaterial );
+                plane.position.y = -1.45;
+                plane.receiveShadow = true;
+                scene.add(plane);
+
             } );
 
             window.addEventListener('resize', onWindowResize);
+        }
+
+        function lights(show,helper){
+            if(show == 1){
+                
+                scene.add( new THREE.AmbientLight( 0xffffff, 0.25 ));
+
+                const spotLight = new THREE.SpotLight( 0xffffff, 10 );
+                spotLight.position.set( 0, 10, 7 );
+                spotLight.angle = Math.PI / 6;
+                spotLight.penumbra = 5;
+                spotLight.decay = 2;
+                spotLight.distance = 100;
+
+                spotLight.castShadow = true;
+                spotLight.shadow.mapSize.width = 2048;
+                spotLight.shadow.mapSize.height = 2048;
+                spotLight.shadow.camera.near = 10;
+                spotLight.shadow.camera.far = 200;
+                spotLight.shadow.focus = 1;
+                scene.add( spotLight );
+
+                if(helper == 1){
+                    lightHelper = new THREE.SpotLightHelper( spotLight );
+                    scene.add( lightHelper );
+                }
+            }
         }
 
         function onWindowResize() {
@@ -142,15 +177,7 @@
         }
 
         function animate() {
-            requestAnimationFrame( animate );            
-            TWEEN.update();
-            /*
-            const time = performance.now() / 800;
-            if(tshirt){
-                tshirt.position.y = Math.cos( time ) * 0.005;
-            }
-            */
-            //console.log(camera.position);
+            requestAnimationFrame( animate );
             controls.update();
             renderer.render( scene, camera );
         }

@@ -23,15 +23,17 @@
     </div>
 
     <div class="camera-positions">
-        <button type="button" id="one" data-x="0" data-y="0" data-z="2.5">P1</button>
-        <button type="button" id="two" data-x="1.042689334221174" data-y="1.73" data-z="1.4626119094006151">P2</button>
-        <button type="button" id="three" data-x="-1.075212654196661" data-y="1.438810171429225" data-z="-1.429567820467573">P3</button>
-        <button type="button" id="four" data-x="0.4049735540879563" data-y="2.1868571920750055" data-z="-0.32397884327036514">P4</button>
+        <button type="button" id="one" data-x="0" data-y="0" data-z="0">P1</button>
+        <button type="button" id="two" data-x="0.5322700509791516" data-y="1.5" data-z="0.5">P2</button>
+        <button type="button" id="three" data-x="0.23997355408793053" data-y="8.591857192075047" data-z="0">P3</button>
+        <button type="button" id="four" data-x="0.3" data-y="0.7" data-z="0.1">P4</button>
     </div>
+
     <div class="shoes-texture">
-        <div class="yellow" data-image="./assets/media/shoes/material_1_baseColor.jpg"></div>
-        <div class="white" data-image="./assets/media/shoes/material_2_baseColor.jpg"></div>
-        <div class="orange" data-image="./assets/media/shoes/material_3_baseColor.jpg"></div>
+        <div class="yellow" data-thumb="./assets/media/shoes/0.png" data-texture="./assets/media/shoes/material0.jpg"></div>
+        <div class="yellow" data-thumb="./assets/media/shoes/1.png" data-texture="./assets/media/shoes/material1.jpg"></div>
+        <div class="yellow" data-thumb="./assets/media/shoes/2.png" data-texture="./assets/media/shoes/material2.jpg"></div>
+        <div class="yellow" data-thumb="./assets/media/shoes/3.png" data-texture="./assets/media/shoes/material3.jpg"></div>
     </div>
 
     <div id="container">
@@ -46,11 +48,10 @@
                 "three/addons/": "./assets/jsm/"
             }
         }
-    </script>
-    
+    </script>    
     <script type="module">
         import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';        
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { TWEEN } from 'three/addons/libs/tween.module.min.js';
 
@@ -58,52 +59,110 @@
 
         let camera, controls, scene, renderer;
         let hlight, light, light2, light3, light4, directionalLight, shoe;
-        var color = 0xf0f0f0, textureLoader, texture;
+        var color = 0xf0f0f0, texture, circle;
+        //var canvas = renderer.domElement;
+        var textureLoader = new THREE.TextureLoader();
 
         init();
 
         function init(){
             scene = new THREE.Scene();
 
-            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 5000);
-            //camera.rotation.y = 45/180*Math.PI;
-            camera.position.set(0,0,2.5);
+            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.01, 1000);
+            camera.position.set(0,0,3);
             
             renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.setSize( window.innerWidth, window.innerHeight ); // renderer.setAnimationLoop( render );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1;            
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.shadowMap.enabled = true;
             container.appendChild( renderer.domElement );
+
+            sceneLight(0);
             
-            scene.add( new THREE.AmbientLight( 0xf0f0f0 ) );
+            new GLTFLoader().load( './assets/models/shoes.gltf', function ( gltf ) {
+                
+                texture = textureLoader.load( './assets/media/shoes/material0.jpg' );
+                texture.flipY = false;
+                texture.generateMipmaps = false;
+                texture.minFilter = THREE.LinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                texture.needsUpdate = true;
 
-            const planeGeometry = new THREE.PlaneGeometry( 2000, 2000 );
-            planeGeometry.rotateX( - Math.PI / 2 );
-            const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.2 } );
-
-            const plane = new THREE.Mesh( planeGeometry, planeMaterial );
-            plane.position.y = -5; // plane.position.y = - 200;
-            plane.receiveShadow = true;
-            scene.add( plane );
-
-            controls = new OrbitControls( camera, renderer.domElement );
-            controls.enableDamping = true;
-            
-            new GLTFLoader().load( './assets/models/shoes.gltf', function ( gltf ) {                
-                gltf.scene.traverse(function (node) {                    
-                    if (node.isMesh) {
-                        node.castShadow = true;
-                        node.receiveShadow = false;
+                shoe = gltf.scene;
+                shoe.traverse(function (o) {
+                    if (o.isMesh) {
+                        o.material.map = texture;
+                        o.castShadow = true;
+                        o.receiveShadow = false;
                     }
                 });
-                shoe = gltf.scene;
-                shoe.scale.set(1,1,1);
-                shoe.position.set(0,0,0);
+                shoe.rotation.set( 0, 0, 0);
                 scene.add( shoe );
-                animate();
+                
+                const planeGeometry = new THREE.PlaneGeometry( 5, 5 );
+                planeGeometry.rotateX( - Math.PI / 2 );
+                const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.4 } );
+
+                const plane = new THREE.Mesh( planeGeometry, planeMaterial );
+                plane.position.y = -0.5;
+                plane.receiveShadow = true;
+                scene.add( plane );
+
+                showcircle(0);
+                
             } );
 
+             controls = new OrbitControls( camera, renderer.domElement ); //controls.minPolarAngle = Math.PI/2; controls.maxPolarAngle = Math.PI/2;            
+
             window.addEventListener('resize', onWindowResize);
+
+            //canvas.addEventListener('mousemove', onMouseMove);
+        }
+
+        function showcircle(show){
+            if(show > 0){
+                const geometry = new THREE.RingGeometry( 0, 4, 64 ); 
+                const material = new THREE.MeshBasicMaterial( { color: 0xff0000, side: THREE.DoubleSide } );
+                circle = new THREE.Mesh( geometry, material );
+                circle.position.z = -5.5;
+                scene.add( circle );
+            }
+        }
+
+        function onMouseMove(event) {
+            shoe.rotation.x -= event.movementY * 0.005;
+            shoe.rotation.y += event.movementX * 0.005;
+            console.log( 'x : ' + shoe.rotation.x + ' | y : ' + shoe.rotation.y );
+        }
+
+        function sceneLight(show){
+            
+            scene.add( new THREE.HemisphereLight( 0xffffff, 0xaaaaaa, 0.15 ) );
+
+            const dirLight0 = new THREE.DirectionalLight( 0xffffff, 1 );
+            dirLight0.position.set( 0, -3, -5 );
+            scene.add(dirLight0);
+
+            const dirLight1 = new THREE.DirectionalLight( 0xffffff, 1 );
+            dirLight1.position.set( 0, 3, 5 );
+            scene.add(dirLight1);
+
+            const dirLight = new THREE.DirectionalLight( 0xffffff, 0.25 );
+            dirLight.position.set( 0, 10, 5 );
+            dirLight.castShadow = true;
+            dirLight.shadow.camera.top = 20;
+            dirLight.shadow.camera.bottom = - 20;
+            dirLight.shadow.camera.left = - 20;
+            dirLight.shadow.camera.right = 20;
+            dirLight.shadow.camera.near = 5;
+            dirLight.shadow.camera.far = 20;
+            scene.add( dirLight );
+            if(show == 1){
+                scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
+            }
         }
 
         function onWindowResize() {
@@ -116,12 +175,15 @@
         function animate() {
             requestAnimationFrame( animate );            
             TWEEN.update();
-            const time = performance.now() / 800;
+            const time = performance.now() / 1000;
             if(shoe){
-                shoe.position.y = Math.cos( time ) * 0.1;
+                shoe.position.y = Math.cos( time ) * 0.05;
+                console.log(shoe.rotation.y);
             }
-            console.log(camera.position);
-            controls.update();
+            
+            if(controls){
+                controls.update();                
+            }
             renderer.render( scene, camera );
         }
         
@@ -129,11 +191,8 @@
 
         $(function(){
             
-            $('.camera-positions button').on('click', function(){
-                var posX = $(this).data('x');
-                var posY = $(this).data('y');
-                var posZ = $(this).data('z');
-                new TWEEN.Tween(camera.position).to({x: posX, y: posY, z: posZ}).start();
+            $('.camera-positions button').on('click', function(event){
+                new TWEEN.Tween(shoe.rotation).to({x: $(this).data('x'), y: $(this).data('y'), z: $(this).data('z')}).start();
             })
             
             $('.shoes-colors div').each(function(index, elem){
@@ -150,11 +209,11 @@
             });
 
             $('.shoes-texture div').each(function(){
-                $(this).css({'background':'url('+ $(this).data('image') +') center center no-repeat', 'background-size':'cover'});
+                $(this).css({'background':'url('+ $(this).data('thumb') +') center center no-repeat', 'background-size':'cover'});
             });
 
             $('.shoes-texture div').on('click', function(){
-                var newTexture = $(this).data('image');
+                var newTexture = $(this).data('texture');
                 shoe.traverse(function (node) {                    
                     if (node.isMesh) {
                         node.material.map = new THREE.TextureLoader().load(newTexture, texture => {
