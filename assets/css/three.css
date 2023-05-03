@@ -166,16 +166,6 @@ aside a {
 aside a:hover {
   color: #fe2b01;
 }
-aside.inside {
-  background: #fe2b01;
-  color: #fff;
-}
-aside.inside a {
-  color: #fff;
-}
-aside.inside a:hover {
-  color: #000;
-}
 aside.full {
   width: 100vw;
   padding: 0 10%;

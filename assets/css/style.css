@@ -166,16 +166,6 @@ aside a {
 aside a:hover {
   color: #fe2b01;
 }
-aside.inside {
-  background: #fe2b01;
-  color: #fff;
-}
-aside.inside a {
-  color: #fff;
-}
-aside.inside a:hover {
-  color: #000;
-}
 aside.full {
   width: 100vw;
   padding: 0 10%;
@@ -281,7 +271,7 @@ main section.home canvas#homePage {
   z-index: -1;
 }
 main section.home h1 {
-  font-size: 8.5em;
+  font-size: 8.75em;
   font-weight: 700;
   line-height: 9.5rem;
   pointer-events: none;
@@ -406,11 +396,8 @@ main section.work-category div.grid .item:hover span {
   opacity: 1;
 }
 main section.work-category div.grid.three {
-  margin: 0 1%;
   -moz-column-count: 2;
        column-count: 2;
-  -moz-column-gap: 15px;
-       column-gap: 15px;
 }
 main section.work-category div.grid.three .item {
   margin-bottom: 15px;
@@ -421,7 +408,6 @@ main section.work-category div.grid.three .item {
   align-items: center;
 }
 main section.work-category div.grid.digital {
-  margin: 0 1%;
   -moz-column-count: 1;
        column-count: 1;
   -moz-column-gap: 15px;
@@ -438,6 +424,130 @@ main section.work-category div.grid.digital .item h2 {
   padding: 15px 0;
 }
 main section.work-category div.grid.digital .item:hover span {
+  opacity: 0;
+}
+main section.work-category div.grid.website {
+  margin: 0 1%;
+  -moz-column-count: 1;
+       column-count: 1;
+  -moz-column-gap: 15px;
+       column-gap: 15px;
+}
+main section.work-category div.grid.website .item:hover span {
+  opacity: 0;
+}
+main section.work-category div.grid.logo {
+  -moz-column-count: 4;
+       column-count: 4;
+}
+main section.work-category div.grid.logo .item:hover span {
+  opacity: 0;
+}
+main section.work-category div.grid.uiux {
+  margin: 0 5%;
+  -moz-column-count: 1;
+       column-count: 1;
+  -moz-column-gap: 15px;
+       column-gap: 15px;
+}
+main section.work-category div.grid.uiux .item {
+  padding: 0 0 50px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+main section.work-category div.grid.uiux .item h2 {
+  color: #000;
+  font-size: 2.8vw;
+  line-height: 1.2em;
+  display: flex;
+  padding: 15px 0;
+}
+main section.work-category div.grid.uiux .item .screen {
+  border: 8px solid #000;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.45);
+  background-color: #fff;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+main section.work-category div.grid.uiux .item .screen.mobile {
+  width: 414px;
+  border-radius: 30px;
+  padding: 0;
+  margin: 0;
+}
+main section.work-category div.grid.uiux .item .screen.mobile img {
+  display: block;
+  width: 100%;
+}
+main section.work-category div.grid.uiux .item .screen.tablet {
+  width: 768px;
+  max-width: 768px;
+  height: 1280px;
+  min-height: 1280px;
+  border-radius: 80px;
+}
+main section.work-category div.grid.uiux .item .screen.ipad {
+  width: 768px;
+  max-width: 768px;
+  height: 1024px;
+  min-height: 1024px;
+  border-radius: 50px;
+  border-radius: 60px;
+}
+main section.work-category div.grid.uiux .item:hover span {
+  opacity: 0;
+}
+main section.work-category div.grid.print {
+  margin: 0 1%;
+  -moz-column-count: 1;
+       column-count: 1;
+  -moz-column-gap: 15px;
+       column-gap: 15px;
+}
+main section.work-category div.grid.print .item {
+  padding: 0 20%;
+}
+main section.work-category div.grid.print .item .wrappers {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  margin: 0;
+  width: 100%;
+}
+main section.work-category div.grid.print .item .wrappers .aspect {
+  padding-bottom: 1%;
+  position: relative;
+  width: 100%;
+}
+main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner .flipbook {
+  height: 100%;
+  transition: margin-left 0.25s ease-out;
+  width: 100%;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner .flipbook .page {
+  height: auto;
+  width: auto;
+}
+main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner .flipbook .page img {
+  max-width: 100%;
+  height: 100%;
+}
+main section.work-category div.grid.print .item:hover span {
   opacity: 0;
 }
 main section.work-single {
@@ -623,6 +733,36 @@ main section.inspiration {
   padding: 100px 0;
   background-color: #fff;
   color: #000;
+}
+main section.hello {
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 0;
+  position: relative;
+  z-index: 0;
+  color: #000;
+}
+main section.hello .details {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1 1;
+  margin: 0 10%;
+  gap: 15px;
+}
+main section.hello .details div.image {
+  width: 50%;
+}
+main section.hello .details div.image img {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+main section.hello .details div.info {
+  width: 50%;
 }
 
 @media (min-width: 320px) and (max-width: 768px) {
@@ -903,5 +1043,8 @@ main section.inspiration {
     padding: 100px 0;
     background-color: #fff;
     color: #000;
+  }
+  main section.hello {
+    background: #fff;
   }
 }/*# sourceMappingURL=style.css.map */

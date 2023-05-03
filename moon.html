@@ -46,6 +46,8 @@
             starsGeometry();
             
             controls = new OrbitControls( camera, renderer.domElement );
+            controls.maxDistance = 10;
+            controls.minDistance = 4;
             
             window.addEventListener('resize', onWindowResize);
         }
@@ -79,10 +81,10 @@
                 const moonSphare = new THREE.SphereGeometry( radius, 64, 128);
                 const moonMaterial = new THREE.MeshStandardMaterial ({
                     color: 0xffffff,
-                    map: texture.load('./assets/media/moon/lroc_color_poles_2k.png'),                
+                    map: texture.load('./assets/media/planet/lroc_color_poles_2k.png'),                
                     displacementScale: 0.01,
-                    displacementMap: texture.load('./assets/media/moon/ldem_4_uint.png'),
-                    bumpMap: texture.load('./assets/media/moon/ldem_4_uint.png'),
+                    displacementMap: texture.load('./assets/media/planet/ldem_4_uint.png'),
+                    bumpMap: texture.load('./assets/media/planet/ldem_4_uint.png'),
                     bumpScale: 0.04,
                 });
                 moon = new THREE.Mesh( moonSphare, moonMaterial );

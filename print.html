@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Razak :|: Being creative mean be different...</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+
+<body>
+    
+    <div id="overlay">
+        <div id="progstat"></div>
+        <div id="progress"></div>
+    </div>
+    
+    <header class="inside"></header>
+    
+    <main>
+        <section class="work-category">
+            <div class="grid print">
+                <div class="item">
+                    <div class="wrappers">
+                        <div class="aspect">
+                          <div class="aspect-inner">
+                            <div class="flipbook" id="flipbook">
+                              <div class="page"><img src="./assets/media/print/respak/01.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/02.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/03.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/04.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/05.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/06.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/07.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/08.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/09.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/10.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/11.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/12.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/13.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/14.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/15.jpg" draggable="false" alt="" /></div>
+                              <div class="page"><img src="./assets/media/print/respak/16.jpg" draggable="false" alt="" /></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="inside"></footer>
+    <aside class="inside"></aside>
+    <script src="./assets/js/jquery.min.js"></script>
+    <script src="https://rkei0.csb.app/turn.min.js"></script>
+    <script src="./assets/js/scripts.js"></script>
+    <script>
+        var flipbookEL = document.getElementById('flipbook');
+        window.addEventListener('resize', function (e) {
+            flipbookEL.style.width = '';
+            flipbookEL.style.height = '';
+            $(flipbookEL).turn('size', flipbookEL.clientWidth, flipbookEL.clientHeight);
+        });
+        $(flipbookEL).turn({ autoCenter: true });
+    </script>
+    
+</body>
+</html>
