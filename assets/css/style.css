@@ -540,12 +540,12 @@ main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner 
   user-select: none;
 }
 main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner .flipbook .page {
-  height: auto;
-  width: auto;
+  height: 100%;
+  width: 100%;
 }
 main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner .flipbook .page img {
-  max-width: 100%;
-  height: 100%;
+  max-width: 595px;
+  height: 842px;
 }
 main section.work-category div.grid.print .item:hover span {
   opacity: 0;
