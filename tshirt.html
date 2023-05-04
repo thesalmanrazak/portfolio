@@ -137,6 +137,10 @@
                 plane.receiveShadow = true;
                 scene.add(plane);
 
+            }, function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );                
+            }, function ( error ) {
+                console.log( 'An error happened' );
             } );
 
             window.addEventListener('resize', onWindowResize);
