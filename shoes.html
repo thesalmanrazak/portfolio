@@ -52,6 +52,7 @@
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { TWEEN } from 'three/addons/libs/tween.module.min.js';
 
@@ -74,13 +75,14 @@
             renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setSize( window.innerWidth, window.innerHeight );
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1;            
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            //renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            //renderer.toneMappingExposure = 1;
+            //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.shadowMap.enabled = true;
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
             container.appendChild( renderer.domElement );
 
-            sceneLight(0);
+            sceneLight(1,1);
             
             new GLTFLoader().load( './assets/models/shoes.gltf', function ( gltf ) {
                 
@@ -138,30 +140,32 @@
             console.log( 'x : ' + shoe.rotation.x + ' | y : ' + shoe.rotation.y );
         }
 
-        function sceneLight(show){
-            
-            scene.add( new THREE.HemisphereLight( 0xffffff, 0xaaaaaa, 0.15 ) );
-
-            const dirLight0 = new THREE.DirectionalLight( 0xffffff, 1 );
-            dirLight0.position.set( 0, -3, -5 );
-            scene.add(dirLight0);
-
-            const dirLight1 = new THREE.DirectionalLight( 0xffffff, 1 );
-            dirLight1.position.set( 0, 3, 5 );
-            scene.add(dirLight1);
-
-            const dirLight = new THREE.DirectionalLight( 0xffffff, 0.25 );
-            dirLight.position.set( 0, 10, 5 );
-            dirLight.castShadow = true;
-            dirLight.shadow.camera.top = 20;
-            dirLight.shadow.camera.bottom = - 20;
-            dirLight.shadow.camera.left = - 20;
-            dirLight.shadow.camera.right = 20;
-            dirLight.shadow.camera.near = 5;
-            dirLight.shadow.camera.far = 20;
-            scene.add( dirLight );
+        function sceneLight(show,guishow){
             if(show == 1){
-                scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
+
+                class ColorGUIHelper {
+                    constructor(object, prop) {
+                        this.object = object;
+                        this.prop = prop;
+                    }
+                    get value() {
+                        return `#${this.object[this.prop].getHexString()}`;
+                    }
+                    set value(hexString) {
+                        this.object[this.prop].set(hexString);
+                    }
+                }
+                
+                const color = 0xFFFFFF;
+                const intensity = 0.89;
+                const light = new THREE.AmbientLight(color, intensity);
+                scene.add(light);
+
+                if(guishow == 1){                
+                    const gui = new GUI();
+                    gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
+                    gui.add(light, 'intensity', 0, 2, 0.01);
+                }
             }
         }
 

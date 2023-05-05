@@ -38,7 +38,6 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';        
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-        import { TWEEN } from 'three/addons/libs/tween.module.min.js';
 
         THREE.ColorManagement.enabled = false;
 
@@ -46,59 +45,64 @@
 
         let scene, camera, controls, renderer, bandana;
         let light, ambient;
-        let spotLight, lightHelper;
+        let spotLight, lightHelper, gui;
+        const color =  0xffffff;
+        const intensity = 1.39;
 
         init();
 
         function init(){
             scene = new THREE.Scene();
-            scene.background = new THREE.Color( 0xf7f7f7 );
+            //scene.background = new THREE.Color( 0xf7f7f7 );
 			//scene.fog = new THREE.Fog( 0x443333, 0.2, 0.5 );
 
             camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
 			camera.position.set( 0, 5, 30 );
 
-            renderer = new THREE.WebGLRenderer( { antialias: true } );
+            renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.setSize( window.innerWidth, window.innerHeight );            
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
             container.appendChild( renderer.domElement );
-
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1;
-
-            //renderer.setAnimationLoop( animate );
-
-            
-
-            ambient = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.05 );
-			scene.add( ambient );
-
+           
             const loader = new THREE.TextureLoader().setPath( './assets/media/bandana/' );
-            const filenames = [ '01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg', '07.jpg', '08.jpg', '09.jpg', '10.jpg', '11.jpg', '12.jpg', '13.jpg' ];
+            const filenames = [ '01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg', '07.jpg', '08.jpg', '09.jpg', '10.jpg', '11.jpg', '12.jpg' ];
             const textures = { none: null }
             const hdriPath = './assets/hdri/';
-            const hdrifiles = [ 'industrial_sunset_puresky_4k.hdr', 'snow_field_2_puresky_4k.hdr' ];
+            const hdrifiles = [ 'industrial_sunset_puresky_4k.hdr', 'aristea_wreck_puresky_4k.hdr' ];
             const hdris = { none: null }
 
             const mat = new THREE.MeshStandardMaterial({
                 map: loader.load( filenames[0] )
-            })
+            });
 
-            scene.add( new THREE.AmbientLight( 0x404040 ) );
+            const light = new THREE.AmbientLight(color, intensity);
+            scene.add(light);
+            console.log(light);
+
+            class ColorGUIHelper {
+                constructor(object, prop) {
+                    this.object = object;
+                    this.prop = prop;
+                }
+                get value() {
+                    return `#${this.object[this.prop].getHexString()}`;
+                }
+                set value(hexString) {
+                    this.object[this.prop].set(hexString);
+                }
+            }
+
+            //scene.add( new THREE.AmbientLight( 0x404040 ) );
             //scene.add( new THREE.HemisphereLight( 0xffffff, 0xaaaaaa, 1 ) );
             //sceneLight(0);
 
             new RGBELoader().load( './assets/hdri/'+ hdrifiles[0], function ( texture ) {
-                //console.log("i am here!!!!!");
                 texture.mapping = THREE.EquirectangularReflectionMapping;
                 scene.background = texture;
                 scene.environment = texture;
                 texture.dispose();
             });
-            //changeHDRI();
             function changeHDRI(hdris) {                
                 new RGBELoader().load( hdris, function ( texture ) {
                     texture.mapping = THREE.EquirectangularReflectionMapping;
@@ -144,18 +148,17 @@
                 textures[ filename ] = texture;
             }
 
-            const gui = new GUI();
+            gui = new GUI();
 
             const params = {
                 hdri: hdris['industrial_sunset_puresky_4k.hdr'],
                 bandana: textures[ '01.jpg' ],
-                shadows: true
+                shadows: true,
             };
 
             gui.add( params, 'hdri', hdris).onChange( function ( val ) {
                 changeHDRI(val);
             } );
-
             gui.add( params, 'bandana', textures ).onChange( function ( val ) {
                 bandana.traverse( function ( o ) {
                     if ( o.material ) {
@@ -163,7 +166,6 @@
                     }
                 } );
             } );
-
             gui.add( params, 'shadows' ).onChange( function ( val ) {
                 renderer.shadowMap.enabled = val;
                 bandana.traverse( function ( o ) {
@@ -172,7 +174,6 @@
                     }
                 } );
             } );
-
             gui.open();
 
             const controls = new OrbitControls( camera, renderer.domElement );
@@ -185,27 +186,6 @@
             window.addEventListener('resize', onWindowResize);
         }
 
-        function sceneLight(show){
-            spotLight = new THREE.SpotLight( 0xffffff, 5 );
-            spotLight.position.set( 0, 50, 25 );
-            spotLight.angle = Math.PI / 6;
-            spotLight.penumbra = 1;
-            spotLight.decay = 2;
-            spotLight.distance = 100;
-
-            spotLight.castShadow = true;
-            spotLight.shadow.mapSize.width = 1024;
-            spotLight.shadow.mapSize.height = 1024;
-            spotLight.shadow.camera.near = 10;
-            spotLight.shadow.camera.far = 200;
-            spotLight.shadow.focus = 1;
-            scene.add( spotLight );
-            if(show == 1){
-                lightHelper = new THREE.SpotLightHelper( spotLight );
-                scene.add( lightHelper );
-            }
-        }
-
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
@@ -215,13 +195,6 @@
         function animate() {
             requestAnimationFrame( animate );
             renderer.render( scene, camera );
-            
-            //const time = performance.now() / 3000;
-            //spotLight.position.x = Math.cos( time ) * 25;
-            //spotLight.position.z = Math.sin( time ) * 25;            
-            //lightHelper.update();
-
-            TWEEN.update();
             if(controls){
                 controls.update();
             }            
