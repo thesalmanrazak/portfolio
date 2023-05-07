@@ -7,7 +7,7 @@
 }
 
 html, body {
-  background: rgba(8, 215, 230, 0.8784313725);
+  background: rgba(167, 6, 6, 0.8784313725);
   color: #fff;
   overflow: hidden;
   width: 100vw;
@@ -95,11 +95,11 @@ header.inside a.menu::after {
   background-color: #000;
 }
 header.inside a.menu:hover {
-  color: rgba(8, 215, 230, 0.8784313725);
+  color: rgba(167, 6, 6, 0.8784313725);
 }
 header.inside a.menu:hover::after {
   width: 35px;
-  background-color: rgba(8, 215, 230, 0.8784313725);
+  background-color: rgba(167, 6, 6, 0.8784313725);
 }
 
 footer {
@@ -135,7 +135,7 @@ footer.inside .social a {
   color: #000;
 }
 footer.inside .social a:hover {
-  color: rgba(8, 215, 230, 0.8784313725);
+  color: rgba(167, 6, 6, 0.8784313725);
 }
 
 aside {
@@ -164,7 +164,7 @@ aside a {
   white-space: nowrap !important;
 }
 aside a:hover {
-  color: rgba(8, 215, 230, 0.8784313725);
+  color: rgba(167, 6, 6, 0.8784313725);
 }
 aside.full {
   width: 100vw;
@@ -205,7 +205,7 @@ ul {
   background-color: #fff;
 }
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(8, 215, 230, 0.8784313725);
+  background-color: rgba(167, 6, 6, 0.8784313725);
 }
 *::-webkit-scrollbar-corner {
   display: none;
@@ -302,7 +302,7 @@ main section.page-intro h2 {
 }
 main section.page-intro h2 span {
   font-weight: 700;
-  color: rgba(8, 215, 230, 0.8784313725);
+  color: rgba(167, 6, 6, 0.8784313725);
 }
 main section.work {
   background: #fff;
@@ -344,12 +344,12 @@ main section.work ul.work-nav li a {
   margin-right: 15px;
 }
 main section.work ul.work-nav li a:hover {
-  color: rgba(8, 215, 230, 0.8784313725);
+  color: rgba(167, 6, 6, 0.8784313725);
 }
 main section.work ul.work-nav li span {
   font-size: 1.2em;
   text-transform: uppercase;
-  color: rgba(8, 215, 230, 0.8784313725);
+  color: rgba(167, 6, 6, 0.8784313725);
   font-weight: 600;
 }
 main section.work ul.work-nav li:last-of-type {
@@ -608,7 +608,7 @@ main section.work-single .details ul.desc li a {
   font-weight: 800;
 }
 main section.work-single .details ul.desc li a:hover {
-  color: rgba(8, 215, 230, 0.8784313725);
+  color: rgba(167, 6, 6, 0.8784313725);
 }
 main section.work-single .details ul.desc li:last-of-type {
   margin-bottom: 0;
@@ -618,7 +618,7 @@ main section.work-single .details .info {
 }
 main section.work-single .details .info h4 {
   font-size: 1rem;
-  color: rgba(8, 215, 230, 0.8784313725);
+  color: rgba(167, 6, 6, 0.8784313725);
   position: relative;
   font-weight: 500;
 }
@@ -630,7 +630,7 @@ main section.work-single .details .info h4::after {
   margin-right: 10px;
   top: 50%;
   display: block;
-  background-color: rgba(8, 215, 230, 0.8784313725);
+  background-color: rgba(167, 6, 6, 0.8784313725);
   position: absolute;
 }
 main section.work-single .details .info h3 {
@@ -640,7 +640,7 @@ main section.work-single .details .info h3 {
   margin: 15px 0;
 }
 main section.work-single .details .info blockquote {
-  border-left: 3px solid rgba(8, 215, 230, 0.8784313725);
+  border-left: 3px solid rgba(167, 6, 6, 0.8784313725);
   padding: 15px 20px;
   background-color: #f7f7f7;
   font-size: 1.2rem;
@@ -664,7 +664,7 @@ main section.work-single .details .next-prev {
   text-transform: uppercase;
 }
 main section.work-single .details .next-prev a {
-  color: rgba(8, 215, 230, 0.8784313725);
+  color: rgba(167, 6, 6, 0.8784313725);
   display: table;
   font-size: 1.1rem;
   font-weight: 600;
@@ -708,7 +708,7 @@ main section.whats-up .intro h1 {
 }
 main section.whats-up .intro h2 {
   font-size: 2.1rem;
-  color: rgba(8, 215, 230, 0.8784313725);
+  color: rgba(167, 6, 6, 0.8784313725);
 }
 main section.whats-up .intro p {
   margin: 0 0 20px;
@@ -818,7 +818,7 @@ main section.hello .details div.info {
   }
   main section.page-intro h2 span {
     font-weight: 700;
-    color: rgba(8, 215, 230, 0.8784313725);
+    color: rgba(167, 6, 6, 0.8784313725);
   }
   main section.work ul.work-nav {
     width: 90%;
@@ -918,7 +918,7 @@ main section.hello .details div.info {
     font-weight: 800;
   }
   main section.work-single .details ul.desc li a:hover {
-    color: rgba(8, 215, 230, 0.8784313725);
+    color: rgba(167, 6, 6, 0.8784313725);
   }
   main section.work-single .details ul.desc li:last-of-type {
     margin-bottom: 0;
@@ -928,7 +928,7 @@ main section.hello .details div.info {
   }
   main section.work-single .details .info h4 {
     font-size: 1rem;
-    color: rgba(8, 215, 230, 0.8784313725);
+    color: rgba(167, 6, 6, 0.8784313725);
     position: relative;
     font-weight: 500;
   }
@@ -940,7 +940,7 @@ main section.hello .details div.info {
     margin-right: 10px;
     top: 50%;
     display: block;
-    background-color: rgba(8, 215, 230, 0.8784313725);
+    background-color: rgba(167, 6, 6, 0.8784313725);
     position: absolute;
   }
   main section.work-single .details .info h3 {
@@ -950,7 +950,7 @@ main section.hello .details div.info {
     margin: 15px 0;
   }
   main section.work-single .details .info blockquote {
-    border-left: 3px solid rgba(8, 215, 230, 0.8784313725);
+    border-left: 3px solid rgba(167, 6, 6, 0.8784313725);
     padding: 15px 20px;
     background-color: #f7f7f7;
     font-size: 1.2rem;
@@ -974,7 +974,7 @@ main section.hello .details div.info {
     text-transform: uppercase;
   }
   main section.work-single .details .next-prev a {
-    color: rgba(8, 215, 230, 0.8784313725);
+    color: rgba(167, 6, 6, 0.8784313725);
     display: table;
     font-size: 1.1rem;
     font-weight: 600;
@@ -1018,7 +1018,7 @@ main section.hello .details div.info {
   }
   main section.whats-up .intro h2 {
     font-size: 2.1rem;
-    color: rgba(8, 215, 230, 0.8784313725);
+    color: rgba(167, 6, 6, 0.8784313725);
   }
   main section.whats-up .intro p {
     margin: 0 0 20px;
