@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Razak :|: Being creative mean be different...</title>
+    <link rel="stylesheet" href="./assets/css/three.css">
+    <style>
+        canvas{
+            background: linear-gradient(to bottom, #412f50 0%,#131837 100%);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        
+        const container = document.getElementById('container');
+        let camera, controls, scene, renderer, cloudParticles = [], flag, cloudGeo, cloudMaterial, flash;
+
+        init();
+
+        function init(){
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 2000 );
+			camera.position.z = 200;
+            camera.rotation.set(1.16,-0.12,0.27);
+
+            renderer = new THREE.WebGLRenderer( { /*antialias: true, alpha: true*/ } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );            
+	        
+            container.appendChild( renderer.domElement );
+
+            scene.fog = new THREE.FogExp2(0x11111f, 0.0002);
+            renderer.setClearColor(scene.fog.color);
+            
+
+            scene.add(new THREE.AmbientLight(0x555555));            
+
+            const directionalLight = new THREE.DirectionalLight(0xffeedd);
+            directionalLight.position.set(0, 0, 10);
+            scene.add(directionalLight);
+
+            flash = new THREE.PointLight(0x062d89, 30, 500, 1.7);
+	        flash.position.set(0, 0, 0);
+	        scene.add(flash);
+
+            const sphereSize = 5;
+            const pointLightHelper = new THREE.PointLightHelper( flash, sphereSize );
+            scene.add( pointLightHelper );
+
+            const geometry = new THREE.PlaneGeometry( 100, 100 );
+            const material = new THREE.MeshLambertMaterial( {
+                //color: 0xffff00,
+                map: new THREE.TextureLoader().load('./assets/media/cloud1.png'),
+                transparent: true,
+                side: THREE.DoubleSide
+            } );
+            for (let p = 0; p < 60; p++) {
+                const cloud = new THREE.Mesh( geometry, material );
+                cloud.position.set( Math.random() * 400 - 200, Math.random() * 400 - 200, + Math.random() * 500 - 450 );                
+                cloud.rotation.x = 1.16;
+				cloud.rotation.y = -0.12;
+				cloud.rotation.z = Math.random() * 360;
+                cloud.material.opacity = 0.6;
+                cloudParticles.push(cloud);
+				scene.add(cloud);
+            }
+            //scene.add( plane );
+            controls = new OrbitControls( camera, container );
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            animate();
+        }
+        
+        
+        function animate() {
+
+            const time = Date.now() * 0.1;
+            
+            cloudParticles.forEach(function(p){
+                p.rotation.z -= 0.001;
+            });
+            
+            if (Math.random() > 0.93 || flash.power > 500) {
+                if (flash.power < 200)
+                flash.position.set(Math.random() * 400, 300 + Math.random() * 200, -100);
+                //flash.position.set(Math.random() * 400 - 200, Math.random() * 400 - 200, + Math.random() * 500 - 450);
+                flash.power = 80 + Math.random() * 800;
+            }
+
+            requestAnimationFrame( animate );
+            renderer.render( scene, camera );
+        }
+        
+        animate();
+
+    </script>
+
+</body>
+</html>
