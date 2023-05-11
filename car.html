@@ -31,31 +31,58 @@
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
         import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+        import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
+        import { TWEEN } from 'three/addons/libs/tween.module.min.js';
         import { GroundProjectedSkybox } from 'three/addons/objects/GroundProjectedSkybox.js';
 
         const container = document.getElementById('container');
         let camera, controls, scene, renderer;
-        let can, skybox;
+        let car, carPosition = 0, skybox;
         let tyres = [];
-        let hdriPath = './assets/hdri/';
-        let spotLight, lightHelper;        
-        let hdriFile = 'belfast_sunset_puresky_4k.hdr'; //let hdriFile = 'mud_road_puresky_4k.hdr'; // rustig_koppie_puresky_4k.hdr
+        let spotLight, lightHelper;
+        let carlight, hlight1, hlight2, lensflare1, lensflare2;
+        let material;
+        let textureLoader = new THREE.TextureLoader();
+        let textureFlare0 = textureLoader.load( './assets/media/lensflare/lensflare0_alpha.png' );
+        let textureFlare3 = textureLoader.load( './assets/media/lensflare/lensflare0_alpha.png' );
+        let textureFlare1 = textureLoader.load( './assets/media/lensflare/carlight.png' );
+        let camX = 0, camY = 0, camZ = 8;
+        let grid;
+        let ringSize = 2.0;
 
         const params = {
+            grid: false,
+            tonemap: 0.65,
             punctualLightsEnabled: true,
-            color: '#03d803',
-            break: 0.5,
+            color: '#dddddd',
+            break: 0,
             headlight: 0.1,
             tyre: 0,
+            shadow: true,
+            headlight: false,
         };
+
+        const glassparams = {
+				color: 0xffffff,
+				transmission: 1,
+				opacity: 1,
+				metalness: 0,
+				roughness: 0,
+				ior: 1.5,
+				thickness: 0.01,
+				specularIntensity: 1,
+				specularColor: 0xffffff,
+				envMapIntensity: 1,
+				lightIntensity: 1,
+				exposure: 1
+			};
 
         init().then( animate );
 
         async function init(){
             scene = new THREE.Scene();
 
-            camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 0.1, 1000 );
-            camera.position.set( 8.25, 1.4, - 8.5 );
+            scene_camera();
             
             renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
@@ -63,71 +90,403 @@
             renderer.useLegacyLights = false;
             container.appendChild( renderer.domElement );
 
-            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.enabled = params.shadow;
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 0.5;
+            renderer.toneMappingExposure = params.tonemap;
             
-            new RGBELoader().load( hdriPath + hdriFile, function ( hdri ) {
-                hdri.mapping = THREE.EquirectangularReflectionMapping;
-                scene.background = hdri;
-
-                skybox = new GroundProjectedSkybox( hdri );
-                skybox.scale.setScalar( 150 );                
-                scene.add( skybox );
-
-                scene.environment = hdri;
-            });
+            rgb();            
 
             sceneLight(1,0,2048);
 
-            new GLTFLoader().load( './assets/models/car.gltf', function ( gltf ) {
-                can = gltf.scene;
-                can.traverse(function (o) {
-                    if (o.isMesh) {                        
-                        o.castShadow = true;
-                        o.receiveShadow = false;
-                    }
-                });
-                can.rotation.set( 0, 1.5, 0 );
-                can.name = "Car";
-                tyres.push(
-                    can.getObjectByName( 'wheel_RF' ),
-                    can.getObjectByName( 'wheel_RB' ),
-                    can.getObjectByName( 'wheel_LB' ),
-                    can.getObjectByName( 'wheel_LF' )
-                );
-                scene.add( can );
+            gltf_load();
+            
+            //guis();
 
-                can.getObjectByName('bodypaint', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.color = new THREE.Color(0x03d803);
-                        o.castShadow = true;
-                        o.receiveShadow = false;
-                    }
-                });
+            control();
 
-                const planeGeometry = new THREE.PlaneGeometry( 1000, 1000 );
-                planeGeometry.rotateX( - Math.PI / 2 );
-                const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.4 } );
+            
+            grid = new THREE.GridHelper( 100, 100, 0xffffff, 0xffffff );
+            grid.material.opacity = 0.1;
+            grid.material.depthWrite = true;
+            grid.material.transparent = true;
+            grid.position.y = 0.01;
+            
+            
+
+
+            /*
+
+            controls.addEventListener( "change", function(event){
+
+                //console.log(this.position0);
+
+                //console.log(this.object.position);
                 
-                const plane = new THREE.Mesh( planeGeometry, planeMaterial );
-                plane.position.y = 0;
-                plane.receiveShadow = true;
-                can.add(plane);
+                //console.log(camera.position);
 
-                var space = 2.5;
-                for(let counts = 1; counts <= 5; counts++){
-                    const RingGeometry = new THREE.RingGeometry( space, space + 0.5, 64 ); 
-                    const RingMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide, opacity: 0.05, transparent: true } );
-                    const ring = new THREE.Mesh( RingGeometry, RingMaterial );
-                    ring.rotation.x = Math.PI/2;
-                    ring.position.y = 0.01;
-                    can.add( ring );
-                    space = space + 1;
+                //this.position0.x = camera.position.x;
+                //this.position0.y = camera.position.y;
+                //this.position0.z = camera.position.z;
+                //console.log( controls.object.position );                
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if(event.keyCode == 37) {
+
+                    console.log('Left was pressed');
+                    car.getObjectByName( 'wheel_RF' ).rotation.y = -0.75;
+                    car.getObjectByName( 'wheel_LF' ).rotation.y = -0.75;
+
+                } else if(event.keyCode == 38) {
+
+                    console.log('up was pressed');
+                    tyres[0].rotation.x += 0.1;
+                    tyres[1].rotation.x += 0.1;
+                    tyres[2].rotation.x += 0.1;
+                    tyres[3].rotation.x += 0.1;
+
+                } else if(event.keyCode == 39) {
+
+                    console.log('Right was pressed');
+                    car.getObjectByName( 'wheel_RF' ).rotation.z = 0.75;
+                    car.getObjectByName( 'wheel_LF' ).rotation.z = 0.75;
+                    
+                } else if(event.keyCode == 40) {
+
+                    console.log('down was pressed');
+                    tyres[0].rotation.x -= 0.1;
+                    tyres[1].rotation.x -= 0.1;
+                    tyres[2].rotation.x -= 0.1;
+                    tyres[3].rotation.x -= 0.1;
+
                 }
+            });
+            document.addEventListener('keyup', function(event) {
+                if(event.keyCode == 37) {
 
-                can.getObjectByName('break_light', true).traverse ( ( o ) => {
+                    console.log('Left was released');
+                    car.getObjectByName( 'wheel_RF' ).rotation.y = 0;
+                    car.getObjectByName( 'wheel_LF' ).rotation.y = 0;
+
+                } else if(event.keyCode == 38) {
+
+                    console.log('up was released');
+
+                } else if(event.keyCode == 39) {
+
+                    console.log('Right was released');
+                    car.getObjectByName( 'wheel_RF' ).rotation.y = 0;
+                    car.getObjectByName( 'wheel_LF' ).rotation.y = 0;
+                    
+                } else if(event.keyCode == 40) {
+
+                    console.log('down was released');
+
+                }
+            });
+            */
+            // spacebar events
+            document.addEventListener('keydown', function(event){
+                if(event.keyCode == 32){
+                    console.log('break press');
+                    car.getObjectByName('break_light', true).traverse ( ( o ) => {
+                        if ( o.isMesh ) {
+                            o.material.envMapIntensity = 5
+                        }
+                    });
+                }
+            }, false);
+            document.addEventListener('keyup', function(event){
+                if(event.keyCode == 32){
+                    console.log('break release');
+                    car.getObjectByName('break_light', true).traverse ( ( o ) => {
+                        if ( o.isMesh ) {
+                            o.material.envMapIntensity = 0
+                        }
+                    });
+                }
+            }, false);
+            
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function guis(){
+            const gui = new GUI();
+
+            const folder0 = gui.addFolder('Body Paint Settings');
+
+            // show grid with rotation
+            folder0.add( params, 'grid' ).name('Grid Animation').onChange( function(val){
+                if(val==true){
+                    scene.add( grid );
+                } else {
+                    scene.remove( grid );
+                }
+            } );
+
+            // toggle scene light
+            folder0.add( params, 'punctualLightsEnabled' ).onChange( toggleLights );
+
+            // car body paint replace
+            folder0.addColor( params, 'color' ).name('Body Paint').onChange(function(val){
+                car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.color = new THREE.Color(val);
+                        o.castShadow = true;
+                        o.receiveShadow = false;
+                    }
+                });
+            });
+            
+            // tyre rotation speed adjustment
+            folder0.add( params, 'tyre', 0, 0.3, 0.01).name('Tyre Speed').onChange( function(val){
+                console.log(val)
+            } );
+            
+
+
+            const folder1 = gui.addFolder('Glass Material Settings');
+
+            folder1.addColor( glassparams, 'color' ).onChange( function () {
+                material.color.set( glassparams.color );
+                //animate();
+            } );
+
+            folder1.add( glassparams, 'transmission', 0, 1, 0.01 ).onChange( function () {
+                material.transmission = glassparams.transmission;
+                //animate();
+            } );
+            folder1.add( glassparams, 'opacity', 0, 1, 0.01 ).onChange( function () {
+                material.opacity = glassparams.opacity;
+                //animate();
+            } );
+            folder1.add( glassparams, 'metalness', 0, 1, 0.01 ).onChange( function () {
+                material.metalness = glassparams.metalness;
+                //animate();
+            } );
+            folder1.add( glassparams, 'roughness', 0, 1, 0.01 ).onChange( function () {
+                material.roughness = glassparams.roughness;
+                //animate();
+            } );
+            folder1.add( glassparams, 'ior', 1, 2, 0.01 ).onChange( function () {
+                material.ior = glassparams.ior;
+                //animate();
+            } );
+            folder1.add( glassparams, 'thickness', 0, 5, 0.01 ).onChange( function () {
+                material.thickness = glassparams.thickness;
+                //animate();
+            } );
+            folder1.add( glassparams, 'specularIntensity', 0, 1, 0.01 ).onChange( function () {
+                material.specularIntensity = glassparams.specularIntensity;
+                //animate();
+            } );
+            folder1.addColor( glassparams, 'specularColor' ).onChange( function () {
+                material.specularColor.set( glassparams.specularColor );
+                //animate();
+            } );
+            folder1.add( glassparams, 'envMapIntensity', 0, 1, 0.01 ).name( 'envMap intensity' ).onChange( function () {
+                material.envMapIntensity = glassparams.envMapIntensity;
+                //animate();
+            } );
+
+
+            const folder2 = gui.addFolder('Day / Night Mood');
+            
+            folder2.add( params, 'headlight' ).name('Night Head Light').onChange( function(val){
+                if(val===true){
+                    new TWEEN.Tween(camera.position).to({ x: 8.0, y: 0.0, z: 0.0}).start();
+                    renderer.toneMappingExposure = 0.1;
+                    lensflare1 = new Lensflare();
+                    lensflare1.addElement( new LensflareElement( textureFlare1, 400, 0, hlight1.color ) );
+                    lensflare1.addElement( new LensflareElement( textureFlare1, 60, -0.015 ) );
+                    hlight1.add( lensflare1 );
+                    lensflare2 = new Lensflare();
+                    lensflare2.addElement( new LensflareElement( textureFlare1, 400, 0, hlight2.color ) );
+                    lensflare2.addElement( new LensflareElement( textureFlare1, 60, -0.015 ) );
+                    hlight2.add( lensflare2 );
+
+                    //controls.enabled = false;
+                    controls.position0.x = controls.object.position.x;
+                    controls.position0.y = controls.object.position.y;
+                    controls.position0.z = controls.object.position.z;
+                    console.log(controls.object.position);
+                    
+                } else if(val===false) {
+                    console.log(controls.object.position);
+                    new TWEEN.Tween(camera.position).to( { x: controls.position0.x, y: controls.position0.y, z: controls.position0.z } ).start();
+                    renderer.toneMappingExposure = 0.65;
+                    hlight1.remove(lensflare1);
+                    hlight2.remove(lensflare2);
+
+                    controls.enabled = true;
+                }
+            } );
+
+            /*
+            folder1.add( glassparams, 'exposure', 0, 1, 0.01 ).onChange( function () {
+                renderer.toneMappingExposure = glassparams.exposure;
+                //animate();
+            } );
+            */
+
+            /*
+                // render tone map
+                gui.add( params, 'tonemap', 0.1, 1, 0.05).name('Tone Mapping Exposire').onChange(function(val){
+                    renderer.toneMappingExposure = val;
+                });
+            */
+            /*
+                // car shadow show and hide            
+                gui.add( params, 'shadow' ).onChange( function(val){
+                    if(val == true){
+                        renderer.shadowMap.enabled = false;
+                    } else{
+                        renderer.shadowMap.enabled = true;
+                    }
+                } );
+            */
+            /*
+                gui.add( params, 'headlight', 0, 10, 0.5).name('Headlight Bulb').onChange( function(val){
+                    car.getObjectByName('headlight_bulb', true).traverse ( ( o ) => {
+                        if ( o.isMesh ) {
+                            o.material.envMapIntensity = val
+                        }
+                    });
+                } );
+            */
+            /*
+                // break light intensity
+                gui.add( params, 'break', 0, 3, 0.5).name('Breaks').onChange( function(val){
+                    car.getObjectByName('break_light', true).traverse ( ( o ) => {
+                        if ( o.isMesh ) {
+                            o.material.envMapIntensity = val
+                        }
+                    });
+                } );
+            */
+
+            gui.open();
+        }
+
+        function control(){
+            controls = new OrbitControls( camera, renderer.domElement ); //controls.minPolarAngle = Math.PI/2;
+            controls.maxPolarAngle = Math.PI/2;
+            controls.enableDamping = true;
+            controls.maxDistance = 20;
+            controls.minDistance = 2;
+            controls.target.set( 0, 0.5, 0 );
+        }
+
+        function gltf_load(){
+            new GLTFLoader().load( './assets/models/car.gltf', function ( gltf ) {
+                
+                // define gltf model and add into scene
+                car = gltf.scene;
+                car.name = "Car";
+                car.traverse(function (o) {
+                    if (o.isMesh) {
+                        o.castShadow = true;
+                        o.receiveShadow = false;
+                    }
+                });
+                //car.rotation.set( 0, 1.5, 0 );
+                car.rotation.set( 0, 0, 0 );
+                car.position.set(0,carPosition,0);                
+                scene.add( car );
+
+                // push tyres into variable for rotation
+                tyres.push(
+                    car.getObjectByName( 'wheel_RF' ),
+                    car.getObjectByName( 'wheel_RB' ),
+                    car.getObjectByName( 'wheel_LB' ),
+                    car.getObjectByName( 'wheel_LF' )
+                );
+
+                tyres[0].rotSpeed = { x: 0, y: 0};
+                tyres[1].rotSpeed = { x: 0, y: 0};
+                tyres[2].rotSpeed = { x: 0, y: 0};
+                tyres[3].rotSpeed = { x: 0, y: 0};
+
+                document.addEventListener('keydown', function(event) {
+                    if(event.keyCode == 37) {
+
+                        console.log('Left was pressed');
+                        cube.rotSpeed.x += 0.01;                        
+
+                    } else if(event.keyCode == 38) {
+
+                        console.log('up was pressed');
+                        tyres[0].rotSpeed.x += 0.1;
+                        tyres[1].rotSpeed.x += 0.1;
+                        tyres[2].rotSpeed.x += 0.1;
+                        tyres[3].rotSpeed.x += 0.1;
+
+                    } else if(event.keyCode == 39) {
+
+                        console.log('Right was pressed');
+                        cube.rotSpeed.x -= 0.01;
+                        
+                    } else if(event.keyCode == 40) {
+
+                        console.log('down was pressed');
+                        tyres[0].rotSpeed.x -= 0.1;
+                        tyres[1].rotSpeed.x -= 0.1;
+                        tyres[2].rotSpeed.x -= 0.1;
+                        tyres[3].rotSpeed.x -= 0.1;
+
+                    }
+                });
+
+                material = new THREE.MeshPhysicalMaterial( {
+					color: glassparams.color,
+					metalness: glassparams.metalness,
+					roughness: glassparams.roughness,
+					ior: glassparams.ior,
+					//alphaMap: texture,
+					//envMap: hdrEquirect,
+					envMapIntensity: glassparams.envMapIntensity,
+					transmission: glassparams.transmission, // use material.transmission for glass materials
+					specularIntensity: glassparams.specularIntensity,
+					specularColor: glassparams.specularColor,
+					opacity: glassparams.opacity,
+					side: THREE.DoubleSide,
+					transparent: true
+				} );
+
+                car.getObjectByName('glass', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material = material;
+                    }
+                });
+
+
+
+
+
+
+
+
+
+
+
+                // car body paint color define
+                car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.color = new THREE.Color(params.color);
+                        o.castShadow = true;
+                        o.receiveShadow = false;
+                    }
+                });
+
+                // show shadow of car
+                carshadow(1,1000,0x000000,0.4,0);
+
+                // surface rings
+                surfaceRings(5,0xffffff,0.05,0.01);                
+
+                // car break liht color intensity
+                car.getObjectByName('break_light', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.color = new THREE.Color(0xff000f);
                         o.castShadow = true;
@@ -136,7 +495,8 @@
                     }
                 });
                 
-                can.getObjectByName('headlight_bulb', true).traverse ( ( o ) => {
+                // head light bulb intensity
+                car.getObjectByName('headlight_bulb', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.color = new THREE.Color(0xffffff);
                         o.castShadow = true;
@@ -145,92 +505,168 @@
                     }
                 });
 
+                // right front light
+                hlight1 = new THREE.PointLight( 0xffffff, 1.5, 2000 );
+                hlight1.color.setHSL( 1, 1, 1 );
+                hlight1.position.set( -0.3, 0, 0.012 );
 
-                headlisgt(0,0);
+                car.getObjectByName('headlight_bulb', true).add( hlight1 );                
+
+                hlight2 = new THREE.PointLight( 0xffffff, 1.5, 2000 );
+                hlight2.color.setHSL( 1, 1, 1 );
+                hlight2.position.set( 0.3, 0, 0.012 );
+                car.getObjectByName('headlight_bulb', true).add( hlight2 );
+
+
+
+
+                var cHeadLight = car.getObjectByName('headlight_bulb', true);
+
+
+
+
+
+                const meshgeometry = new THREE.PlaneGeometry( 100, 100 );
+				const meshmaterial = new THREE.MeshLambertMaterial( { color: 0x000000, } );
+
+				const mesh = new THREE.Mesh( meshgeometry, meshmaterial );
+				mesh.position.set( 0, 0.0015, 0 );
+				mesh.rotation.x = - Math.PI / 2;
+				mesh.receiveShadow = true;
+				scene.add( mesh );
+
+
+
+
+
+
+
+
+                const spotLight = new THREE.SpotLight( 0xffffff, 10 );
+				spotLight.position.set( -0.76, 0.67, 2.3 );
+				spotLight.angle = 0.1; //Math.PI / 4;
+				spotLight.penumbra = 0;
+				spotLight.decay = 1;
+				spotLight.distance = 10;
+				//spotLight.map = textureLoader.load( './assets/media/lava/2k_sun.jpg' );;
+
+				spotLight.castShadow = true;
+				spotLight.shadow.mapSize.width = 2048;
+				spotLight.shadow.mapSize.height = 2048;
+				spotLight.shadow.camera.near = 5;
+				spotLight.shadow.camera.far = 50;
+				spotLight.shadow.focus = 0.5;
+
+                spotLight.target.position.set(-0.76, 0.2, 5);
+
+				car.add( spotLight );
+				//car.add( new THREE.SpotLightHelper( spotLight ) );
+
+                const spotLight2 = new THREE.SpotLight( 0xffffff, 10 );
+				spotLight2.position.set( 0.76, 0.67, 2.3 );
+				spotLight2.angle = 0.1; //Math.PI / 4;
+				spotLight2.penumbra = 0;
+				spotLight2.decay = 1;
+				spotLight2.distance = 10;
+				//spotLight2.map = textureLoader.load( './assets/media/lava/2k_sun.jpg' );;
+
+				spotLight2.castShadow = true;
+				//spotLight2.shadow.mapSize.width = 2048;
+				//spotLight2.shadow.mapSize.height = 2048;
+				spotLight2.shadow.camera.near = 5;
+				spotLight2.shadow.camera.far = 50;
+				spotLight2.shadow.focus = 0.5;
+
+                spotLight2.target.position.set(0.76, 0.2, 5);
+
+				car.add( spotLight2 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                guis();
 
             }, function ( xhr ) {
-                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );                
+                //console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );                
             }, function ( error ) {
                 console.log( 'An error happened' );
             } );
-            /*
-            const plastiColor = document.getElementById( 'body-color' );
-            plastiColor.addEventListener( 'input', function () {
-                can.getObjectByName('bodypaint', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.color = new THREE.Color(this.value);
-                        o.castShadow = true;
-                        o.receiveShadow = false;
-                    }
-                });
-            } );
-            */            
-            const gui = new GUI();
-
-            gui.add( params, 'punctualLightsEnabled' ).onChange( toggleLights );
-            gui.addColor( params, 'color' ).name('Body Paint').onChange(function(val){
-                can.getObjectByName('bodypaint', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.color = new THREE.Color(val);
-                        o.castShadow = true;
-                        o.receiveShadow = false;
-                    }
-                });
-            });
-            gui.add( params, 'break', 0, 3, 0.5).name('Breaks').onChange( function(val){
-                can.getObjectByName('break_light', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.envMapIntensity = val
-                    }
-                });
-            } );
-            gui.add( params, 'headlight', 0, 10, 0.5).name('Headlight Bulb').onChange( function(val){
-                can.getObjectByName('headlight_bulb', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.envMapIntensity = val
-                    }
-                });
-            } );
-            gui.add( params, 'tyre', 0, 0.3, 0.01).name('Tyre Speed').onChange( function(val){
-                console.log(val)
-            } );
-            gui.open();
-
-            controls = new OrbitControls( camera, renderer.domElement ); //controls.minPolarAngle = Math.PI/2;
-            controls.maxPolarAngle = Math.PI/2;
-            controls.enableDamping = true;
-            controls.maxDistance = 10;
-            controls.minDistance = 3;
-            controls.target.set( 0, 0.5, 0 );
-            controls.update();
-
-            window.addEventListener('resize', onWindowResize);
         }
 
-        function headlisgt(show,helper){
-            if(show==1){
-                const headLight = new THREE.SpotLight( 0xffffff, 5 );
-                headLight.position.set( 0, 0, 0 );
-                headLight.intensity = 2;
-                headLight.angle = 0.01; //Math.PI / 2;
-                headLight.penumbra = 1;
-                headLight.decay = 2;
-                headLight.distance = 0;
-                //headLight.map = textures[ 'disturb.jpg' ];
+        function surfaceRings(totalRinghs,color,opacity,y){
+            
+            for(let ringCounts = 1; ringCounts <= totalRinghs; ringCounts++){
+                
+                const RingGeometry = new THREE.RingGeometry( ringSize, ringSize + 0.5, 64 ); 
+                const RingMaterial = new THREE.MeshBasicMaterial( { color: color, side: THREE.DoubleSide, opacity: opacity, transparent: true } );
+                const ring = new THREE.Mesh( RingGeometry, RingMaterial );
+                ring.rotation.x = Math.PI/2;
+                ring.position.y = y;
+                car.add( ring );
+                ringSize = ringSize + 1;
 
-                headLight.castShadow = true;
-                headLight.shadow.mapSize.width = 10;
-                headLight.shadow.mapSize.height = 10;
-                headLight.shadow.camera.near = 0;
-                headLight.shadow.camera.far = 5;
-                headLight.shadow.focus = 5;
-                can.getObjectByName('headlight_bulb', true).add( headLight );
+            }
 
-                if(helper==1){
-                    can.getObjectByName('headlight_bulb', true).add( new THREE.SpotLightHelper( headLight ) );
-                }
+        }
+
+        function carshadow(show,size,color,opacity,y){
+            
+            if(show==1){                    
+            
+                const planeGeometry = new THREE.PlaneGeometry( size,size );
+                planeGeometry.rotateX( - Math.PI / 2 );
+                const planeMaterial = new THREE.ShadowMaterial( { color:color, opacity: opacity } );
+                
+                const plane = new THREE.Mesh( planeGeometry, planeMaterial );
+                plane.position.y = y;
+                plane.receiveShadow = true;
+                car.add(plane);
             
             }
+
+        }
+
+        function rgb(){
+            new RGBELoader().load( './assets/hdri/belfast_sunset_puresky_4k.hdr', function ( hdri ) {
+                hdri.mapping = THREE.EquirectangularReflectionMapping;
+                scene.background = hdri;
+
+                skybox = new GroundProjectedSkybox( hdri );
+                skybox.scale.setScalar( 50 );                
+                scene.add( skybox );
+
+                scene.environment = hdri;
+            });
+        }
+        
+        function scene_camera(){
+            camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            camera.position.set( camX, camY, camZ );
         }
 
         function toggleLights( visible ) {
@@ -283,11 +719,23 @@
         
         function animate() {
             requestAnimationFrame( animate );
-           
+            TWEEN.update();
+            controls.update();
+
+            if(grid){
+                const time = - performance.now() / 1000;
+                grid.position.z = + ( time ) % 1;
+            }
+
+            //tyres[0].rotation.x += tyres[0].rotSpeed.x;
+            //tyres[1].rotation.x += tyres[1].rotSpeed.x;
+            //tyres[2].rotation.x += tyres[2].rotSpeed.x;
+            //tyres[3].rotation.x += tyres[3].rotSpeed.x;
+            /*
             for ( let i = 0; i < tyres.length; i ++ ) {
                 tyres[ i ].rotation.x += params.tyre;
             }
-
+            */
             renderer.render( scene, camera );
         }
     </script>
