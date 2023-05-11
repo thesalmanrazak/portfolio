@@ -46,15 +46,10 @@
         let textureFlare0 = textureLoader.load( './assets/media/lensflare/lensflare0_alpha.png' );
         let textureFlare3 = textureLoader.load( './assets/media/lensflare/lensflare0_alpha.png' );
         let textureFlare1 = textureLoader.load( './assets/media/lensflare/carlight.png' );
-        let cloudMap = textureLoader.load( './assets/media/belfast_sunset_puresky_4k.png' );
         let camX = 0, camY = 0, camZ = 8;
-        let grid, sphere;
+        let grid;
         let ringSize = 2.0;
-        let axehelper = new THREE.AxesHelper(5);
 
-        const basic = {
-            axe: false,
-        }
         const params = {
             grid: false,
             tonemap: 0.65,
@@ -64,11 +59,10 @@
             headlight: 0.1,
             tyrerotate: 0.0,
             tyre: false,
-            clouds: false,
             shadow: true,
-            headlight: false,
+            headlight: false,            
         };
-        
+
         const glassparams = {
 				color: 0xffffff,
 				transmission: 1,
@@ -88,7 +82,6 @@
 
         async function init(){
             scene = new THREE.Scene();
-            
 
             scene_camera();
             
@@ -102,8 +95,8 @@
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             renderer.toneMappingExposure = params.tonemap;
-
-            rgb();
+            
+            //rgb();
 
             sceneLight(1,0,2048);
 
@@ -111,74 +104,90 @@
             
             control();
 
-            grid_add(100, 100, 0xffffff, 0xffffff,0.1,true,true,0.01);
+            grid = new THREE.GridHelper( 100, 100, 0xffffff, 0xffffff );
+            grid.material.opacity = 0.1;
+            grid.material.depthWrite = true;
+            grid.material.transparent = true;
+            grid.position.y = 0.01;
+
+            /*
+
+            controls.addEventListener( "change", function(event){
+
+                //console.log(this.position0);
+
+                //console.log(this.object.position);
+                
+                //console.log(camera.position);
+
+                //this.position0.x = camera.position.x;
+                //this.position0.y = camera.position.y;
+                //this.position0.z = camera.position.z;
+                //console.log( controls.object.position );                
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if(event.keyCode == 37) {
+
+                    console.log('Left was pressed');
+                    car.getObjectByName( 'wheel_RF' ).rotation.y = -0.75;
+                    car.getObjectByName( 'wheel_LF' ).rotation.y = -0.75;
+
+                } else if(event.keyCode == 38) {
+
+                    console.log('up was pressed');
+                    tyres[0].rotation.x += 0.1;
+                    tyres[1].rotation.x += 0.1;
+                    tyres[2].rotation.x += 0.1;
+                    tyres[3].rotation.x += 0.1;
+
+                } else if(event.keyCode == 39) {
+
+                    console.log('Right was pressed');
+                    car.getObjectByName( 'wheel_RF' ).rotation.z = 0.75;
+                    car.getObjectByName( 'wheel_LF' ).rotation.z = 0.75;
+                    
+                } else if(event.keyCode == 40) {
+
+                    console.log('down was pressed');
+                    tyres[0].rotation.x -= 0.1;
+                    tyres[1].rotation.x -= 0.1;
+                    tyres[2].rotation.x -= 0.1;
+                    tyres[3].rotation.x -= 0.1;
+
+                }
+            });
+            document.addEventListener('keyup', function(event) {
+                if(event.keyCode == 37) {
+
+                    console.log('Left was released');
+                    car.getObjectByName( 'wheel_RF' ).rotation.y = 0;
+                    car.getObjectByName( 'wheel_LF' ).rotation.y = 0;
+
+                } else if(event.keyCode == 38) {
+
+                    console.log('up was released');
+
+                } else if(event.keyCode == 39) {
+
+                    console.log('Right was released');
+                    car.getObjectByName( 'wheel_RF' ).rotation.y = 0;
+                    car.getObjectByName( 'wheel_LF' ).rotation.y = 0;
+                    
+                } else if(event.keyCode == 40) {
+
+                    console.log('down was released');
+
+                }
+            });
+            */
+            // spacebar events
                        
             window.addEventListener('resize', onWindowResize);
         }
 
-        function grid_add(width,height,color1,color2,opacity,depth,transparent,y){
-            grid = new THREE.GridHelper( width,height,color1,color2 );
-            grid.material.opacity = opacity;
-            grid.material.depthWrite = depth;
-            grid.material.transparent = transparent;
-            grid.position.y = y;
-        }
-
-        document.addEventListener('keydown', function(event) {
-            if(event.keyCode == 37) {
-
-                console.log('Left was pressed');
-
-            } else if(event.keyCode == 38) {
-
-                console.log('up was pressed');
-
-            } else if(event.keyCode == 39) {
-
-                console.log('Right was pressed');
-                
-            } else if(event.keyCode == 40) {
-
-                console.log('down was pressed');
-
-            }
-        });
-        document.addEventListener('keyup', function(event) {
-            if(event.keyCode == 37) {
-
-                console.log('Left was released');
-
-            } else if(event.keyCode == 38) {
-
-                console.log('up was released');
-
-            } else if(event.keyCode == 39) {
-
-                console.log('Right was released');
-                
-            } else if(event.keyCode == 40) {
-
-                console.log('down was released');
-
-            }
-        });
-
-        controls.addEventListener( "change", function(event){
-            //console.log(this.position0);
-            //console.log(this.object.position);
-        });
-
         function guis(){
             const gui = new GUI();
-
-            gui.add( basic, 'axe').name('Axe Helper').onChange(function(val){
-
-                if(val==true){
-                    scene.add(axehelper);
-                } else {
-                    scene.remove(axehelper);
-                }
-            });
 
             // folder 1
             const folder1 = gui.addFolder('Glass Material Settings');
@@ -214,19 +223,13 @@
                 material.envMapIntensity = glassparams.envMapIntensity;
             } );
 
-            const bodycolor = {
-                color: '#ffffff',
-                metalness: 0,
-                roughness: 0,
-                enviromentmap: false,
-            }
             // folder 2
             const folder2 = gui.addFolder('Body Paint Settings');
 
             // toggle scene light
             //folder2.add( params, 'punctualLightsEnabled' ).onChange( toggleLights );
             // car body paint replace
-            folder2.addColor( bodycolor, 'color' ).name('Body Paint').onChange(function(val){
+            folder2.addColor( params, 'color' ).name('Body Paint').onChange(function(val){
                 car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.color = new THREE.Color(val);
@@ -235,45 +238,6 @@
                     }
                 });
             });
-            folder2.add( bodycolor, 'metalness', 0, 1, 0.01 ).name('Metalness').onChange(function(val){
-                car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.metalness = val,
-                        o.material.needsUpdate = true;
-                    }
-                    
-                });
-            });
-            folder2.add( bodycolor, 'roughness', 0, 1, 0.01 ).name('Roughness').onChange(function(val){
-                car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.roughness = val,
-                        o.material.needsUpdate = true;
-                    }
-                    
-                });
-            });
-            /*
-            folder2.add( bodycolor, 'enviromentmap').name('Enviroment Map').onChange(function(val){
-                if(val==true){
-                    car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.envMap = scene.background;
-                            o.material.envMapIntensity = 1;
-                            o.material.needsUpdate = true;
-                        }                    
-                    });
-                } else {
-                    car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            //o.material.envMap = '';
-                            o.material.envMapIntensity = 0;
-                            o.material.needsUpdate = true;
-                        }                    
-                    });
-                }
-            });
-            */
             
             // folder 3
             const folder3 = gui.addFolder('Day / Night Mood');
@@ -380,13 +344,7 @@
                     params.tyrerotate = 0.0;
                 }
             } );
-            folder3.add( params, 'clouds').name('Toggle Clouds').onChange(function(val){
-                if(val==true){                    
-                    scene.add( sphere );
-                } else {
-                    scene.remove(sphere);
-                }
-            })
+
             // folder 4
             const folder4 = gui.addFolder('Grid Animation');
             // show grid with rotation
@@ -407,7 +365,7 @@
             controls = new OrbitControls( camera, renderer.domElement ); //controls.minPolarAngle = Math.PI/2;
             controls.maxPolarAngle = Math.PI/2;
             controls.enableDamping = true;
-            controls.maxDistance = 100;
+            controls.maxDistance = 20;
             controls.minDistance = 2;
             controls.target.set( 0, 0.5, 0 );
         }
@@ -494,23 +452,13 @@
                     }
                 });
 
-                //const textureEquirec = textureLoader.load( './assets/media/360-video.jpg' );
-				//textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
-				//textureEquirec.colorSpace = THREE.SRGBColorSpace;
-
                 // car body paint color define
                 car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.color = new THREE.Color(params.color);
-                        o.material.metalness = 0,
-					    o.material.roughness = 0,
-                        o.material.envMap = scene.background;
-                        o.material.envMapIntensity = 0.5;
                         o.castShadow = true;
                         o.receiveShadow = false;
-                        o.material.needsUpdate = true;
                     }
-                    
                 });
 
                 // show shadow of car
@@ -552,19 +500,6 @@
                 // add light into car
                 car.getObjectByName('headlight_bulb', true).add( hlight1 );
                 car.getObjectByName('headlight_bulb', true).add( hlight2 );
-
-                sphere = new THREE.Mesh(
-                    new THREE.SphereGeometry( 40, 64, 128 ),
-                    new THREE.MeshStandardMaterial( {
-                        map: cloudMap,
-                        //lightMap: cloudMap,
-                        //envMap: cloudMap,
-                        //envMapIntensity: 1,
-                        side: THREE.DoubleSide,
-                        opacity: 0.5,
-                        transparent: true
-                    } )
-                );
 
                 guis();
 
@@ -616,15 +551,40 @@
                 skybox = new GroundProjectedSkybox( hdri );
                 skybox.scale.setScalar( 50 );                
                 scene.add( skybox );
+                console.log(skybox);
 
                 scene.environment = hdri;
-                hdri.dispose();
+
+                console.log(scene.background);
             });
         }
         
         function scene_camera(){
-            camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 0.1, 1000 );
-            camera.position.set( camX, camY, camZ );
+            
+            //camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            //camera.position.set( camX, camY, camZ );
+
+            let skyLength = 1e7;
+            let skyHyp = Math.sqrt(skyLength**2 + skyLength**2) + 1;
+            camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.001, skyHyp );
+
+            //           LEF      RIG      TOP      BOT      CEN      BAK
+            //           pxmCGI   nxmCGI   pymCGI   nymCGI   pzCGI    nzCGI
+            //let walls = [pxmICRF, nxmICRF, pzmICRF, nzmICRF, nymICRF, pymICRF];
+            let walls = ['./assets/media/dl.beatsnoop.com-3000-FrzlNx8coW.jpg','./assets/media/dl.beatsnoop.com-3000-FrzlNx8coW.jpg','./assets/media/dl.beatsnoop.com-3000-FrzlNx8coW.jpg','./assets/media/dl.beatsnoop.com-3000-FrzlNx8coW.jpg','./assets/media/dl.beatsnoop.com-3000-FrzlNx8coW.jpg','./assets/media/dl.beatsnoop.com-3000-FrzlNx8coW.jpg']
+            let materialArray = [];
+            for (let index = 0; index < 6; index++) {
+                let texture = new THREE.TextureLoader().load(walls[index]);
+                materialArray.push(new THREE.MeshBasicMaterial({
+                    map: texture,
+                    side: THREE.BackSide
+                }));
+            }
+            let geometry = new THREE.BoxGeometry(1, 1, 1);
+            skybox = new THREE.Mesh(geometry, materialArray);
+            skybox.scale.set(skyLength, skyLength, skyLength);
+            skybox.rotation.x = - 23.44 * Math.PI / 180;
+            scene.add(skybox);
         }
 
         function toggleLights( visible ) {
@@ -659,8 +619,10 @@
                 scene.add( hemiLight );
 
                 if(showHelper == 1){
-                    scene.add( new THREE.DirectionalLightHelper( light, 5 ) );
-                    scene.add( new THREE.HemisphereLightHelper( hemiLight, 5 ) );
+                    const helper = new THREE.DirectionalLightHelper( light, 5 );
+                    scene.add( helper );
+                    const hemihelper = new THREE.HemisphereLightHelper( hemiLight, 5 );
+                    scene.add( hemihelper );
                 }
 
             }
@@ -686,6 +648,7 @@
                 });
             }
         }, false);
+ 
 
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -697,24 +660,19 @@
         function animate() {
             requestAnimationFrame( animate );
             TWEEN.update();
-            
-            if(controls){
-                controls.update();
-            }
+            controls.update();
 
             if(grid){
                 const time = - performance.now() / 1000;
                 grid.position.z = + ( time ) % 1;
             }
 
+            skybox.rotation.x = - 0.5;
+
             //tyres[0].rotation.x += tyres[0].rotSpeed.x;
             //tyres[1].rotation.x += tyres[1].rotSpeed.x;
             //tyres[2].rotation.x += tyres[2].rotSpeed.x;
             //tyres[3].rotation.x += tyres[3].rotSpeed.x;
-            
-            if(sphere){
-                sphere.rotation.y -= 0.001;
-            }
 
             for ( let i = 0; i < tyres.length; i ++ ) {
                 tyres[ i ].rotation.x += params.tyrerotate;
