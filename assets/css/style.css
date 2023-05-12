@@ -860,6 +860,34 @@ main section.hello .details div.info {
   main section.work-category div.grid.digital .item:hover span {
     opacity: 0;
   }
+  main section.work-category div.grid.logo {
+    -moz-column-count: 1;
+         column-count: 1;
+  }
+  main section.work-category div.grid.uiux {
+    margin: 0 10px;
+  }
+  main section.work-category div.grid.uiux .item h2 {
+    font-size: 8vw;
+  }
+  main section.work-category div.grid.uiux .item .screen.mobile {
+    width: 100%;
+  }
+  main section.work-category div.grid.uiux .item .screen.tablet {
+    width: 768px;
+    max-width: 768px;
+    height: 1280px;
+    min-height: 1280px;
+    border-radius: 80px;
+  }
+  main section.work-category div.grid.uiux .item .screen.ipad {
+    width: 768px;
+    max-width: 768px;
+    height: 1024px;
+    min-height: 1024px;
+    border-radius: 50px;
+    border-radius: 60px;
+  }
   main section.work-single {
     background: #fff;
     color: #000;
