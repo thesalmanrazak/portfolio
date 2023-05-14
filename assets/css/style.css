@@ -218,7 +218,7 @@ ul {
   left: 0;
   bottom: 0;
   right: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: linear-gradient(155deg, #eee 20%, #ccc);
   transition: 1 s 0.4 s;
 }
 
@@ -342,6 +342,7 @@ main section.work ul.work-nav li a {
   line-height: 1.8em;
   display: block;
   margin-right: 15px;
+  text-transform: capitalize;
 }
 main section.work ul.work-nav li a:hover {
   color: rgba(167, 6, 6, 0.8784313725);
@@ -473,14 +474,15 @@ main section.work-category div.grid.uiux .item .screen {
   padding: 0;
 }
 main section.work-category div.grid.uiux .item .screen.mobile {
-  width: 414px;
-  border-radius: 30px;
+  width: 330px;
+  border-radius: 25px;
   padding: 0;
   margin: 0;
 }
 main section.work-category div.grid.uiux .item .screen.mobile img {
   display: block;
   width: 100%;
+  height: 100%;
 }
 main section.work-category div.grid.uiux .item .screen.tablet {
   width: 768px;
@@ -508,44 +510,96 @@ main section.work-category div.grid.print {
        column-gap: 15px;
 }
 main section.work-category div.grid.print .item {
-  padding: 0 20%;
-}
-main section.work-category div.grid.print .item .wrappers {
-  align-items: center;
-  display: flex;
-  height: 100%;
-  justify-content: center;
-  margin: 0;
-  width: 100%;
-}
-main section.work-category div.grid.print .item .wrappers .aspect {
-  padding-bottom: 1%;
+  padding: 0 10%;
   position: relative;
+}
+main section.work-category div.grid.print .item h2 {
+  color: #000;
+  font-size: 3vw;
+  line-height: 1.5em;
+  display: flex;
+  padding: 15px 0;
+}
+main section.work-category div.grid.print .item h2 sup {
+  color: rgba(167, 6, 6, 0.8784313725);
+  font-size: 20px !important;
+  font-weight: 600;
+  vertical-align: super;
+  display: inline-block;
+  margin: 0 10px;
+  text-transform: uppercase;
+}
+main section.work-category div.grid.print .item.pdf {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+main section.work-category div.grid.print .item.pdf .container {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+main section.work-category div.grid.print .item.pdf .container canvas {
+  border: 1px solid #dddddd;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.4) 10px 10px;
+}
+main section.work-category div.grid.print .item.pdf .container div.action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+}
+main section.work-category div.grid.print .item.pdf .container div.action div.buttons {
+  display: flex;
+}
+main section.work-category div.grid.print .item.pdf .container div.action div.buttons button {
+  border: 1px solid transparent;
+  background-color: rgba(167, 6, 6, 0.8784313725);
+  display: block;
+  margin: 0 5px;
+  height: 35px;
+  color: #fff;
+  min-width: 80px;
+  padding: 0 15px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+main section.work-category div.grid.print .item.pdf .container div.action div.buttons button:hover {
+  color: rgba(167, 6, 6, 0.8784313725);
+  background: #fff;
+  border-color: rgba(167, 6, 6, 0.8784313725);
+}
+main section.work-category div.grid.print .item.pdf .container div.action div.status {
+  margin: 5px 0 0;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+main section.work-category div.grid.print .item.pdf .container div.action div.status div {
+  display: block;
+  border: 1px solid #ddd;
+  padding: auto 10px;
+  text-align: center;
+  line-height: 30px;
+  min-height: 30px;
+  min-width: 50px;
+  margin: 0 10px;
+}
+main section.work-category div.grid.print .item.stationary {
+  background-color: rgb(160, 235, 216);
+}
+main section.work-category div.grid.print .item.broucher div.images {
+  -moz-column-count: 3;
+       column-count: 3;
+  -moz-column-gap: 15px;
+       column-gap: 15px;
+}
+main section.work-category div.grid.print .item.broucher div.images img {
+  display: block;
   width: 100%;
-}
-main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner {
-  bottom: 0;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner .flipbook {
-  height: 100%;
-  transition: margin-left 0.25s ease-out;
-  width: 100%;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-}
-main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner .flipbook .page {
-  height: 100%;
-  width: 100%;
-}
-main section.work-category div.grid.print .item .wrappers .aspect .aspect-inner .flipbook .page img {
-  max-width: 595px;
-  height: 842px;
+  margin-bottom: 15px;
 }
 main section.work-category div.grid.print .item:hover span {
   opacity: 0;

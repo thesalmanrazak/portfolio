@@ -5,7 +5,8 @@
     left: 0;
     bottom: 0;
     right: 0;
-    background: rgba(0, 0, 0, 0.9);
+    //background: rgba(0, 0, 0, 1);
+    background: linear-gradient(155deg, #eee 20%, #ccc);
     transition: 1 s 0.4 s;
 }
 #progress {

@@ -1,8 +1,99 @@
-[
-    {"Branding":["one","two"]},
-    {"Digital Media":["one","two"]},
-    {"Logo Designing":["one","two"]},
-    {"Three.js":["one","two"]},
-    {"UI / UX":["one","two"]},
-    {"Web Designing":["one","two"]}
-]
+{
+    "branding": [
+        {"name":"Brand Name", "images":"placeholder.jpg"}
+    ],
+    "digital media": [
+        {"name":"Afridi Inn December 2017", "path": "afridiinn", "images": ["01_dec_17.jpg","02_dec_17.jpg","03_dec_17.jpg","04_dec_17.jpg","05_dec_17.jpg","06_dec_17.jpg","07_dec_17.jpg","08_dec_17.jpg","09_dec_17.jpg","10_dec_17.jpg","11_dec_17.jpg","12_dec_17.jpg","13_dec_17.jpg","14_dec_17.jpg","15_dec_17.jpg","16_dec_17.jpg","17_dec_17.jpg","18_dec_17.jpg","19_dec_17.jpg","20_dec_17.jpg","21_dec_17.jpg","22_dec_17.jpg","23_dec_17.jpg","24_dec_17.jpg"]},
+        {"name":"Afridi Inn August 2017", "path": "afridiinn", "images": ["01_aug_17.jpg","02_aug_17.jpg","03_aug_17.jpg","04_aug_17.jpg","05_aug_17.jpg","06_aug_17.jpg","07_aug_17.jpg","08_aug_17.jpg","09_aug_17.jpg","10_aug_17.jpg","11_aug_17.jpg","12_aug_17.jpg","13_aug_17.jpg","14_aug_17.jpg","15_aug_17.jpg","16_aug_17.jpg","17_aug_17.jpg","18_aug_17.jpg","19_aug_17.jpg","20_aug_17.jpg"]},
+        {"name":"Afridi Inn October 2017", "path": "afridiinn", "images": ["01_oct_17.jpg","02_oct_17.jpg","03_oct_17.jpg","04_oct_17.jpg","05_oct_17.jpg","06_oct_17.jpg","07_oct_17.jpg","08_oct_17.jpg","09_aug_17.jpg","10_oct_17.jpg","11_oct_17.jpg","12_oct_17.jpg","13_oct_17.jpg","14_oct_17.jpg","15_oct_17.jpg","16_oct_17.jpg","17_oct_17.jpg","18_oct_17.jpg","19_oct_17.jpg","20_oct_17.jpg","21_oct_17.jpg","22_oct_17.jpg","23_oct_17.jpg","24_oct_17.jpg"]},
+        {"name":"Afridi Inn December 2017", "path": "afridiinn", "images": ["01_dec_17.jpg","02_dec_17.jpg","03_dec_17.jpg","04_dec_17.jpg","05_dec_17.jpg","06_dec_17.jpg","07_dec_17.jpg","08_dec_17.jpg","09_dec_17.jpg","10_dec_17.jpg","11_dec_17.jpg","12_dec_17.jpg","13_dec_17.jpg","14_dec_17.jpg","15_dec_17.jpg","16_dec_17.jpg","17_dec_17.jpg","18_dec_17.jpg","19_dec_17.jpg","20_dec_17.jpg","21_dec_17.jpg","22_dec_17.jpg","23_dec_17.jpg","24_dec_17.jpg"]},
+        {"name":"Afridi Inn January 2018", "path": "afridiinn", "images": ["01_jan_18.jpg","02_jan_18.jpg","03_jan_18.jpg","04_jan_18.jpg","05_jan_18.jpg","06_jan_18.jpg","07_jan_18.jpg","08_jan_18.jpg","09_jan_18.jpg","10_jan_18.jpg","11_jan_18.jpg","12_jan_18.jpg","13_jan_18.jpg","14_jan_18.jpg","15_jan_18.jpg","16_jan_18.jpg","17_jan_18.jpg","18_jan_18.jpg","19_jan_18.jpg","20_jan_18.jpg"]},        
+        {"name":"Dandee January 2019", "path": "dandee", "images": ["01_mar_18.png","02_mar_18.png","03_mar_18.png","04_mar_18.png","05_mar_18.png","06_mar_18.png","07_mar_18.png","08_mar_18.png","09_mar_18.png","10_mar_18.png","11_mar_18.png","12_mar_18.png"]},
+        {"name":"Dandee March 2017", "path": "dandee", "images": ["01_dec_17.png","02_dec_17.png","03_dec_17.png","04_dec_17.png","05_dec_17.png","06_dec_17.png","07_dec_17.png","08_dec_17.png","09_dec_17.png","10_dec_17.png","11_dec_17.png","12_dec_17.png","13_dec_17.png","14_dec_17.png"]},
+        {"name":"Dandee December 2017", "path": "dandee", "images": ["01_nov_17.jpg","02_nov_17.jpg","03_nov_17.jpg","04_nov_17.jpg","05_nov_17.jpg","06_nov_17.jpg","07_nov_17.jpg","08_nov_17.jpg","09_nov_17.jpg","10_nov_17.jpg","11_nov_17.jpg","12_nov_17.jpg","13_nov_17.jpg","14_nov_17.jpg","15_nov_17.jpg","16_nov_17.jpg","17_nov_17.jpg","18_nov_17.jpg","19_nov_17.jpg","20_nov_17.jpg","21_nov_17.jpg","22_nov_17.jpg","23_nov_17.jpg"]},
+        {"name":"Parish Footwear", "path": "parish", "images": ["01.png","02.png","03.png","04.png","05.png","06.png","07.png","08.png","09.png","10.png","11.png","12.png","13.png","14.png","15.png","16.png","17.png","18.png","19.png","20.png"]},
+        {"name":"Stillman's Pakistan", "path": "stillmans", "images": ["01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg","07.jpg","08.jpg","09.jpg","10.jpg","11.jpg","12.jpg","13.jpg","14.jpg","15.jpg","16.jpg","17.jpg","18.jpg","19.jpg","20.jpg","21.jpg","22.jpg","23.jpg","24.jpg","25.jpg","26.jpg","27.jpg","28.jpg","29.jpg","30.jpg","31.jpg","32.jpg","33.jpg"]}
+    ],
+    "logo designing": [
+        {"name":"ESAAR Advisers", "images": "esaar.jpg"},
+        {"name": "Amigo Clothing", "images": "amigo.png"},
+        {"name": "FYK Marketing", "images": "fyk-marketing.png"},
+        {"name": "Luxury Living", "images": "luxury-living.png"},
+        {"name": "HAWK Securities", "images": "hawk-securities.png"},
+        {"name": "Kings League", "images": "kings-league.png"},
+        {"name": "Pingado Coffee", "images": "pigado.png"},
+        {"name": "Hamzah", "images": "hamzah.png"},
+        {"name": "Marche", "images": "marche.png"},
+        {"name": "Zeal Energy Booster", "images": "zeal-booster.png"},
+        {"name": "Dandee Fast Food", "images": "dandee.png"},
+        {"name": "Delivery Bazar", "images": "bazar.png"},
+        {"name": "Estatomatic", "images": "estatomatic.png"},
+        {"name": "Fitlytoc", "images": "fitlytoc.png"},
+        {"name": "Fresh Box", "images": "freshbox.png"},
+        {"name": "Glorious Store", "images": "glorious-store.png"},
+        {"name": "Herbia Health", "images": "herbia-health.png"},
+        {"name": "Jaanis", "images": "janis.png"},
+        {"name": "LeMarca", "images": "lemarca.png"},
+        {"name": "MM Sheikh Law Associates", "images": "mm-shaikh.png"},
+        {"name": "Muhammadi Steel", "images": "muhammadi-steel.png"},
+        {"name": "Munch N Crunch", "images": "munch-crunch.png"},
+        {"name": "Optima Real Estate", "images": "optima.png"},
+        {"name": "PATT Securities", "images": "patt.png"},
+        {"name": "PIAS", "images": "pias.png"},
+        {"name": "Premium Cigar Co", "images": "premium-cigar.png"},
+        {"name": "Salonista", "images": "salonista.png"},
+        {"name": "Onrique Cosmetics", "images": "onrique.png"},
+        {"name": "Belle Paris", "images": "belle.png"},
+        {"name": "Souq of Qatar", "images": "souq-qatar.png"},
+        {"name": "Ummat Time", "images": "ummat-time.png"},
+        {"name": "WeTraders", "images": "wetraders.png"},
+        {"name": "Zindagi Kia Hay", "images": "zindagi-kia-hay.png"},
+        {"name": "SoBee by Zunaira", "images": "sobee.png"},
+        {"name": "CST Technologies", "images": "cst-tech.png"},
+        {"name": "Coder Avenue", "images": "coder-avenue.png"},
+        {"name": "Interactive Cells", "images": "interactive-cells.png"},
+        {"name": "Shaz Khan", "images": "shaz-khan.png"},
+        {"name": "Kazim Farms", "images": "kazim.png"},
+        {"name": "Butterfly Production", "images": "butterfly.png"},
+        {"name": "Innovative App Studio", "images": "innovative-app-studio.png"}
+    ],
+    "print": [
+        {"name":"Muhammadi Steel", "path": "steel_1", "type": "pdf", "file": ["muhammadi_steel.pdf"]},
+        {"name":"MAJU Prospectus", "path": "maju_1", "type": "pdf", "file": ["maju_prospectus_2017.pdf"]},
+        {"name":"ReskPak", "path": "respak_1", "type": "pdf", "file": ["respak_company_profile.pdf"]},
+        
+        {"name":"Maju Broucher", "path": "maju_1", "type": "broucher", "images": ["01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg","07.jpg","08.jpg"]}
+    ],
+    "three js": [
+        {"name":"360&deg; Video", "link": "360", "images": "360-video.jpg"},
+        {"name":"Sound Visualizer", "link": "sound", "images": "audio.jpg"},
+        {"name":"Wrist Watch", "link": "watch", "images": "watch.jpg"},
+        {"name":"Face Bandana", "link": "bandana", "images": "bandana.jpg"},
+        {"name":"Orange Drink Can", "link": "can", "images": "can.jpg"},
+        {"name":"Virtual Car", "link": "car", "images": "car.jpg"},
+        {"name":"Solar System", "link": "solar-system", "images": "solar-system.jpg"},
+        {"name":"Mars Planet", "link": "marsPlanet", "images": "mars_planet.jpg"},
+        {"name":"Leather Sofa", "link": "sofa", "images": "sofa.jpg"},
+        {"name":"Custom Tshirt", "link": "tshirt", "images": "tshirt.jpg"},
+        {"name":"RGB Shiift", "link": "rgbshift", "images": "market.jpg"},
+        {"name":"Countries Geo Location", "link": "geo-location", "images": "geo-location.jpg"},
+        {"name":"Pocket Square", "link": "pocketsquare", "images": "pocket-square.jpg"},
+        {"name":"Shoes", "link": "shoes", "images": "shoes.jpg"},
+        {"name":"Sun Rotation", "link": "sun", "images": "sun.jpg"},
+        {"name":"Moon Rotation", "link": "moon", "images": "audio.jpg"},
+        {"name":"Plastic Chair", "link": "chair", "images": "audio.jpg"}
+    ],
+    "ui/ux designing": [
+        
+        {"name":"Plant Swaps", "path": "plantswaps", "device":"mobile", "images": ["01.png","02.png","03.png","04.png","05.png","06.png","07.png","08.png","09.png","10.png","11.png","12.png","13.png","14.png","15.png"]},
+        {"name":"ParhegaPak", "path": "parhegapak", "device":"mobile", "images": ["01.png","02.png","03.png","04.png","05.png","06.png","07.png","08.png"]},
+        {"name":"Hook My Ride", "path": "hookmyride", "device":"mobile", "images": ["01.png","02.png","03.png","04.png","05.png","06.png","07.png","08.png","09.png","10.png","11.png","12.png","13.png","14.png","15.png","16.png"]},
+        {"name":"Salonista", "path": "salonista", "device":"mobile", "images": ["01.png","02.png","03.png","04.png","05.png","06.png","07.png","08.png","09.png","10.png","11.png","12.png","13.png","14.png","15.png","16.png","17.png","18.png"]}
+    ],
+    "web designing": [
+        {"name":"name goes here", "url":"project url goes here"},
+        {"name":"name goes here", "url":"project url goes here"},
+        {"name":"name goes here", "url":"project url goes here"},
+        {"name":"name goes here", "url":"project url goes here"}
+    ]
+}
