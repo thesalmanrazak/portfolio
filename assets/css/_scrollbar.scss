@@ -10,7 +10,7 @@ $barWidth : 8px;
     }
     //&::-webkit-scrollbar-track-piece { }
     &::-webkit-scrollbar-thumb {
-        background-color: $bg;
+        background-color: var(--bg-color);
     }
     &::-webkit-scrollbar-corner {
         display: none;

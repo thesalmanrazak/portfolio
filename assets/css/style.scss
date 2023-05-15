@@ -56,7 +56,7 @@ main{
                 font-size: 4em;                
                 span{
                     font-weight: 700;                    
-                    color: $bg;
+                    color: var(--bg-color);
                 }
             }
         }
@@ -97,13 +97,13 @@ main{
                         margin-right: 15px;
                         text-transform: capitalize;
                         &:hover{
-                            color: $bg;
+                            color: var(--bg-color);
                         }
                     }
                     span{
                         font-size: 1.2em;
                         text-transform: uppercase;
-                        color: $bg;
+                        color: var(--bg-color);
                         font-weight: 600;
                     }
                     &:last-of-type{
@@ -275,7 +275,7 @@ main{
                             display: flex;
                             padding: 15px 0;
                             sup {
-                                color: $bg;
+                                color: var(--bg-color);
                                 font-size: 20px !important;
                                 font-weight: 600;
                                 vertical-align: super;
@@ -310,7 +310,7 @@ main{
                                         display: flex;
                                         button{
                                             border: 1px solid transparent;
-                                            background-color: $bg;
+                                            background-color: var(--bg-color);
                                             display: block;
                                             margin: 0 5px;
                                             height: 35px;
@@ -321,9 +321,9 @@ main{
                                             font-weight: 500;
                                             cursor: pointer;
                                             &:hover{
-                                                color: $bg;
+                                                color: var(--bg-color);
                                                 background: $white;
-                                                border-color: $bg;
+                                                border-color: var(--bg-color);
                                             }
                                         }
                                     }
@@ -432,7 +432,7 @@ main{
                             margin-right: 10px;
                             font-weight: 800;
                             &:hover{
-                                color: $bg;
+                                color: var(--bg-color);
                             }
                         }
                         &:last-of-type{
@@ -444,7 +444,7 @@ main{
                     width: calc(100% - 290px);
                     h4{
                         font-size: 1rem;
-                        color: $bg;
+                        color: var(--bg-color);
                         position: relative;
                         font-weight: 500;
                         &::after{
@@ -455,7 +455,7 @@ main{
                             margin-right: 10px;
                             top: 50%;
                             display: block;
-                            background-color: $bg;
+                            background-color: var(--bg-color);
                             position: absolute;
                         }
                     }
@@ -466,7 +466,7 @@ main{
                         margin: 15px 0;
                     }
                     blockquote{
-                        border-left: 3px solid $bg;
+                        border-left: 3px solid var(--bg-color);
                         padding: 15px 20px;
                         background-color: #f7f7f7;
                         font-size: 1.2rem;
@@ -490,7 +490,7 @@ main{
                     font-weight: 400;
                     text-transform: uppercase;
                     a{
-                        color: $bg;
+                        color: var(--bg-color);
                         display: table;
                         font-size: 1.1rem;
                         font-weight: 600;
@@ -540,7 +540,7 @@ main{
                 }
                 h2{
                     font-size: 2.1rem;
-                    color: $bg;
+                    color: var(--bg-color);
                 }
                 p{
                     margin: 0 0 20px;
@@ -598,6 +598,376 @@ main{
                 }
             }
         }
+        &.inspiration{
+            background-color: orange;
+        }
+        &.text{
+            position: relative;
+            button {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                background-color: #95a8a6;
+                border: 5px solid #0f1515;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                cursor: pointer;
+                transform: translate(-50%, -50%) scale(1);
+                transition: transform 0.35s ease;
+                transform-origin: 50% 50%;
+                
+                
+            }
+            button:before {
+                position: absolute;
+                content: "";
+                width: 0px;
+                height: 0px;
+                border-top: 20px solid transparent;
+                border-bottom: 20px solid transparent;
+                border-left: 30px solid #0f1515;
+                left: 50%;
+                top: 50%;
+                transform: translate(-30%, -50%);
+            }
+        
+            button:hover {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+    
+            .lady {
+                position: absolute;
+                margin:auto;
+                left:0;
+                right:0;
+                top:0;
+                bottom:0;
+                width:525px;
+                opacity:0.4;
+            }
+    
+            canvas {
+                opacity:0;
+            }
+        }
+        &.stained{
+            canvas {
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                width: 100%;
+                height: 100%;
+            }
+        }
+        &.daynight{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            animation: bg-anim 15s ease infinite;
+            background-image: linear-gradient(-45deg, #4571d8, #21586f, #666b7a, #2b5ea5);
+            background-size: 400% 400%;
+            z-index: 1;
+            .device {
+                position: absolute;
+                z-index: 0;
+            }
+            .container {
+                position: relative;
+                width: 263px;
+                max-height: 525px;
+                height: 100vh;
+                overflow: hidden;
+                border-radius: 20px;
+                box-shadow: 0 30px 50px rgba(0,0,0,.3);
+                z-index: 1;
+            }            
+            .layer1, .layer2 {
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                transform: scale(1.01);
+            }
+            .layer2 {
+                opacity: 0;
+                transition: 4s;
+            }
+            .layer1 {
+                opacity: 1;
+                transition: 4s;
+            }
+            .moon {
+                transform: translate(-50px, 230px);
+                transition: 4s;
+            }
+            .rising-star {
+                transform: translate(225px, -160px);
+                transition: 4s;
+            }
+            .sun {
+                transition: 5s;
+            }
+            .cloud1, .cloud2, .cloud3, .cloud4 {
+                transition: 4s;
+            }
+            .light-mode {
+                .layer2 {
+                    opacity: 1;
+                }
+                .moon, .rising-star{
+                    transform: none;
+                    transition-delay: 1s;
+                }
+                .sun {
+                    transform: translate(64px, -290px);
+                }
+                .cloud1 {
+                    transform: translateX(-140px);
+                }
+                .cloud2 {
+                    transform: translateX(-100px);
+                }
+                .cloud3 {
+                    transform: translateX(-200px);
+                }
+                .cloud4 {
+                    transform: translateX(-180px);
+                }
+            }
+            .toggle {
+                width: 45px;
+                height: 24px;
+                position: absolute;
+                right: 8px;
+                top: 8px;
+                z-index: 1;
+                cursor: pointer;
+            }
+            :root {
+                --mountainY: 0;
+            }
+   
+   
+   .mountain3 {
+    transform: translateX(29px) scaleX(1.04) translateY(var(--mountainY));
+   }
+   
+   [class*="mountain"] {
+    transform: translateY(var(--mountainY));
+    animation: goUp 2s both;
+   }
+   
+   .mountain2 {
+    animation-delay: .2s 
+   }
+   .mountain3 {
+    animation-delay: .4s;
+   }
+   .mountain4 {
+    animation-delay: .6s;
+   }
+   .mountain5 {
+    animation-delay: .8s;
+   }
+   .mountain6 {
+    animation-delay: 1s;
+   }
+   .mountain7 {
+    animation-delay: 1.2s;
+   }
+   
+   .right {
+    animation: goLeft 2s .2s both;
+   }
+   
+   .tree {
+      animation: goUp 2s both;
+   }
+   
+   .sun {
+      animation: fadeIn 2s 2s both;
+   }
+   
+   .sky {
+    animation: sky 2s 2s both;
+   }
+   
+   .m3 {
+    transform: translateX(26px) scaleX(1.1);
+   }
+   
+   @keyframes goUp {
+    from {
+     transform: translateY(200px);
+    }
+   }
+   
+   @keyframes sky {
+    from {
+     transform: scale(2);
+    }
+   }
+   
+   @keyframes fadeIn {
+    from {
+     opacity: 0;
+    }
+   }
+   
+   @keyframes goLeft {
+    from {
+     transform: translateX(200px);
+    }
+   }
+   
+   @keyframes bg-anim {
+    0% {
+     background-position: 0% 50%;
+    }
+    50% {
+     background-position: 100% 50%;
+    }
+    100% {
+     background-position: 0% 50%;
+    }
+   }
+
+
+
+
+        }
+        &.crowd{
+            #canvas {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        &.slider{
+            //box-sizing: border-box;
+            //text-rendering: optimizeLegibility;
+            //-webkit-font-smoothing: antialiased;
+            //-moz-osx-font-smoothing: grayscale;
+            //font-kerning: auto;
+            //-webkit-text-size-adjust: 100%;
+            @font-face {
+                font-family: DomaineDisp;
+                font-weight: normal;
+                src: url(https://cdn.statically.io/gh/AlainBarrios/Fonts/b41a05199c312e4fada6cf977d40d76f2534e306/DomaineDisp-Regular.otf?raw=true);
+              }
+              
+                position: relative;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                //background-color: rgba(0, 0, 0, 1);
+              
+              ul {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+              }
+              
+              img {
+                max-width: 100%;
+                display: block;
+              }
+              
+              #wrap-texture {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+              }
+              
+              #canvasx {
+                /* make the canvas wrapper fits the document */
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                &:before {
+                    content: "";
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.3);
+                  }
+              }
+              
+              
+              .planes {
+                display: flex;
+                align-items: center;
+                width: 100%;
+                height: 45vh;
+                user-select: none;
+                position: relative;
+                cursor: grab;
+                white-space: nowrap;
+                overflow: hidden;
+              }
+              
+              .draggable-container {
+                position: absolute;
+                height: 100%;
+              }
+              
+              .slider-names-container {
+                --size: calc(7vmin + 1rem);
+                text-align: center;
+                font-family: DomaineDisp;
+                font-size: var(--size);
+                text-transform: uppercase;
+                pointer-events: none;
+                color: rgb(255, 255, 255);
+                overflow-y: hidden;
+                width: 100vw;
+                position: absolute;
+                top: 50%;
+                transform: translatey(-50%);
+              }
+              
+              .draggable-visible {
+                display: grid;
+                grid-template-columns: repeat(8, minmax(480px, 1fr));
+                height: 100%;
+                grid-column-gap: 100px;
+              }
+              
+              .draggable-hidden {
+                z-index: 5;
+                width: 100%; 
+                height: 100%;
+                position: absolute;
+                .item {
+                    height: 100%;
+                }
+              }
+              
+            .grabbing {
+                cursor: grabbing;
+            }
+              
+            .plane {
+                height: 100%;
+                img {
+                    //display: none;
+                    object-fit: cover;
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+        }
+        
     }
 }
 
@@ -652,7 +1022,7 @@ main{
                     font-size: 4em;                
                     span{
                         font-weight: 700;                    
-                        color: $bg;
+                        color: var(--bg-color);
                     }
                 }
             }
@@ -785,7 +1155,7 @@ main{
                                 margin-right: 10px;
                                 font-weight: 800;
                                 &:hover{
-                                    color: $bg;
+                                    color: var(--bg-color);
                                 }
                             }
                             &:last-of-type{
@@ -797,7 +1167,7 @@ main{
                         width: calc(100% - 290px);
                         h4{
                             font-size: 1rem;
-                            color: $bg;
+                            color: var(--bg-color);
                             position: relative;
                             font-weight: 500;
                             &::after{
@@ -808,7 +1178,7 @@ main{
                                 margin-right: 10px;
                                 top: 50%;
                                 display: block;
-                                background-color: $bg;
+                                background-color: var(--bg-color);
                                 position: absolute;
                             }
                         }
@@ -819,7 +1189,7 @@ main{
                             margin: 15px 0;
                         }
                         blockquote{
-                            border-left: 3px solid $bg;
+                            border-left: 3px solid var(--bg-color);
                             padding: 15px 20px;
                             background-color: #f7f7f7;
                             font-size: 1.2rem;
@@ -843,7 +1213,7 @@ main{
                         font-weight: 400;
                         text-transform: uppercase;
                         a{
-                            color: $bg;
+                            color: var(--bg-color);
                             display: table;
                             font-size: 1.1rem;
                             font-weight: 600;
@@ -893,7 +1263,7 @@ main{
                     }
                     h2{
                         font-size: 2.1rem;
-                        color: $bg;
+                        color: var(--bg-color);
                     }
                     p{
                         margin: 0 0 20px;

@@ -6,7 +6,10 @@
 }
 
 html, body{
-    background: $bg;
+    //background: $bg;
+    
+    background: var(--bg-color);
+    
     color: $white;
     overflow: hidden;
     width: 100vw;
@@ -94,10 +97,10 @@ header{
                 background-color: $black;
             }
             &:hover{
-                color: $bg;
+                color: var(--bg-color);
                 &::after{
                     width: 35px;
-                    background-color: $bg;
+                    background-color: var(--bg-color);
                 }
             }
         }
@@ -135,7 +138,7 @@ footer{
             a{
                 color: $black;
                 &:hover{
-                    color: $bg;
+                    color: var(--bg-color);
                 }
             }
         }
@@ -166,11 +169,11 @@ aside{
         font-weight: 800;
         white-space: nowrap !important;
         &:hover{
-            color: $bg;
+            color: var(--bg-color);
         }
     }
     &.inside{
-        //background: $bg;
+        //background: var(--bg-color);
         //color: $white;        
         a{
             //color: $white;

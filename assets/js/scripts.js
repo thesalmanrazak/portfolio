@@ -4,7 +4,31 @@ $(document).ready(function(){
     $('aside').load('nav.html');
     $('header').load('header.html');
     $('footer').load('footer.html');
+
+    // color of the day
+    const daycolor = new Date();
+    const day = daycolor.getDay();
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    if(day==0){
+        document.body.style.setProperty('--bg-color', '#a70606e0');
+    } else if(day==1){
+        document.body.style.setProperty('--bg-color', '#c9ee9b');
+    } else if(day==2){
+        document.body.style.setProperty('--bg-color', '#ec5f5f');
+    } else if(day==3){
+        document.body.style.setProperty('--bg-color', '#fe2b01');
+    } else if(day==4){
+        document.body.style.setProperty('--bg-color', 'magenta');
+    } else if(day==5){
+        document.body.style.setProperty('--bg-color', '#27ddb0');
+    } else if(day==6){
+        document.body.style.setProperty('--bg-color', '#08d7e6');
+    }
 });
+
+function inspire(){
+    
+}
 
 $(function(){
     function id(v){

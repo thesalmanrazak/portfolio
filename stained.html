@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Razak :|: Being creative mean be different...</title>
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0RNP8J0Q06"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0RNP8J0Q06');
+</script>
+<body>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        
+        import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+        import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+        //import { Reflector } from 'three/addons/objects/Reflector.js';
+
+        //THREE.ColorManagement.enabled = false;
+
+        const container = document.getElementById('container');
+        let cube, scene, camera, renderer, controls;
+        let circle, plane, torus;
+        //let sphereGroup, smallSphere;
+        //let groundMirror, verticalMirror;
+        let spotLight = new THREE.SpotLight( 0xffffff ), SpotLightHelper;
+        let loader = new THREE.TextureLoader().setPath( './assets/media/stained/' );
+		let filenames = ['01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg', '07.jpg', '08.jpg', '09.jpg', '10.jpg', '11.jpg', '12.jpg', '13.jpg', '14.jpg', '15.jpg', '16.jpg', '17.jpg', '18.jpg', '19.jpg', '20.jpg', '21.jpg', '22.jpg', '23.jpg', '24.jpg', '25.jpg', '26.jpg', '27.jpg', '28.jpg', '29.jpg', '30.jpg', '31.jpg', '32.jpg' ];
+        const textures = { 'none': null };
+
+        let bgFog = 0xaabb99;
+        let mouseX = 0, mouseY = 0;
+        let windowHalfX = window.innerWidth / 2;
+        let windowHalfY = window.innerHeight / 2;
+
+        const params = {
+            map: textures[ '01.jpg.png' ],
+            color: spotLight.color.getHex(),
+            intensity: 40,
+            distance: 500,
+            angle: 0.326,
+            penumbra: 0.155,
+            decay: 2,
+            focus: 1,
+            shadows: true,
+            bgFog: 0xbb1b53, //0x171717,
+            fogIntensity: 0.005,
+        };
+        for ( let i = 0; i < filenames.length; i++ ) {
+            const filename = filenames[ i ];
+            const texture = loader.load( filename, function(n){
+                n.minFilter = THREE.LinearFilter;
+                n.magFilter = THREE.LinearFilter;
+                n.encoding = THREE.sRGBEncoding;
+                n.center.set(.1, .1);
+            } );
+            texture.side = THREE.DoubleSide;
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.colorSpace = THREE.SRGBColorSpace;
+            textures[ filename ] = texture;
+        }
+       
+        init().then(animate);
+
+        async function init(){
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color( params.bgFog );
+            scene.fog = new THREE.FogExp2( params.bgFog, params.fogIntensity );
+            
+            camera = new THREE.PerspectiveCamera( 35, window.innerWidth/window.innerHeight, 0.01, 1000 ); //camera.position.set(-20,5,30);
+            camera.position.set( -50, 10, 0 );
+			camera.lookAt( -50, 10, 0 );
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true});
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );            
+            container.appendChild( renderer.domElement );
+
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1;
+            
+
+
+            /*
+            let geometry, material;
+
+            geometry = new THREE.CircleGeometry( 40, 64 );
+            groundMirror = new Reflector( geometry, {
+                clipBias: 0.003,
+                textureWidth: window.innerWidth * window.devicePixelRatio,
+                textureHeight: window.innerHeight * window.devicePixelRatio,
+                color: 0xb5b5b5
+            } );
+            groundMirror.position.y = -10;
+            groundMirror.rotateX( - Math.PI / 2 );
+            scene.add( groundMirror );
+
+            geometry = new THREE.PlaneGeometry( 100, 100 );
+            verticalMirror = new Reflector( geometry, {
+                clipBias: 0.003,
+                textureWidth: window.innerWidth * window.devicePixelRatio,
+                textureHeight: window.innerHeight * window.devicePixelRatio,
+                color: 0xc1cbcb
+            } );
+            verticalMirror.position.y = 0;
+            verticalMirror.position.z = - 100;
+            scene.add( verticalMirror );
+
+
+            sphereGroup = new THREE.Object3D();
+            scene.add( sphereGroup );
+            */
+
+
+
+
+
+
+
+
+
+
+
+            const planeGeometry = new THREE.PlaneGeometry( 1000, 1000, 32, 32 );
+            const planeMaterial = new THREE.MeshLambertMaterial({
+                color: 0x0f0f0f,
+                //side: THREE.DoubleSide
+            });
+            plane = new THREE.Mesh( planeGeometry, planeMaterial );
+            plane.receiveShadow = true;
+            plane.castShadow = true;
+            plane.position.set( 0, -0.15, 0 );
+            plane.rotation.x = - Math.PI / 2;
+            scene.add( plane );
+
+            const circlegeometry = new THREE.CircleGeometry( 5, 64 );
+            const circlematerial = new THREE.MeshBasicMaterial({
+                color: 16777215,
+                map: textures['01.jpg'],
+                side: THREE.DoubleSide
+            });
+            circle = new THREE.Mesh( circlegeometry, circlematerial );
+            circle.castShadow = true;
+            circle.receiveShadow = true;
+            circle.position.set(0,5,0);
+            circle.rotation.set(0,Math.PI / 2,0);
+            scene.add( circle );            
+
+            const torusgeometry = new THREE.TorusGeometry(circle.geometry.parameters.radius+0.1, .2, 10, 50);
+            const torusmaterial = new THREE.MeshStandardMaterial({
+                color: "darkgray",
+                metalness: 1,
+                roughness: 0,
+                envMap: new THREE.TextureLoader().load( textures[0], function(n){
+                    n.minFilter = THREE.LinearFilter;
+                    n.magFilter = THREE.LinearFilter;
+                    n.encoding = THREE.sRGBEncoding;
+                    n.center.set(.1, .1);
+                } ),
+                side: THREE.DoubleSide
+            });
+            torus = new THREE.Mesh( torusgeometry, torusmaterial );
+            torus.receiveShadow = true;
+            circle.add(torus);
+
+            sceneLight(15.5,circle.position.y,0,0,0);
+
+            sceneGui();
+
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.minDistance = 30;
+            controls.maxDistance = 100;
+            controls.maxPolarAngle = Math.PI / 2;
+            controls.target.set( 0, 5, 0 );
+            controls.enableDamping = true;
+            controls.enablePan = false;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 1;
+            //controls.update();
+
+            document.addEventListener( 'mousemove', onDocumentMouseMove );
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function sceneGui(){
+            const gui = new GUI();
+            gui.addColor( params, 'bgFog' ).onChange( function ( val ) {
+                scene.background = new THREE.Color( val );
+                scene.fog = new THREE.FogExp2( val, params.fogIntensity );
+            } );
+            gui.add( params, 'fogIntensity', 0, 0.01, .001 ).onChange( function ( val ) {
+                scene.fog = new THREE.FogExp2( params.bgFog, val );
+            } );
+            gui.add( params, 'map', textures ).onChange( function ( val ) {
+                console.log(val);
+                spotLight.map = val;
+                circle.traverse( function ( o ) {                        
+                    if ( o.isMesh ) {
+                        o.material.map = val;
+                    }
+
+                } );
+
+            } );
+            gui.addColor( params, 'color' ).onChange( function ( val ) {
+                spotLight.color.setHex( val );
+            } );
+            gui.add( params, 'intensity', 0, 40 ).onChange( function ( val ) {
+                spotLight.intensity = val;
+            } );
+            gui.add( params, 'distance', 50, 500 ).onChange( function ( val ) {
+
+                spotLight.distance = val;
+
+            } );
+            /*
+            gui.add( params, 'angle', 0, Math.PI / 3 ).onChange( function ( val ) {
+                spotLight.angle = val;
+            } );
+            */
+            gui.add( params, 'penumbra', 0, 1 ).onChange( function ( val ) {
+
+                spotLight.penumbra = val;
+
+            } );
+            gui.add( params, 'decay', 1, 2 ).onChange( function ( val ) {
+
+                spotLight.decay = val;
+
+            } );
+            /*
+            gui.add( params, 'focus', 0, 1 ).onChange( function ( val ) {
+                spotLight.shadow.focus = val;
+            } );
+            */
+            gui.add( params, 'shadows' ).onChange( function ( val ) {
+
+                renderer.shadowMap.enabled = val;
+
+                scene.traverse( function ( child ) {
+                    console.log(child);
+                    if ( child.material ) {
+
+                        child.material.needsUpdate = true;
+
+                    }
+
+                } );
+
+            } );
+            gui.open();
+        }
+
+        function sceneLight(x,y,z,spothelper,camhelper){
+            
+            spotLight.castShadow = true;
+            spotLight.position.set(x,y,z);
+            spotLight.target = circle;
+            spotLight.intensity = params.intensity;
+            spotLight.shadow.focus = params.focus;
+            spotLight.angle = params.angle;
+            spotLight.penumbra = params.penumbra;
+            spotLight.decay = params.decay;
+            spotLight.distance = params.distance;
+            spotLight.map = textures[ '01.jpg' ];
+            spotLight.shadow.mapSize.width = 4096;
+            spotLight.shadow.mapSize.height = 4096;
+            spotLight.shadow.camera.near = 15.5;
+            spotLight.shadow.camera.far = 100;
+            spotLight.shadow.camera.fov = 1;
+            scene.add( spotLight );
+
+            if(spothelper==1){
+                SpotLightHelper = new THREE.SpotLightHelper( spotLight, 15 )
+                scene.add( SpotLightHelper );
+            }            
+            if(camhelper==1){
+                scene.add( new THREE.CameraHelper( spotLight.shadow.camera ) );
+            }
+
+            
+                const spotlight2 = new THREE.SpotLight(16777215, 20);
+                spotlight2.position.set(-40, 20, circle.position.y);
+                //spotlight2.target.position.set(0, 0, 0);
+                spotlight2.target = scene;
+                spotlight2.angle = Math.PI / 4;
+                spotlight2.penumbra = 1;
+                spotlight2.decay = 2;
+                spotlight2.distance = 100;
+                spotlight2.map = new THREE.Quaternion();
+                spotlight2.castShadow = true;
+                spotlight2.shadow.mapSize.width = 1024;
+                spotlight2.shadow.mapSize.height = 1024;
+                spotlight2.shadow.camera.near = 10;
+                spotlight2.shadow.camera.far = 200;
+                spotlight2.shadow.focus = 1;
+
+                scene.add(spotlight2);
+
+                const spotlight2Helper = new THREE.SpotLightHelper(spotlight2);
+                //scene.add(spotlight2Helper);
+            
+            scene.add( new THREE.HemisphereLight( 0xffffff, 0x444444, 0.5 ) );
+            scene.add( new THREE.HemisphereLight( 16777215, 2236962, 0.5) );
+
+            
+        }
+
+        function onDocumentMouseMove( event ) {
+            mouseX = ( event.clientX - windowHalfX ) / 2;
+            //mouseY = ( event.clientY - windowHalfY ) / 2;
+        }
+
+        function onWindowResize() {
+            windowHalfX = window.innerWidth / 2;
+			windowHalfY = window.innerHeight / 2;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame( animate );
+
+            const time = performance.now() / 3000;
+
+            controls.update();
+
+            if(SpotLightHelper){
+                SpotLightHelper.update();
+            }
+
+            renderer.render( scene, camera );
+        }
+    </script>
+
+</body>
+</html>

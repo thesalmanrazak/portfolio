@@ -1,4 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+:root {
+  --bg-color: #c9ee9b;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,7 +11,7 @@
 }
 
 html, body {
-  background: rgba(167, 6, 6, 0.8784313725);
+  background: var(--bg-color);
   color: #fff;
   overflow: hidden;
   width: 100vw;
@@ -95,11 +99,11 @@ header.inside a.menu::after {
   background-color: #000;
 }
 header.inside a.menu:hover {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
 }
 header.inside a.menu:hover::after {
   width: 35px;
-  background-color: rgba(167, 6, 6, 0.8784313725);
+  background-color: var(--bg-color);
 }
 
 footer {
@@ -135,7 +139,7 @@ footer.inside .social a {
   color: #000;
 }
 footer.inside .social a:hover {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
 }
 
 aside {
@@ -164,7 +168,7 @@ aside a {
   white-space: nowrap !important;
 }
 aside a:hover {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
 }
 aside.full {
   width: 100vw;
@@ -205,7 +209,7 @@ ul {
   background-color: #fff;
 }
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(167, 6, 6, 0.8784313725);
+  background-color: var(--bg-color);
 }
 *::-webkit-scrollbar-corner {
   display: none;
@@ -278,7 +282,7 @@ div#container .backBtn {
 }
 div#container .backBtn:hover {
   color: #fff;
-  background-color: rgba(167, 6, 6, 0.8784313725);
+  background-color: var(--bg-color);
 }
 div#container ul.leather {
   position: fixed;

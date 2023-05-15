@@ -122,7 +122,7 @@
         }
 
         function updateHUDSprites() {
-            material2 = new THREE.SpriteMaterial( { map: runnerTexture /*, side:THREE.DoubleSide*/ } );
+            material2 = new THREE.SpriteMaterial( { map: runnerTexture} );
             const width = material2.map.image.width;
             const height = material2.map.image.height;
             runner = new THREE.Sprite( material2 );
@@ -204,6 +204,5 @@
         }
 
     </script>
-
 </body>
 </html>

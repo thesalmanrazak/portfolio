@@ -1,4 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+:root {
+  --bg-color: #c9ee9b;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,7 +11,7 @@
 }
 
 html, body {
-  background: rgba(167, 6, 6, 0.8784313725);
+  background: var(--bg-color);
   color: #fff;
   overflow: hidden;
   width: 100vw;
@@ -95,11 +99,11 @@ header.inside a.menu::after {
   background-color: #000;
 }
 header.inside a.menu:hover {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
 }
 header.inside a.menu:hover::after {
   width: 35px;
-  background-color: rgba(167, 6, 6, 0.8784313725);
+  background-color: var(--bg-color);
 }
 
 footer {
@@ -135,7 +139,7 @@ footer.inside .social a {
   color: #000;
 }
 footer.inside .social a:hover {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
 }
 
 aside {
@@ -164,7 +168,7 @@ aside a {
   white-space: nowrap !important;
 }
 aside a:hover {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
 }
 aside.full {
   width: 100vw;
@@ -205,7 +209,7 @@ ul {
   background-color: #fff;
 }
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(167, 6, 6, 0.8784313725);
+  background-color: var(--bg-color);
 }
 *::-webkit-scrollbar-corner {
   display: none;
@@ -302,7 +306,7 @@ main section.page-intro h2 {
 }
 main section.page-intro h2 span {
   font-weight: 700;
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
 }
 main section.work {
   background: #fff;
@@ -345,12 +349,12 @@ main section.work ul.work-nav li a {
   text-transform: capitalize;
 }
 main section.work ul.work-nav li a:hover {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
 }
 main section.work ul.work-nav li span {
   font-size: 1.2em;
   text-transform: uppercase;
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
   font-weight: 600;
 }
 main section.work ul.work-nav li:last-of-type {
@@ -521,7 +525,7 @@ main section.work-category div.grid.print .item h2 {
   padding: 15px 0;
 }
 main section.work-category div.grid.print .item h2 sup {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
   font-size: 20px !important;
   font-weight: 600;
   vertical-align: super;
@@ -554,7 +558,7 @@ main section.work-category div.grid.print .item.pdf .container div.action div.bu
 }
 main section.work-category div.grid.print .item.pdf .container div.action div.buttons button {
   border: 1px solid transparent;
-  background-color: rgba(167, 6, 6, 0.8784313725);
+  background-color: var(--bg-color);
   display: block;
   margin: 0 5px;
   height: 35px;
@@ -566,9 +570,9 @@ main section.work-category div.grid.print .item.pdf .container div.action div.bu
   cursor: pointer;
 }
 main section.work-category div.grid.print .item.pdf .container div.action div.buttons button:hover {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
   background: #fff;
-  border-color: rgba(167, 6, 6, 0.8784313725);
+  border-color: var(--bg-color);
 }
 main section.work-category div.grid.print .item.pdf .container div.action div.status {
   margin: 5px 0 0;
@@ -662,7 +666,7 @@ main section.work-single .details ul.desc li a {
   font-weight: 800;
 }
 main section.work-single .details ul.desc li a:hover {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
 }
 main section.work-single .details ul.desc li:last-of-type {
   margin-bottom: 0;
@@ -672,7 +676,7 @@ main section.work-single .details .info {
 }
 main section.work-single .details .info h4 {
   font-size: 1rem;
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
   position: relative;
   font-weight: 500;
 }
@@ -684,7 +688,7 @@ main section.work-single .details .info h4::after {
   margin-right: 10px;
   top: 50%;
   display: block;
-  background-color: rgba(167, 6, 6, 0.8784313725);
+  background-color: var(--bg-color);
   position: absolute;
 }
 main section.work-single .details .info h3 {
@@ -694,7 +698,7 @@ main section.work-single .details .info h3 {
   margin: 15px 0;
 }
 main section.work-single .details .info blockquote {
-  border-left: 3px solid rgba(167, 6, 6, 0.8784313725);
+  border-left: 3px solid var(--bg-color);
   padding: 15px 20px;
   background-color: #f7f7f7;
   font-size: 1.2rem;
@@ -718,7 +722,7 @@ main section.work-single .details .next-prev {
   text-transform: uppercase;
 }
 main section.work-single .details .next-prev a {
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
   display: table;
   font-size: 1.1rem;
   font-weight: 600;
@@ -762,7 +766,7 @@ main section.whats-up .intro h1 {
 }
 main section.whats-up .intro h2 {
   font-size: 2.1rem;
-  color: rgba(167, 6, 6, 0.8784313725);
+  color: var(--bg-color);
 }
 main section.whats-up .intro p {
   margin: 0 0 20px;
@@ -818,6 +822,327 @@ main section.hello .details div.image img {
 main section.hello .details div.info {
   width: 50%;
 }
+main section.inspiration {
+  background-color: orange;
+}
+main section.text {
+  position: relative;
+}
+main section.text button {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #95a8a6;
+  border: 5px solid #0f1515;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  cursor: pointer;
+  transform: translate(-50%, -50%) scale(1);
+  transition: transform 0.35s ease;
+  transform-origin: 50% 50%;
+}
+main section.text button:before {
+  position: absolute;
+  content: "";
+  width: 0px;
+  height: 0px;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+  border-left: 30px solid #0f1515;
+  left: 50%;
+  top: 50%;
+  transform: translate(-30%, -50%);
+}
+main section.text button:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+main section.text .lady {
+  position: absolute;
+  margin: auto;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 525px;
+  opacity: 0.4;
+}
+main section.text canvas {
+  opacity: 0;
+}
+main section.stained canvas {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  width: 100%;
+  height: 100%;
+}
+main section.daynight {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  animation: bg-anim 15s ease infinite;
+  background-image: linear-gradient(-45deg, #4571d8, #21586f, #666b7a, #2b5ea5);
+  background-size: 400% 400%;
+  z-index: 1;
+}
+main section.daynight .device {
+  position: absolute;
+  z-index: 0;
+}
+main section.daynight .container {
+  position: relative;
+  width: 263px;
+  max-height: 525px;
+  height: 100vh;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+main section.daynight .layer1, main section.daynight .layer2 {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform: scale(1.01);
+}
+main section.daynight .layer2 {
+  opacity: 0;
+  transition: 4s;
+}
+main section.daynight .layer1 {
+  opacity: 1;
+  transition: 4s;
+}
+main section.daynight .moon {
+  transform: translate(-50px, 230px);
+  transition: 4s;
+}
+main section.daynight .rising-star {
+  transform: translate(225px, -160px);
+  transition: 4s;
+}
+main section.daynight .sun {
+  transition: 5s;
+}
+main section.daynight .cloud1, main section.daynight .cloud2, main section.daynight .cloud3, main section.daynight .cloud4 {
+  transition: 4s;
+}
+main section.daynight .light-mode .layer2 {
+  opacity: 1;
+}
+main section.daynight .light-mode .moon, main section.daynight .light-mode .rising-star {
+  transform: none;
+  transition-delay: 1s;
+}
+main section.daynight .light-mode .sun {
+  transform: translate(64px, -290px);
+}
+main section.daynight .light-mode .cloud1 {
+  transform: translateX(-140px);
+}
+main section.daynight .light-mode .cloud2 {
+  transform: translateX(-100px);
+}
+main section.daynight .light-mode .cloud3 {
+  transform: translateX(-200px);
+}
+main section.daynight .light-mode .cloud4 {
+  transform: translateX(-180px);
+}
+main section.daynight .toggle {
+  width: 45px;
+  height: 24px;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 1;
+  cursor: pointer;
+}
+main section.daynight :root {
+  --mountainY: 0;
+}
+main section.daynight .mountain3 {
+  transform: translateX(29px) scaleX(1.04) translateY(var(--mountainY));
+}
+main section.daynight [class*=mountain] {
+  transform: translateY(var(--mountainY));
+  animation: goUp 2s both;
+}
+main section.daynight .mountain2 {
+  animation-delay: 0.2s;
+}
+main section.daynight .mountain3 {
+  animation-delay: 0.4s;
+}
+main section.daynight .mountain4 {
+  animation-delay: 0.6s;
+}
+main section.daynight .mountain5 {
+  animation-delay: 0.8s;
+}
+main section.daynight .mountain6 {
+  animation-delay: 1s;
+}
+main section.daynight .mountain7 {
+  animation-delay: 1.2s;
+}
+main section.daynight .right {
+  animation: goLeft 2s 0.2s both;
+}
+main section.daynight .tree {
+  animation: goUp 2s both;
+}
+main section.daynight .sun {
+  animation: fadeIn 2s 2s both;
+}
+main section.daynight .sky {
+  animation: sky 2s 2s both;
+}
+main section.daynight .m3 {
+  transform: translateX(26px) scaleX(1.1);
+}
+@keyframes goUp {
+  from {
+    transform: translateY(200px);
+  }
+}
+@keyframes sky {
+  from {
+    transform: scale(2);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes goLeft {
+  from {
+    transform: translateX(200px);
+  }
+}
+@keyframes bg-anim {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+main section.crowd #canvas {
+  width: 100%;
+  height: 100%;
+}
+main section.slider {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+@font-face {
+  font-family: DomaineDisp;
+  font-weight: normal;
+  src: url(https://cdn.statically.io/gh/AlainBarrios/Fonts/b41a05199c312e4fada6cf977d40d76f2534e306/DomaineDisp-Regular.otf?raw=true);
+}
+main section.slider ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+main section.slider img {
+  max-width: 100%;
+  display: block;
+}
+main section.slider #wrap-texture {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+main section.slider #canvasx {
+  /* make the canvas wrapper fits the document */
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+main section.slider #canvasx:before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+main section.slider .planes {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 45vh;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  position: relative;
+  cursor: grab;
+  white-space: nowrap;
+  overflow: hidden;
+}
+main section.slider .draggable-container {
+  position: absolute;
+  height: 100%;
+}
+main section.slider .slider-names-container {
+  --size: calc(7vmin + 1rem);
+  text-align: center;
+  font-family: DomaineDisp;
+  font-size: var(--size);
+  text-transform: uppercase;
+  pointer-events: none;
+  color: rgb(255, 255, 255);
+  overflow-y: hidden;
+  width: 100vw;
+  position: absolute;
+  top: 50%;
+  transform: translatey(-50%);
+}
+main section.slider .draggable-visible {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(480px, 1fr));
+  height: 100%;
+  grid-column-gap: 100px;
+}
+main section.slider .draggable-hidden {
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+main section.slider .draggable-hidden .item {
+  height: 100%;
+}
+main section.slider .grabbing {
+  cursor: grabbing;
+}
+main section.slider .plane {
+  height: 100%;
+}
+main section.slider .plane img {
+  -o-object-fit: cover;
+     object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
 
 @media (min-width: 320px) and (max-width: 768px) {
   main section {
@@ -872,7 +1197,7 @@ main section.hello .details div.info {
   }
   main section.page-intro h2 span {
     font-weight: 700;
-    color: rgba(167, 6, 6, 0.8784313725);
+    color: var(--bg-color);
   }
   main section.work ul.work-nav {
     width: 90%;
@@ -1000,7 +1325,7 @@ main section.hello .details div.info {
     font-weight: 800;
   }
   main section.work-single .details ul.desc li a:hover {
-    color: rgba(167, 6, 6, 0.8784313725);
+    color: var(--bg-color);
   }
   main section.work-single .details ul.desc li:last-of-type {
     margin-bottom: 0;
@@ -1010,7 +1335,7 @@ main section.hello .details div.info {
   }
   main section.work-single .details .info h4 {
     font-size: 1rem;
-    color: rgba(167, 6, 6, 0.8784313725);
+    color: var(--bg-color);
     position: relative;
     font-weight: 500;
   }
@@ -1022,7 +1347,7 @@ main section.hello .details div.info {
     margin-right: 10px;
     top: 50%;
     display: block;
-    background-color: rgba(167, 6, 6, 0.8784313725);
+    background-color: var(--bg-color);
     position: absolute;
   }
   main section.work-single .details .info h3 {
@@ -1032,7 +1357,7 @@ main section.hello .details div.info {
     margin: 15px 0;
   }
   main section.work-single .details .info blockquote {
-    border-left: 3px solid rgba(167, 6, 6, 0.8784313725);
+    border-left: 3px solid var(--bg-color);
     padding: 15px 20px;
     background-color: #f7f7f7;
     font-size: 1.2rem;
@@ -1056,7 +1381,7 @@ main section.hello .details div.info {
     text-transform: uppercase;
   }
   main section.work-single .details .next-prev a {
-    color: rgba(167, 6, 6, 0.8784313725);
+    color: var(--bg-color);
     display: table;
     font-size: 1.1rem;
     font-weight: 600;
@@ -1100,7 +1425,7 @@ main section.hello .details div.info {
   }
   main section.whats-up .intro h2 {
     font-size: 2.1rem;
-    color: rgba(167, 6, 6, 0.8784313725);
+    color: var(--bg-color);
   }
   main section.whats-up .intro p {
     margin: 0 0 20px;
