@@ -42,7 +42,7 @@
 
         let camera, controls, scene, renderer;
         let hlight, light, light2, light3, light4, directionalLight, can;
-        var color = 0xf0f0f0, texture, circle;
+        var color = 0xf0f0f0, texture, circle, cubeRenderTarget;
 
         init();
 
@@ -51,7 +51,7 @@
             //scene.background = new THREE.Color( 0xffffff );
 
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.01, 1000);
-            camera.position.set(0,0,15); // camera.rotation.set(0,0,0);
+            camera.position.set(0,0,15);
             
             renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
@@ -60,24 +60,33 @@
 
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.toneMappingExposure = 1;
-            //renderer.gammaOutput = true;
+            renderer.gammaOutput = true;
             //renderer.gammaFactor = 2.2;
             //renderer.useLegacyLights = true;
             
-            new RGBELoader().load( './assets/hdri/mud_road_puresky_4k.hdr', function ( hdri ) {
-                hdri.mapping = THREE.EquirectangularReflectionMapping;
-                //scene.background = hdri;
-                scene.environment = hdri;
-                hdri.dispose();
+            const envMap = new RGBELoader().load( './assets/hdri/snow_field_puresky_4k.hdr', function ( hdri ) {
+                hdri.mapping = THREE.EquirectangularReflectionMapping; //scene.background = hdri;
+                hdri.colorSpace = THREE.SRGBColorSpace;
+                scene.environment = hdri; //hdri.dispose();
             });
 
             sceneLight(1,0);
 
             const material = new THREE.MeshStandardMaterial({
-                map: new THREE.TextureLoader().load( './assets/media/can/orange-juice-label.png', function(tex){
+                map: new THREE.TextureLoader().load( './assets/media/can/label.jpg', function(tex){
                     tex.colorSpace = THREE.SRGBColorSpace;
                 } ),
+                bumpMap: new THREE.TextureLoader().load( './assets/media/can/bump.jpg', function(tex){
+                    tex.colorSpace = THREE.SRGBColorSpace;
+                } ),
+                bumpScale: 0.05,
                 side: THREE.DoubleSide,
+            });
+            const body = new THREE.MeshStandardMaterial({
+                color: 'silver',
+                roughness: 0.1,
+                metalness: 1,
+                envMap: envMap,
             });
                         
             new GLTFLoader().load( './assets/models/can.gltf', function ( gltf ) {
@@ -89,8 +98,13 @@
                         o.receiveShadow = false;
                     }
                 });
-                //can.rotation.set( 1, 2.95, -0.75 );
-                can.rotation.set( 0, 3.1, 0 );
+                can.children[0].traverse(function (o) {
+                    if (o.isMesh) {
+                        o.material = body;
+                    }
+                });
+                //can.rotation.set( 0, 3.1, 5.8 );
+                can.rotation.z = 0.35;
                 can.scale.set(1.5,1.5,1.5);
                 can.name = "Soda Can by Salman";
                 scene.add( can );
@@ -106,7 +120,7 @@
                 } );
                 const plane2 = new THREE.Mesh( planegeometry, planematerial );
                 scene.add( plane2 );
-                plane2.position.z = -2;
+                plane2.position.z = -3;
 
                 const planegeometry2 = new THREE.PlaneGeometry( 15, 15 );
                 const planematerial2 = new THREE.MeshBasicMaterial( {
@@ -118,7 +132,7 @@
                 } );
                 const plane3 = new THREE.Mesh( planegeometry2, planematerial2 );
                 scene.add( plane3 );
-                plane3.position.z = -2.2;
+                plane3.position.z = -3.2;
                 
 
             }, function ( xhr ) {
@@ -128,7 +142,13 @@
             } );
 
             controls = new OrbitControls( camera, renderer.domElement );
-            controls.minPolarAngle = Math.PI/2; controls.maxPolarAngle = Math.PI/2;            
+            controls.enableDamping = true;
+            controls.maxAzimuthAngle = -5;
+            controls.minAzimuthAngle = 5;
+            controls.minDistance = 12;
+            controls.maxDistance = 25;
+            controls.minPolarAngle = Math.PI/2;
+            controls.maxPolarAngle = Math.PI/2;
 
             window.addEventListener('resize', onWindowResize);
         }
@@ -171,7 +191,11 @@
         
         function animate() {
             requestAnimationFrame( animate );
+            camera.lookAt( scene.position );
             if(can){
+                //can.rotation.y += 0.005;
+                //can.rotation.x += 0.005;
+                //can.rotation.z += 0.005;
                 can.rotation.y += 0.005;
             }
             if(controls){
