@@ -19,6 +19,33 @@ html, body {
   position: relative;
   font-weight: 400;
 }
+html .model_loading, body .model_loading {
+  opacity: 1;
+  background-color: #fff;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: #000;
+  pointer-events: none;
+}
+html .model_loading h2, body .model_loading h2 {
+  font-size: 1vw;
+  font-weight: 500;
+  display: block;
+  color: #dddddd;
+}
+html .model_loading span, body .model_loading span {
+  font-size: 5vw;
+  font-weight: 600;
+  color: #000;
+}
 
 h1, h2, h3, h4, h5, h6 {
   font-family: "Poppins", sans-serif;

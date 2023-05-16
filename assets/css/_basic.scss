@@ -16,6 +16,35 @@ html, body{
     height: 100vh;
     position: relative;
     font-weight: 400;
+
+    .model_loading{
+        opacity: 1;
+        background-color: $white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: $black;
+        pointer-events: none;
+        h2{
+            font-size: 1vw;
+            font-weight: 500;
+            display: block;
+            color: #dddddd;
+        }
+        span{
+            font-size: 5vw;
+            font-weight: 600;
+            color: $black;
+        }
+    }
+
 }
 
 h1, h2, h3, h4, h5, h6{
