@@ -134,6 +134,7 @@ footer .social a:hover {
 }
 footer.inside {
   color: #000;
+  left: 0;
 }
 footer.inside .social a {
   color: #000;
@@ -255,6 +256,17 @@ main {
 main section {
   width: 100vw;
   min-height: 100vh;
+}
+main section.launchsoon {
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 5%;
+}
+main section.launchsoon h2 {
+  font-size: 6vw;
+  color: var(--bg-color);
 }
 main section.home {
   position: relative;
@@ -446,7 +458,7 @@ main section.work-category div.grid.logo {
        column-count: 4;
 }
 main section.work-category div.grid.logo .item:hover span {
-  opacity: 0;
+  opacity: 1;
 }
 main section.work-category div.grid.uiux {
   margin: 0 5%;
@@ -1266,6 +1278,51 @@ main section.slider .plane img {
     min-height: 1024px;
     border-radius: 50px;
     border-radius: 60px;
+  }
+  main section.work-category div.grid.print {
+    margin: 0 1%;
+    -moz-column-count: 1;
+         column-count: 1;
+    -moz-column-gap: 15px;
+         column-gap: 15px;
+  }
+  main section.work-category div.grid.print .item {
+    padding: 0 10%;
+    position: relative;
+  }
+  main section.work-category div.grid.print .item h2 {
+    font-size: 6vw;
+  }
+  main section.work-category div.grid.print .item h2 sup {
+    font-size: 16px !important;
+  }
+  main section.work-category div.grid.print .item.pdf .container {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+  main section.work-category div.grid.print .item.pdf .container canvas {
+    width: 100%;
+  }
+  main section.work-category div.grid.print .item.pdf .container div.action div.buttons button {
+    height: 30px;
+    min-width: 80px;
+    font-size: 12px;
+  }
+  main section.work-category div.grid.print .item.pdf .container div.action div.status div {
+    line-height: 25px;
+    min-height: 25px;
+    min-width: 40px;
+    margin: 0 5px;
+  }
+  main section.work-category div.grid.print .item.stationary {
+    background-color: rgb(160, 235, 216);
+  }
+  main section.work-category div.grid.print .item.broucher div.images {
+    -moz-column-count: 1;
+         column-count: 1;
+  }
+  main section.work-category div.grid.print .item:hover span {
+    opacity: 0;
   }
   main section.work-single {
     background: #fff;

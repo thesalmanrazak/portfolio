@@ -134,6 +134,7 @@ footer .social a:hover {
 }
 footer.inside {
   color: #000;
+  left: 0;
 }
 footer.inside .social a {
   color: #000;
