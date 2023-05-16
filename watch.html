@@ -50,7 +50,6 @@
         let camera, controls, scene, renderer;
         let hlight, light, light2, light3, light4, directionalLight, watch;
         var color = 0xf0f0f0, texture, circle;
-        //var canvas = renderer.domElement;
         var textureLoader = new THREE.TextureLoader();
 
         init();
@@ -166,8 +165,11 @@
                 console.log( 'An error happened' );
             } );
 
-             controls = new OrbitControls( camera, renderer.domElement );
-             controls.minPolarAngle = Math.PI/2; controls.maxPolarAngle = Math.PI/2;            
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
+            controls.minPolarAngle = Math.PI/2; controls.maxPolarAngle = Math.PI/2;
+            controls.minDistance = 2.8;
+            controls.maxDistance = 7;
 
             window.addEventListener('resize', onWindowResize);
         }

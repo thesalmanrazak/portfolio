@@ -62,11 +62,12 @@
             radius: 100,
             shadows: true
         };
-        const repeat = 10;
+        const repeat = 20;
 
         init().then( animate );
         async function init(){
             scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2( 0xff6699, 0.005 );
 
             renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
@@ -74,20 +75,21 @@
             container.appendChild( renderer.domElement );
 
             renderer.outputColorSpace = THREE.SRGBColorSpace;
-            renderer.shadowMap.enabled = true; //renderer.toneMapping = THREE.ACESFilmicToneMapping; //renderer.toneMappingExposure = 1; //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.01, 1000);
             camera.position.set( 0, 0, 10 );
             
-            new RGBELoader().load( './assets/hdri/snow_field_puresky_4k.hdr', function ( hdri ) {
+            new RGBELoader().load( './assets/hdri/belfast_sunset_puresky_4k.hdr', function ( hdri ) {
                 hdri.mapping = THREE.EquirectangularReflectionMapping;
                 scene.background = hdri;
 
                 skybox = new GroundProjectedSkybox( hdri );
                 skybox.scale.setScalar( 100 );
-                skybox.radius = 10;
-			    skybox.height = 150;
+                skybox.radius = 30;
                 scene.add( skybox );
                 scene.environment = hdri;
             });
@@ -97,16 +99,17 @@
             texture = textureLoader.load( './assets/media/leather/04.jpg' );            
             texture.colorSpace = THREE.sRGBEncoding;
             texture.flipY = false;
+
             const leatherMaterial = new THREE.MeshPhysicalMaterial({
                 map: texture,
                 transparent: true,
                 depthWrite: true,
-                side: THREE.DoubleSide,
             });
-            texture.generateMipmaps = false;
+            texture.generateMipmaps = true;
             texture.minFilter = THREE.LinearFilter;
             texture.magFilter = THREE.LinearFilter;
             texture.needsUpdate = true;
+
             new GLTFLoader().load( './assets/models/sofa.gltf', function ( gltf ) {
                 sofa = gltf.scene;
                 sofa.children[1].traverse( function( o ){
@@ -116,7 +119,7 @@
                         o.material.map.wrapS = THREE.RepeatWrapping;
                         o.material.map.wrapT = THREE.RepeatWrapping;
                         o.material.map.repeat.set( repeat, repeat );
-                        o.material.needsUpdate = true;
+                        //o.material.needsUpdate = true;
                     }
                 });
                 sofa.children[0].traverse( function( o ){
@@ -128,8 +131,6 @@
                 scene.add(sofa);
                 
                 const gui = new GUI();
-                //gui.add( params, 'height', 10, 50, 5 ).name( 'Skybox height' ).onChange( animate );
-				//gui.add( params, 'radius', 100, 600, 5 ).name( 'Skybox radius' ).onChange( animate );
                 gui.add( params, 'image', textures ).onChange( function ( val ) {
                     sofa.children[1].traverse( function ( o ) {
                         if ( o.material ) {
@@ -226,10 +227,7 @@
 
         function animate() {
             requestAnimationFrame( animate );
-            renderer.render( scene, camera );
-            controls.update();
-            //skybox.radius = params.radius;
-			//skybox.height = params.height;
+            renderer.render( scene, camera );            
             if(controls){
                 controls.update();
             }

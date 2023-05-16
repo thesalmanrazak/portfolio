@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="./assets/css/three.css">
     <style>
         canvas{
-            background: linear-gradient(to bottom, #412f50 0%,#131837 100%);
+            /*background: linear-gradient(to bottom, #412f50 0%,#131837 100%);*/
         }
     </style>
 </head>
@@ -70,13 +70,13 @@
         let camera, controls, scene, renderer;
         let hlight, light, light2, light3, light4, directionalLight, shoe;
         var color = 0xf0f0f0, texture, circle;
-        //var canvas = renderer.domElement;
         var textureLoader = new THREE.TextureLoader();
 
         init();
 
         function init(){
             scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
 
             camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.01, 1000);
             camera.position.set(0,0,3);
@@ -86,7 +86,7 @@
             renderer.setSize( window.innerWidth, window.innerHeight );
             //renderer.toneMapping = THREE.ACESFilmicToneMapping;
             //renderer.toneMappingExposure = 1;
-            //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.shadowMap.enabled = true;
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             container.appendChild( renderer.domElement );
@@ -101,7 +101,6 @@
                 texture.minFilter = THREE.LinearFilter;
                 texture.magFilter = THREE.LinearFilter;
                 texture.needsUpdate = true;
-
                 shoe = gltf.scene;
                 shoe.traverse(function (o) {
                     if (o.isMesh) {
@@ -114,11 +113,12 @@
                 scene.add( shoe );
                 
                 const planeGeometry = new THREE.PlaneGeometry( 5, 5 );
-                planeGeometry.rotateX( - Math.PI / 2 );
-                const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.4 } );
+                //planeGeometry.rotateX( - Math.PI / 2 );
+                const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 1 } );
 
                 const plane = new THREE.Mesh( planeGeometry, planeMaterial );
-                plane.position.y = -0.5;
+                plane.position.y = -0.05;
+                plane.rotation.x = Math.PI / 2;
                 plane.receiveShadow = true;
                 scene.add( plane );
 
@@ -126,7 +126,8 @@
                 
             } );
 
-             controls = new OrbitControls( camera, renderer.domElement ); //controls.minPolarAngle = Math.PI/2; controls.maxPolarAngle = Math.PI/2;            
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;            
 
             window.addEventListener('resize', onWindowResize);
 

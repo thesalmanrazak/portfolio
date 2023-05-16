@@ -511,7 +511,7 @@
                 car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.color = new THREE.Color(params.color);
-                        o.material.metalness = 0,
+                        o.material.metalness = 0.8,
 					    o.material.roughness = 0,
                         o.material.envMap = scene.background;
                         o.material.envMapIntensity = 0.5;

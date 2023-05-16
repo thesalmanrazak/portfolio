@@ -85,14 +85,15 @@
             const filenames = [ '01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg', '07.jpg', '08.jpg', '09.jpg', '10.jpg', '11.jpg', '12.jpg', '13.jpg', '14.jpg', '15.jpg', '16.jpg', '17.jpg', '18.jpg', '19.jpg', '20.jpg', '21.jpg', '22.jpg', '23.jpg', '24.jpg', '25.jpg', '26.jpg', '27.jpg', '28.jpg', '29.jpg', '30.jpg', '31.jpg', '32.jpg', '33.jpg', '34.jpg', '35.jpg', '36.jpg', '37.jpg', '38.jpg', '39.jpg', '40.jpg', '41.jpg', '42.jpg', '43.jpg' ];
             const textures = { none: null }
             const hdriPath = './assets/hdri/';
-            const hdrifiles = [ 'industrial_sunset_puresky_4k.hdr', 'snow_field_2_puresky_4k.hdr' ];
+            const hdrifiles = [ 'industrial_sunset_puresky_4k.hdr', 'snow_field_2_puresky_4k.hdr', 'snow_field_puresky_4k.hdr' ];
             const hdris = { none: null }
 
             const mat = new THREE.MeshStandardMaterial({
                 //map: loader.load(loader.load( filenames[0] ), texture => { texture.flipY = false })
                 map: loader.load(filenames[0], function(tex){
                     tex.flipY = false
-                })
+                }),
+                side: THREE.DoubleSide,
             })
 
             scene.add( new THREE.AmbientLight( 0xffffff, 1 ) );
@@ -103,10 +104,10 @@
                 texture.mapping = THREE.EquirectangularReflectionMapping;
                 scene.background = texture;
                 scene.environment = texture;
-                texture.dispose();
+                //texture.dispose();
             });
             //changeHDRI();
-            function changeHDRI(hdris) {                
+            function changeHDRI(hdris) {
                 new RGBELoader().load( hdris, function ( texture ) {
                     texture.mapping = THREE.EquirectangularReflectionMapping;
                     scene.background = texture;
@@ -180,10 +181,10 @@
             gui.open();
 
             controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
             controls.minDistance = 4;
             controls.maxDistance = 50;
             controls.maxPolarAngle = Math.PI / 2; //controls.target.set( 0, 15, 10 );
-            controls.update();
 
             window.addEventListener('resize', onWindowResize);
         }

@@ -89,8 +89,11 @@
             renderer.toneMapping = THREE.ACESFilmicToneMapping;            
 
             controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
             controls.minPolarAngle = Math.PI/2;
             controls.maxPolarAngle = Math.PI/2;
+            controls.minDistance = 2;
+            controls.maxDistance = 10;
 
             new RGBELoader().load( './assets/hdri/industrial_sunset_puresky_4k.hdr', function ( hdri ) {
                 hdri.mapping = THREE.EquirectangularReflectionMapping;
@@ -183,7 +186,9 @@
 
         function animate() {
             requestAnimationFrame( animate );
-            controls.update();
+            if(controls){
+                controls.update();
+            }
             renderer.render( scene, camera );
         }
         
