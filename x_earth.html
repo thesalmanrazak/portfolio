@@ -87,7 +87,7 @@
                     
                     // add cone markers
                     var rad = Math.PI / 180;
-                    var pointer = new THREE.Mesh( new THREE.CylinderGeometry(0.015, 0, 0.4, 64, 1.5), new THREE.MeshPhongMaterial({ color: 0xff5a55 }) );
+                    var pointer = new THREE.Mesh( new THREE.CylinderGeometry(0.02, 0, 0.3, 32, 1), new THREE.MeshPhongMaterial({ color: 0x62ae93 }) );
                     pointer.position.set(1.75, 0, 0);
                     pointer.quaternion.setFromUnitVectors( new THREE.Vector3(0, 1, 0), new THREE.Vector3(1, 0, 0) );
                     var marker = new THREE.Object3D();                    

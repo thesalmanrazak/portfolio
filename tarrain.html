@@ -42,7 +42,7 @@
         let container, stats;
         let camera, controls, scene, renderer;
         let mesh, texture;
-        let theWidth = 150; // 256;
+        let theWidth = 250; // 256;
 
         const worldWidth = theWidth, worldDepth = theWidth;
         const clock = new THREE.Clock();
@@ -53,18 +53,18 @@
 
             container = document.getElementById( 'container' );
 
-            camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 10000 );
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 
             scene = new THREE.Scene();
-            //scene.background = new THREE.Color( 0xeeeeff );
-            //scene.fog = new THREE.FogExp2( 0xeeeeff, 0.0025 );
+            scene.background = new THREE.Color( 0xeeeeff );
+            scene.fog = new THREE.FogExp2( 0xeeeeff, 0.0005 );
 
             const data = generateHeight( worldWidth, worldDepth );
 
-            camera.position.set( 100, 1000, - 1000 );
+            camera.position.set( 100, 1500, - 1000 );
             camera.lookAt( - 100, 810, - 1000 );
 
-            const geometry = new THREE.PlaneGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
+            const geometry = new THREE.PlaneGeometry( 30000, 30000, worldWidth - 1, worldDepth - 1 );
             geometry.rotateX( - Math.PI / 2 );
             
             const vertices = geometry.attributes.position.array;
@@ -72,18 +72,12 @@
             for ( let i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
                 vertices[ j + 1 ] = data[ i ] * 10;
             }
-            /*
-            texture = new THREE.CanvasTexture( generateTexture( data, worldWidth, worldDepth ) );
-            texture.wrapS = THREE.ClampToEdgeWrapping;
-            texture.wrapT = THREE.ClampToEdgeWrapping;
-            texture.colorSpace = THREE.SRGBColorSpace;
-            */
             const texture2 = new THREE.TextureLoader().load('./assets/media/terrain/map.png', function(tex){
                 tex.flipY = false;
                 //tex.generateMipmaps = false;
                 //tex.minFilter = THREE.LinearFilter;
                 //tex.magFilter = THREE.LinearFilter;
-                //tex.needsUpdate = true;
+                tex.needsUpdate = true;
                 tex.wrapS = THREE.ClampToEdgeWrapping;
                 tex.wrapT = THREE.ClampToEdgeWrapping;
                 tex.colorSpace = THREE.SRGBColorSpace;
@@ -93,7 +87,7 @@
                 //tex.generateMipmaps = false;
                 //tex.minFilter = THREE.LinearFilter;
                 //tex.magFilter = THREE.LinearFilter;
-                //tex.needsUpdate = true;
+                tex.needsUpdate = true;
                 tex.wrapS = THREE.ClampToEdgeWrapping;
                 tex.wrapT = THREE.ClampToEdgeWrapping;
                 tex.colorSpace = THREE.SRGBColorSpace;
@@ -112,8 +106,8 @@
             container.appendChild( renderer.domElement );
 
             controls = new FirstPersonControls( camera, renderer.domElement );
-            controls.movementSpeed = 450;
-            controls.lookSpeed = 0.1;
+            controls.movementSpeed = 650;
+            controls.lookSpeed = 0.05;
 
             stats = new Stats();
             container.appendChild( stats.dom );

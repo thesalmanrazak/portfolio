@@ -22,6 +22,11 @@
         <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
     </div>
 
+    <div id="loading" class="loading">
+        <span>Loading</span>
+        <h2>100%</h2>
+    </div>
+
     <script src="./assets/js/jquery.js"></script>
     <script type="importmap">
         {
@@ -37,18 +42,20 @@
         import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        import { TWEEN } from 'three/addons/libs/tween.module.min.js';
 
         const container = document.getElementById('container');
+        const loading = document.getElementById('loading');
 
         let camera, controls, scene, renderer;
-        let hlight, light, light2, light3, light4, directionalLight, can;
+        let hlight, light, light2, light3, light4, directionalLight, can, object;
         var color = 0xf0f0f0, texture, circle, cubeRenderTarget;
+        let textureloader = new THREE.TextureLoader();
 
-        init();
+        init().then( animate );
 
-        function init(){
+        async function init(){
             scene = new THREE.Scene();
-            //scene.background = new THREE.Color( 0xffffff );
 
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.01, 1000);
             camera.position.set(0,0,15);
@@ -60,59 +67,25 @@
 
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.toneMappingExposure = 1;
-            renderer.gammaOutput = true;
-            //renderer.gammaFactor = 2.2;
-            //renderer.useLegacyLights = true;
+            //renderer.gammaOutput = true;
             
             const envMap = new RGBELoader().load( './assets/hdri/snow_field_puresky_4k.hdr', function ( hdri ) {
                 hdri.mapping = THREE.EquirectangularReflectionMapping; //scene.background = hdri;
                 hdri.colorSpace = THREE.SRGBColorSpace;
-                scene.environment = hdri; //hdri.dispose();
+                scene.environment = hdri;
             });
 
-            sceneLight(1,0);
+            function loadModel(){
 
-            const material = new THREE.MeshStandardMaterial({
-                map: new THREE.TextureLoader().load( './assets/media/can/label.jpg', function(tex){
-                    tex.colorSpace = THREE.SRGBColorSpace;
-                } ),
-                bumpMap: new THREE.TextureLoader().load( './assets/media/can/bump.jpg', function(tex){
-                    tex.colorSpace = THREE.SRGBColorSpace;
-                } ),
-                bumpScale: 0.05,
-                side: THREE.DoubleSide,
-            });
-            const body = new THREE.MeshStandardMaterial({
-                color: 'silver',
-                roughness: 0.1,
-                metalness: 1,
-                envMap: envMap,
-            });
-                        
-            new GLTFLoader().load( './assets/models/can.gltf', function ( gltf ) {
-                can = gltf.scene;
-                can.children[1].traverse(function (o) {
-                    if (o.isMesh) {
-                        o.material = material;
-                        o.castShadow = true;
-                        o.receiveShadow = false;
-                    }
-                });
-                can.children[0].traverse(function (o) {
-                    if (o.isMesh) {
-                        o.material = body;
-                    }
-                });
-                //can.rotation.set( 0, 3.1, 5.8 );
-                can.rotation.z = 0.35;
-                can.scale.set(1.5,1.5,1.5);
-                can.name = "Soda Can by Salman";
-                scene.add( can );
+                sceneLight(1,0);
 
+                scene.add( object );
+
+                new TWEEN.Tween(object.scale).to({ x: 1.5, y: 1.5, z: 1.5}, 1500).delay(5).yoyo(true).repeat(-1).easing(TWEEN.Easing.Sinusoidal.InOut).start();
                 
                 const planegeometry = new THREE.PlaneGeometry( 15, 15 );
                 const planematerial = new THREE.MeshBasicMaterial( {
-                    map: new THREE.TextureLoader().load('./assets/media/can/splash1.png', function(tex){
+                    map: textureloader.load('./assets/media/can/splash1.png', function(tex){
                         tex.colorSpace = THREE.SRGBColorSpace;
                     }),
                     side: THREE.DoubleSide,
@@ -124,7 +97,7 @@
 
                 const planegeometry2 = new THREE.PlaneGeometry( 15, 15 );
                 const planematerial2 = new THREE.MeshBasicMaterial( {
-                    map: new THREE.TextureLoader().load('./assets/media/can/splash0.png', function(tex){
+                    map: textureloader.load('./assets/media/can/splash0.png', function(tex){
                         tex.colorSpace = THREE.SRGBColorSpace;
                     }),
                     side: THREE.DoubleSide,
@@ -133,14 +106,94 @@
                 const plane3 = new THREE.Mesh( planegeometry2, planematerial2 );
                 scene.add( plane3 );
                 plane3.position.z = -3.2;
+
+            }
+
+
+
+            const manager = new THREE.LoadingManager( loadModel );
+
+            function onProgress( xhr ) {
+                if ( xhr.lengthComputable ) {
+                    const percentComplete = xhr.loaded / xhr.total * 100; //console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
+                    if(Math.round( percentComplete, 2 ) == 100){
+                        setTimeout(function() {
+                            loading.style.transition = '.5s';
+                            loading.style.opacity = '0';
+                            loading.style.visibility = 'hidden';
+                        }, 1250);
+                    }
+                }
+            }
+            function onError() {}
+
+            const loader = new GLTFLoader( manager );
+
+            loader.load( './assets/models/can.gltf', function ( obj ) {
+
+                object = obj.scene;                
+                object.name = "Juice Can";
+
+                object.rotation.z = 0.55;
+                object.rotation.x = 0;
+                object.rotation.y = 0;
+
+                object.scale.set(-1,-1,-1);
                 
+                const material = new THREE.MeshStandardMaterial({
+                    map: textureloader.load( './assets/media/can/label.jpg', function(tex){
+                        tex.colorSpace = THREE.SRGBColorSpace;
+                        tex.flipY = true;
+                    } ),
+                    bumpMap: textureloader.load( './assets/media/can/bump.jpg', function(tex){
+                        tex.colorSpace = THREE.SRGBColorSpace;
+                    } ),
+                    bumpScale: 0.05,
+                    side: THREE.DoubleSide,
+                });
+                
+                const body = new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    roughness: 0,
+                    metalness: 1,
+                    //shineness: 200,
+                    //envMap: envMap,
+                    envMapIntensity: 1.0
+                    //reflectivity: 1,
+                    //shininess: 200,
+                });
 
-            }, function ( xhr ) {
-                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );                
-            }, function ( error ) {
-                console.log( 'An error happened' );
-            } );
+                object.children[1].traverse(function (o) {
+                    if (o.isMesh) {
+                        o.material = material;
+                        o.castShadow = true;
+                        o.receiveShadow = false;
+                    }
+                });
+                object.children[0].traverse(function (o) {
+                    if (o.isMesh) {
+                        o.material = body;
+                    }
+                });
 
+
+            }, onProgress, onError );
+
+
+
+
+
+
+
+
+
+            constrolSetting();
+            
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function constrolSetting(){
             controls = new OrbitControls( camera, renderer.domElement );
             controls.enableDamping = true;
             controls.maxAzimuthAngle = -5;
@@ -149,8 +202,6 @@
             controls.maxDistance = 25;
             controls.minPolarAngle = Math.PI/2;
             controls.maxPolarAngle = Math.PI/2;
-
-            window.addEventListener('resize', onWindowResize);
         }
 
         function sceneLight(show,guishow){
@@ -192,19 +243,15 @@
         function animate() {
             requestAnimationFrame( animate );
             camera.lookAt( scene.position );
-            if(can){
-                //can.rotation.y += 0.005;
-                //can.rotation.x += 0.005;
-                //can.rotation.z += 0.005;
-                can.rotation.y += 0.005;
+            TWEEN.update();
+            if(object){
+                //object.rotation.y += 0.005;
             }
             if(controls){
                 controls.update();                
             }
             renderer.render( scene, camera );
         }
-        
-        animate();
     </script>
 
 </body>

@@ -6,19 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        html {
-            scrollbar-gutter: stable;
-        }
-        body {
+        *{
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+        html {
+            scrollbar-gutter: stable; 
+        }
+        html, body {
+            width: 100vw;
+            height: 100vh;
         }
         as-dithered-image {
-            inline-size: 100vh;
+            width: 100vw;
+            height: 100vh;
         }
     </style>
 </head>
 <body>
-    <img src="./assets/media/dl.beatsnoop.com-3000-OSWQaXYAhN.jpg" alt="">
     <as-dithered-image crunch="1" src="https://assets.codepen.io/3/surfer.jpg" alt="Description of the image for screen readers"></as-dithered-image>
     <script src="./assets/js/as-dithered-image.js"></script>
 </body>

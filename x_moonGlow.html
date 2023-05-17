@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Razak :|: Being creative mean be different...</title>
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0RNP8J0Q06"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0RNP8J0Q06');
+</script>
+<body>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>    
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
+
+        const container = document.getElementById('container');
+        var camera, scene, renderer, controls, mesh, start = Date.now();
+        let uniforms;
+        let moon;
+        let texture = new THREE.TextureLoader();
+        var selectedObject;
+
+        const moonTexture = './assets/media/planet/lroc_color_poles_2k.png';
+        
+        let vertexShader = `
+            varying vec2 vertexUV;
+            varying vec3 vertexNormal;
+            void main() {
+                vertexUV = uv;
+                vertexNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+            }
+        `;
+        let fragmentShader = `
+            uniform sampler2D globeTexture;
+            varying vec2 vertexUV;
+            varying vec3 vertexNormal;
+            void main(){
+                float intensity = 0.75 - dot(vertexNormal, vec3(0.0,0.0,1.0));
+                vec3 atmosphere = vec3(1.0,1.0,1.0) * pow(intensity, 1.5);
+                gl_FragColor = vec4( atmosphere + texture2D(globeTexture, vertexUV).xyz, 1.0 );
+            }
+        `;
+        let vertexShader2 = `
+            varying vec3 vertexNormal;
+            void main(){
+                vertexNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 0.9);
+            }
+        `;
+        let fragmentShader2 = `
+            varying vec3 vertexNormal;
+            void main(){
+                float intensity = pow(0.4 - dot(vertexNormal, vec3(0,0,1.0)), 1.5);
+                gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+            }
+        `;
+
+        init().then( animate );
+
+        async function init(){
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera( 30, window.innerWidth/window.innerHeight, 1, 10000 ); // camera.position.z = 50; camera.position.y = 20;
+            camera.position.set( -25.753501095991325, 33.13543049798456, 38.1063882558287 );
+            
+            renderer = new THREE.WebGLRenderer({antialias:true});
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.shadowMap.enabled = true;
+            //renderer.gammaInput = true;
+            //renderer.gammaOutput = true;
+            container.appendChild( renderer.domElement );            
+
+            pointLight(0xffffff, 2, 100, 0, 0, 0, 0.25);
+
+            moonGeometry(0,0,0);
+
+            starsGeometry();
+
+            controls = new OrbitControls( camera, renderer.domElement );
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function pointLight(color,radius,size,x,y,z,ambientIntensity){
+            
+            scene.add( new THREE.AmbientLight( 0xffffff, ambientIntensity ) );
+
+            const light = new THREE.PointLight( color, radius, size );
+            light.position.set( x, y, z );
+            light.castShadow = true; //light.shadow.radius = 8;
+            scene.add( light );
+        }
+
+        function moonGeometry(x,y,z){
+            // moon
+            uniforms = { globeTexture: { value: texture.load(moonTexture) } }
+            moon = new THREE.Mesh(
+                new THREE.SphereGeometry( 18, 50, 50 ),
+                new THREE.ShaderMaterial( {
+                    vertexShader,
+                    fragmentShader,
+                    uniforms
+                })
+            );
+            //moon.position.set(x,y,z);
+            moon.name = 'Moon';
+            // moonGlow
+            const moonFireAtmosphere = new THREE.Mesh(
+                new THREE.SphereGeometry( moon.geometry.parameters.radius,50,50 ),
+                new THREE.ShaderMaterial({
+                    vertexShader: vertexShader2,
+                    fragmentShader: fragmentShader2,
+                    blending: THREE.AdditiveBlending,
+                    side: THREE.BackSide,
+                    fog: true
+                })
+            );
+            moonFireAtmosphere.scale.set(1.1,1.1,1.1); moonFireAtmosphere.position.set(0,0,0);
+            moonFireAtmosphere.name = 'Moon Glow';
+            moon.add(moonFireAtmosphere);
+            scene.add(moon);
+        }
+
+        function planetGeometry(radius,x,y,z,planet,planetTexture){
+            var planetName = `${planet}`;
+            planet = new THREE.Mesh( new THREE.SphereGeometry(radius,50,50), new THREE.MeshStandardMaterial({ map: new THREE.TextureLoader().load(planetTexture), }) );                
+            planet.position.set(x,y,z);
+            planet.castShadow = true;
+            planet.receiveShadow = true;
+            planet.name = planetName;
+            console.log(planetName);
+
+            if(planetName != 'moon'){
+                scene.add(planet);
+                const ring = new THREE.Mesh( new THREE.RingGeometry( planet.position.x - 0.03, planet.position.x + 0.01, 64 ), new THREE.MeshBasicMaterial( { color: 0x333333, side: THREE.DoubleSide } ) );
+                ring.rotation.set(rotateX,0,0);
+                scene.add( ring );
+            }
+
+            if(scene.getObjectByName('earth')){
+                if(scene.getObjectByName('moon') == null){
+                    const moon = new THREE.Mesh( new THREE.SphereGeometry(0.3,50,50), new THREE.MeshStandardMaterial({ map: new THREE.TextureLoader().load(moonTexture), bumpMap: new THREE.TextureLoader().load('./assets/media/planet/moonbump4k.jpg'), bumpScale: 0.01 }) );
+                    moon.position.set(2,0,0);
+                    moon.castShadow = true;
+                    moon.receiveShadow = true;
+                    moon.name = 'moon';
+                    console.log(moon.name);
+                    scene.getObjectByName('earth').add(moon);
+                }
+            }
+
+            if(scene.getObjectByName('saturan')){                    
+                const saturanRingGeometry = new THREE.RingGeometry( 1.6, 4.05, 64 );
+                var pos = saturanRingGeometry.attributes.position;
+                var v3 = new THREE.Vector3(0,0,0);
+                for (let i = 0; i < pos.count; i++){
+                    v3.fromBufferAttribute(pos, i);
+                    saturanRingGeometry.attributes.uv.setXY(i, v3.length() < 4 ? 0 : 1, 1);
+                }
+                const saturanRingMaterial = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load( saturanRingTexture ), color: 0xffffff, transparent: true, side: THREE.DoubleSide } );
+                const saturanRing = new THREE.Mesh( saturanRingGeometry, saturanRingMaterial );
+                saturanRing.rotation.set( rotateX, 0.35, 0 );
+                scene.getObjectByName('saturan').add( saturanRing );
+            }
+
+        }
+
+        function starsGeometry(){
+            const starGeometry = new THREE.BufferGeometry();
+            const starVertices = [];
+            for(let i = 0; i < 10000; i++){
+                const x = (Math.random() - 0.5) * 2000;
+                const y = (Math.random() - 0.5) * 2000;
+                const z = (Math.random() - 0.5) * 2000;
+                starVertices.push(x,y,z);
+            }
+            starGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute(starVertices, 3) );
+            starGeometry.setAttribute( 'size', new THREE.Float32BufferAttribute(starVertices, 3) );
+            const stars = new THREE.Points( starGeometry, new THREE.PointsMaterial({ color: 0xffffff, /* map: new THREE.TextureLoader().load('./assets/media/lensflare/lensflare0_alpha.png'), */ }) );
+            scene.add(stars);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        var theta = 0;
+        var dTheta = 2 * Math.PI / 3000;
+
+        function animate() {
+
+            renderer.render( scene, camera );
+            requestAnimationFrame( animate );
+
+            theta -= dTheta;
+            //moon.rotation.y += 0.001;
+            //earth.position.x = earthPosition * Math.cos(theta);
+            //earth.position.z = earthPosition * Math.sin(theta);
+            if(controls){
+                controls.update();
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -47,6 +47,11 @@
         <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
     </div>
 
+    <div id="loading" class="loading">
+        <span>Loading</span>
+        <h2>100%</h2>
+    </div>
+
     <script src="./assets/js/jquery.js"></script>
     <script type="importmap">
         {
@@ -65,14 +70,15 @@
         import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
         const container = document.getElementById('container');
+        const loading = document.getElementById('loading');
 
         let camera, controls, scene, renderer;
-        let hlight, light, light2, light3, light4, directionalLight, tshirt;
+        let hlight, light, light2, light3, light4, directionalLight, plane, object;
         var color = 0xfffff0, textureLoader = new THREE.TextureLoader(), texture;
 
-        init();
+        init().then( animate );
 
-        function init(){
+        async function init(){
             scene = new THREE.Scene();
             scene.fog = new THREE.Fog( 0xffffff, 10, 15 );
 
@@ -88,30 +94,45 @@
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;            
 
-            controls = new OrbitControls( camera, renderer.domElement );
-            controls.enableDamping = true;
-            controls.minPolarAngle = Math.PI/2;
-            controls.maxPolarAngle = Math.PI/2;
-            controls.minDistance = 2;
-            controls.maxDistance = 10;
-
             new RGBELoader().load( './assets/hdri/industrial_sunset_puresky_4k.hdr', function ( hdri ) {
-                hdri.mapping = THREE.EquirectangularReflectionMapping;
-                //scene.background = hdri;
+                hdri.mapping = THREE.EquirectangularReflectionMapping; //scene.background = hdri;
                 scene.environment = hdri;
             });
 
-            texture = textureLoader.load( './assets/media/tshirt/texture1.png', function(tex){
-                tex.flipY = false;
-                tex.generateMipmaps = false;
-                tex.minFilter = THREE.LinearFilter;
-                tex.magFilter = THREE.LinearFilter;
-                tex.needsUpdate = true;
-            } );
+            function loadModel(){                
+                scene.add( object );
+                console.log(object);
+                scene.add( plane );
+            }
 
-            new GLTFLoader().load( './assets/models/tshirt.gltf', function ( gltf ) {
-                tshirt = gltf.scene;
-                tshirt.traverse(function (o) {
+            const manager = new THREE.LoadingManager( loadModel );
+
+            function onProgress( xhr ) {
+                if ( xhr.lengthComputable ) {
+                    const percentComplete = xhr.loaded / xhr.total * 100; //console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
+                    if(Math.round( percentComplete, 2 ) == 100){
+                        setTimeout(function() {
+                            loading.style.transition = '.5s';
+                            loading.style.opacity = '0';
+                            loading.style.visibility = 'hidden';
+                        }, 1250);
+                    }
+                }
+            }
+            function onError() {}
+
+            const loader = new GLTFLoader( manager );
+            loader.load( './assets/models/tshirt.gltf', function ( obj ) {                
+                object = obj.scene;
+                texture = textureLoader.load( './assets/media/tshirt/texture1.png', function(tex){
+                    tex.flipY = false;
+                    tex.generateMipmaps = false;
+                    tex.minFilter = THREE.LinearFilter;
+                    tex.magFilter = THREE.LinearFilter;
+                    tex.needsUpdate = true;
+                } );
+                object.traverse(function (o) {
                     if (o.isMesh) {                        
                         o.material = new THREE.MeshStandardMaterial({
                             bumpMap: textureLoader.load( './assets/media/tshirt/bump.png', function(tex){
@@ -127,27 +148,32 @@
                         o.material.needsUpdate = true
                     }
                 });
-                gltf.scene.position.set(0,0.25,0);
-                scene.add( gltf.scene );
+                object.position.set(0,0.25,0);
                 
                 const planeGeometry = new THREE.PlaneGeometry( 10, 10 );
                 planeGeometry.rotateX( - Math.PI / 2 );
                 const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.1 } );
                 
-                const plane = new THREE.Mesh( planeGeometry, planeMaterial );
+                plane = new THREE.Mesh( planeGeometry, planeMaterial );
                 plane.position.y = -1.45;
-                plane.receiveShadow = true;
-                scene.add(plane);
+                plane.receiveShadow = true;                
 
-            }, function ( xhr ) {
-                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );                
-            }, function ( error ) {
-                console.log( 'An error happened' );
-            } );
+            }, onProgress, onError );
+
+            controlSetting()
 
             lights(1,0);
 
             window.addEventListener('resize', onWindowResize);
+        }
+
+        function controlSetting(){
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
+            controls.minPolarAngle = Math.PI/2;
+            controls.maxPolarAngle = Math.PI/2;
+            controls.minDistance = 2;
+            controls.maxDistance = 10;
         }
 
         function lights(show,helper){
@@ -190,9 +216,7 @@
                 controls.update();
             }
             renderer.render( scene, camera );
-        }
-        
-        animate();
+        }        
 
         jQuery(function($){
             
@@ -220,16 +244,16 @@
 
             $('.shoes-texture div').on('click', function(){
                 var newTexture = $(this).data('image'); //console.log(tshirt.children[0].material.map); return false;
-                tshirt.traverse(function (node) {                    
-                    if (node.isMesh) {
-                        node.material.map = new THREE.TextureLoader().load(newTexture, function(e) {
+                object.traverse(function (o) {                    
+                    if (o.isMesh) {
+                        o.material.map = new THREE.TextureLoader().load(newTexture, function(e) {
                             e.flipY = false
                         });
-                        node.castShadow = true;
-                        node.receiveShadow = false;
+                        o.castShadow = true;
+                        o.receiveShadow = false;
                     }
                 });
-                tshirt.updateMatrix();
+                object.updateMatrix();
             });
 
         });

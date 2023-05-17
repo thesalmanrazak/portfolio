@@ -17,12 +17,17 @@
   gtag('config', 'G-0RNP8J0Q06');
 </script>
 <body>
+
     <div id="container">
         <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
     </div>
 
-    <script src="./assets/js/jquery.js"></script>
-    
+    <div id="loading" class="loading">
+        <span>Loading</span>
+        <h2>100%</h2>
+    </div>
+
+    <script src="./assets/js/jquery.js"></script>    
     <script type="importmap">
         {
             "imports": {
@@ -31,7 +36,6 @@
             }
         }
     </script>
-
     <script type="module">
         import * as THREE from 'three';
 
@@ -42,7 +46,9 @@
         import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
         const wrapper = document.querySelector('.wrapper');
-        let camera, scene, renderer, controls, sofa, plane;
+        const loading = document.getElementById('loading');
+
+        let camera, scene, renderer, controls, sofa, plane, object;
         let skybox, texture;
         const textureLoader = new THREE.TextureLoader();
         const loader = new THREE.TextureLoader().setPath( './assets/media/leather/' );
@@ -91,94 +97,121 @@
                 skybox.scale.setScalar( 100 );
                 skybox.radius = 30;
                 scene.add( skybox );
+
                 scene.environment = hdri;
             });
 
             sceneLight(0);
+
+            function loadModel(){
+                scene.add( object );             
+                scene.add( plane );
+            }
+
+            const manager = new THREE.LoadingManager( loadModel );
+
+            function onProgress( xhr ) {
+                if ( xhr.lengthComputable ) {
+                    const percentComplete = xhr.loaded / xhr.total * 100; //console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
+                    if(Math.round( percentComplete, 2 ) == 100){
+                        setTimeout(function() {
+                            loading.style.transition = '.5s';
+                            loading.style.opacity = '0';
+                            loading.style.visibility = 'hidden';
+                        }, 1250);
+                    }
+                }
+            }
+            function onError() {}
+
+            const loader = new GLTFLoader( manager );
             
-            texture = textureLoader.load( './assets/media/leather/04.jpg' );            
-            texture.colorSpace = THREE.sRGBEncoding;
-            texture.flipY = false;
+            loader.load( './assets/models/sofa.gltf', function ( obj ) {
 
-            const leatherMaterial = new THREE.MeshPhysicalMaterial({
-                map: texture,
-                transparent: true,
-                depthWrite: true,
-            });
-            texture.generateMipmaps = true;
-            texture.minFilter = THREE.LinearFilter;
-            texture.magFilter = THREE.LinearFilter;
-            texture.needsUpdate = true;
+                texture = textureLoader.load( './assets/media/leather/04.jpg' );            
+                texture.colorSpace = THREE.sRGBEncoding;
+                texture.flipY = false;
+                const leatherMaterial = new THREE.MeshPhysicalMaterial({
+                    map: texture,
+                    transparent: true,
+                    depthWrite: true,
+                });
+                texture.generateMipmaps = true;
+                texture.minFilter = THREE.LinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                texture.needsUpdate = true;
 
-            new GLTFLoader().load( './assets/models/sofa.gltf', function ( gltf ) {
-                sofa = gltf.scene;
-                sofa.children[1].traverse( function( o ){
+                object = obj.scene;
+                object.children[1].traverse( function( o ){
                     if ( o.isMesh ) {
                         o.material.map = texture;                        
                         o.castShadow = true;
                         o.material.map.wrapS = THREE.RepeatWrapping;
                         o.material.map.wrapT = THREE.RepeatWrapping;
                         o.material.map.repeat.set( repeat, repeat );
-                        //o.material.needsUpdate = true;
                     }
                 });
-                sofa.children[0].traverse( function( o ){
+                object.children[0].traverse( function( o ){
                     if ( o.isMesh ) {
                         o.castShadow = true;
                     }
                 });                
-                sofa.name = "furniture";
-                scene.add(sofa);
-                
-                const gui = new GUI();
-                gui.add( params, 'image', textures ).onChange( function ( val ) {
-                    sofa.children[1].traverse( function ( o ) {
-                        if ( o.material ) {
-                            o.material.map = val;
-                            o.castShadow = true;
-                            o.receiveShadow = false;
-                            o.material.map.wrapS = THREE.RepeatWrapping;
-                            o.material.map.wrapT = THREE.RepeatWrapping;
-                            o.material.map.repeat.set( repeat, repeat );
-                            o.material.needsUpdate = true;
-                        }
-                    } );
-                } );
-                gui.add( params, 'shadows' ).onChange( function ( val ) {
-                    if(val == true){
-                        renderer.shadowMap.enabled = 1;
-                    } else if(val == false){
-                        renderer.shadowMap.enabled = 0;
-                    }                    
-                    sofa.children[0].traverse( function ( o ) {
-                        if ( o.material ) {
-                            o.castShadow = val;
-                            o.material.needsUpdate = true;
-                        }
-                    } );
-                    sofa.children[1].traverse( function ( o ) {
-                        if ( o.material ) {
-                            o.castShadow = val;
-                            o.material.needsUpdate = true;
-                        }
-                    } );                    
-                } );
-                gui.open();
+                object.name = "furniture";
 
-            }, function ( xhr ) {
-                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-            }, function ( error ) {
-                console.log( 'An error happened' );
+                guiSetting();
+
+            }, onProgress, onError );
+
+            controlSetting();
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function guiSetting(){
+            const gui = new GUI();
+            gui.add( params, 'image', textures ).onChange( function ( val ) {
+                sofa.children[1].traverse( function ( o ) {
+                    if ( o.material ) {
+                        o.material.map = val;
+                        o.castShadow = true;
+                        o.receiveShadow = false;
+                        o.material.map.wrapS = THREE.RepeatWrapping;
+                        o.material.map.wrapT = THREE.RepeatWrapping;
+                        o.material.map.repeat.set( repeat, repeat );
+                        o.material.needsUpdate = true;
+                    }
+                } );
             } );
+            gui.add( params, 'shadows' ).onChange( function ( val ) {
+                if(val == true){
+                    renderer.shadowMap.enabled = 1;
+                } else if(val == false){
+                    renderer.shadowMap.enabled = 0;
+                }                    
+                sofa.children[0].traverse( function ( o ) {
+                    if ( o.material ) {
+                        o.castShadow = val;
+                        o.material.needsUpdate = true;
+                    }
+                } );
+                sofa.children[1].traverse( function ( o ) {
+                    if ( o.material ) {
+                        o.castShadow = val;
+                        o.material.needsUpdate = true;
+                    }
+                } );                    
+            } );
+            gui.open();
+        }
 
+        function controlSetting(){
             controls = new OrbitControls( camera, renderer.domElement );
             controls.enableDamping = true;
             controls.minDistance = 6;
             controls.maxDistance = 20;
             controls.minPolarAngle = Math.PI/2;
             controls.maxPolarAngle = Math.PI/2;
-
-            window.addEventListener('resize', onWindowResize);
         }
 
         function sceneLight(show){

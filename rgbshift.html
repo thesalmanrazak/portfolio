@@ -31,7 +31,6 @@
             }
         }
     </script>
-
     
     <script type="module">
         import * as THREE from 'three';
@@ -39,11 +38,13 @@
         const container = document.getElementById('container');
         let cube, scene, camera, renderer, loader, geometry, material, mesh, raycaster;
 
-        function init(){
+        init().then( animate );
+
+        async function init(){
             scene = new THREE.Scene();
 
-            camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 1, 1000 );
-            camera.position.set(0, 0, 100);
+            camera = new THREE.PerspectiveCamera( 135, window.innerWidth/window.innerHeight, 0.01, 1000 );
+            camera.position.set(0, 0, 200);
 
             renderer = new THREE.WebGLRenderer();
             renderer.setPixelRatio( window.devicePixelRatio );
@@ -58,7 +59,7 @@
                 uImageAspect: { value: 1920 / 1280 },
                 uPlaneAspect: { value: 800 / 500 },
             };
-            geometry = new THREE.PlaneGeometry(800, 500, 100, 100);
+            geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight, 100, 100);
             material = new THREE.ShaderMaterial({
                 uniforms,
                 vertexShader: `
@@ -126,14 +127,10 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        init();
-
         function animate() {
             requestAnimationFrame( animate );            
             renderer.render( scene, camera );
         }
-        
-        animate();
     </script>
 
 </body>

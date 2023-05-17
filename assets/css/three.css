@@ -3,228 +3,6 @@
   --bg-color: #c9ee9b;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: "Poppins", sans-serif !important;
-}
-
-html, body {
-  background: var(--bg-color);
-  color: #fff;
-  overflow: hidden;
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-  font-weight: 400;
-}
-html .model_loading, body .model_loading {
-  opacity: 1;
-  background-color: #fff;
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  color: #000;
-  pointer-events: none;
-}
-html .model_loading h2, body .model_loading h2 {
-  font-size: 1vw;
-  font-weight: 500;
-  display: block;
-  color: #dddddd;
-}
-html .model_loading span, body .model_loading span {
-  font-size: 5vw;
-  font-weight: 600;
-  color: #000;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: "Poppins", sans-serif;
-  margin: 0;
-  padding: 0;
-  line-height: 1em;
-}
-
-a {
-  text-decoration: none;
-  outline: none;
-  transition: 0.3s ease;
-  color: #fff;
-}
-a::after {
-  transition: 0.3s ease;
-}
-a:hover {
-  color: #000;
-}
-
-button {
-  outline: none;
-  transition: 0.3s ease;
-}
-
-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 12;
-  max-height: 60px;
-  height: 60px;
-  width: 100vw;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-}
-header a.logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-header a.menu {
-  position: relative;
-  display: block;
-  font-size: 1.1rem;
-  font-weight: 400;
-  transition: 0.3s;
-}
-header a.menu::after {
-  content: "";
-  width: 15px;
-  height: 1px;
-  position: absolute;
-  right: calc(100% + 5px);
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #fff;
-}
-header a.menu:hover::after {
-  width: 35px;
-  background-color: #000;
-}
-header a.menu.active {
-  color: #000;
-}
-header a.menu.active::after {
-  background-color: #000;
-}
-header.inside a.logo {
-  color: #000;
-}
-header.inside a.menu {
-  color: #000;
-}
-header.inside a.menu::after {
-  background-color: #000;
-}
-header.inside a.menu:hover {
-  color: var(--bg-color);
-}
-header.inside a.menu:hover::after {
-  width: 35px;
-  background-color: var(--bg-color);
-}
-
-footer {
-  position: fixed;
-  bottom: 0;
-  left: 40px;
-  z-index: 12;
-  max-height: 40px;
-  height: 40px;
-  width: calc(100vw - 40px);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  font-size: 12px;
-  font-weight: 500;
-}
-footer .social {
-  display: flex;
-  gap: 15px;
-}
-footer .social a {
-  color: #fff;
-  display: block;
-}
-footer .social a:hover {
-  color: #000;
-}
-footer.inside {
-  color: #000;
-  left: 0;
-}
-footer.inside .social a {
-  color: #000;
-}
-footer.inside .social a:hover {
-  color: var(--bg-color);
-}
-
-aside {
-  position: fixed;
-  right: 0;
-  top: 0;
-  width: 0vw;
-  height: 100vh;
-  background: #fff;
-  color: #000;
-  z-index: 11;
-  overflow: hidden;
-  transition: 0.8s;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 0;
-}
-aside a {
-  display: table;
-  color: #000;
-  text-transform: capitalize;
-  font-size: 7em;
-  line-height: 1em;
-  font-weight: 800;
-  white-space: nowrap !important;
-}
-aside a:hover {
-  color: var(--bg-color);
-}
-aside.full {
-  width: 100vw;
-  padding: 0 10%;
-}
-
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-@media (min-width: 320px) and (max-width: 768px) {
-  header a.logo {
-    font-size: 1.25rem;
-  }
-  header a.menu {
-    font-size: 1rem;
-  }
-  footer {
-    position: fixed;
-    flex-direction: column;
-    justify-content: center;
-  }
-  aside a {
-    font-size: 3em;
-  }
-}
 *::-webkit-scrollbar {
   background: #fff;
   width: 8px;
@@ -272,6 +50,50 @@ ul {
   width: 100%;
   text-align: center;
   color: #fff;
+}
+
+.loading {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-color);
+  color: #fff;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.loading span {
+  font-size: 2.2vw;
+  font-weight: 400;
+  line-height: 1em;
+  display: block;
+}
+.loading h2 {
+  font-size: 6vw;
+  display: block;
+  font-weight: 700;
+  line-height: 1em;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif !important;
+}
+
+html, body {
+  background: var(--bg-color);
+  color: #fff;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  font-weight: 400;
 }
 
 main section.home canvas#homePage {

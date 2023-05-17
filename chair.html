@@ -26,6 +26,11 @@
         <button type="button" class="backBtn" onclick="window.location.replace('threejs.html');">Back</button>
     </div>
 
+    <div id="loading" class="loading">
+        <span>Loading</span>
+        <h2>100%</h2>
+    </div>
+
     <script src="./assets/js/jquery.js"></script>
     <script type="importmap">
         {
@@ -35,7 +40,6 @@
             }
         }
     </script>
-
     <script type="module">
         import * as THREE from 'three';        
 
@@ -45,9 +49,15 @@
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
         const container = document.getElementById('container');
-        let stats;
+        const loading = document.getElementById('loading');
+        let basicColor = "#054226"; //"#7f6653";
+        const plastiColor = document.getElementById( 'body-color' );
+        plastiColor.value = basicColor;
+
+        let stats, object;
         let camera, scene, renderer, controls, chair1, chair2, chair3, chair4;
         let hemiLight, light, skybox;
+        const group = new THREE.Group(), chairs = [];
 
         init().then( animate );
 
@@ -73,84 +83,90 @@
                 skybox.scale.setScalar( 100 );
                 skybox.radius = 50;
 			    skybox.height = 541;
-                
                 scene.add( skybox );
+
                 scene.environment = hdri;
             });
 
-            new GLTFLoader().load('./assets/models/chair.gltf', function (gltf) {
-                chair1 = gltf.scene;
-                chair1.traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.castShadow = true;
-                        o.receiveShadow = false;
-                    }
-                });
-                chair1.position.set(0,0,0.7);
-                scene.add(chair1);
-            }, function ( xhr ) {
-                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-            }, function ( error ) {
-                console.log( 'An error happened' );
-            });
-            new GLTFLoader().load('./assets/models/chair.gltf', function (gltf) {
-                chair2 = gltf.scene;
-                chair2.traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.castShadow = true;
-                        o.receiveShadow = false;
-                    }
-                });
-                chair2.position.set(-1,0,-1);
-                chair2.rotation.set(0,-0.65,0)
-                scene.add(chair2);
-            }, function ( xhr ) {
-                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-            }, function ( error ) {
-                console.log( 'An error happened' );
-            });
-            new GLTFLoader().load('./assets/models/chair.gltf', function (gltf) {
-                chair3 = gltf.scene;
-                chair3.traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.castShadow = true;
-                        o.receiveShadow = false;
-                    }
-                });
-                chair3.position.set(1,0,-1);
-                chair3.rotation.set(0,0.65,0)
-                scene.add(chair3);
-            }, function ( xhr ) {
-                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-            }, function ( error ) {
-                console.log( 'An error happened' );
-            });
+            function loadModel(){
+                group.children[0].position.set(0,0,0.7);
+                group.children[1].position.set(-1,0,-1);
+                group.children[1].rotation.set(0,-0.65,0);
+                group.children[2].position.set(1,0,-1);
+                group.children[2].rotation.set(0,0.65,0);
+                scene.add( group );
+            }
 
-            const plastiColor = document.getElementById( 'body-color' );
-            plastiColor.addEventListener( 'input', function () {
-                chair1.children[1].material.color.set( plastiColor.value );
-                chair2.children[1].material.color.set( plastiColor.value );
-                chair3.children[1].material.color.set( plastiColor.value );
-            } ); 
+            const manager = new THREE.LoadingManager( loadModel );
 
-            const planeGeometry = new THREE.PlaneGeometry( 50, 50 );
+            function onProgress( xhr ) {
+                if ( xhr.lengthComputable ) {
+                    const percentComplete = xhr.loaded / xhr.total * 100; //console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
+                    if(Math.round( percentComplete, 2 ) == 100){
+                        setTimeout(function() {
+                            loading.style.transition = '.5s';
+                            loading.style.opacity = '0';
+                            loading.style.visibility = 'hidden';
+                        }, 1250);
+                    }
+                }
+            }
+            function onError() {}
+
+            const loader = new GLTFLoader( manager );
+
+            for(let x = 1; x <= 3; x++){
+                loader.load('./assets/models/chair.gltf', function (obj) {
+                    object = obj.scene;
+                    object.traverse ( ( o ) => {
+                        if ( o.isMesh ) {
+                            o.castShadow = true;
+                            o.receiveShadow = false;
+                        }
+                    });
+                    object.children[1].traverse ( ( o ) => {
+                        if ( o.isMesh ) {
+                            o.material.color = new THREE.Color( basicColor );
+                        }
+                    });
+                    chairs.push(object);
+                    
+                    object.name = "Chair_" + x;
+                    group.add( object );
+                    
+                }, onProgress, onError );
+            }
+
+            const planeGeometry = new THREE.PlaneGeometry( 100, 100 );
             planeGeometry.rotateX( - Math.PI / 2 );
             const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.2 } );
             
             const plane = new THREE.Mesh( planeGeometry, planeMaterial );
             plane.position.y = -0.40;
             plane.receiveShadow = true;
-            scene.add(plane);
+            scene.add(plane);            
 
+            controlSetting();
+            sceneLight(0);
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        plastiColor.addEventListener( 'input', function () {
+            //group.children[0].children[0].material.color
+            group.children[0].children[1].material.color = new THREE.Color(this.value);
+            group.children[1].children[1].material.color = new THREE.Color(this.value);
+            group.children[2].children[1].material.color = new THREE.Color(this.value);
+        }, false);
+
+        function controlSetting(){
             controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
             controls.minPolarAngle = Math.PI/2;
             controls.maxPolarAngle = Math.PI/2;
             controls.maxDistance = 4.5;
 			controls.minDistance = 3;
-
-            sceneLight(0);
-
-            window.addEventListener('resize', onWindowResize);
         }
 
         function sceneLight(show){
@@ -161,8 +177,8 @@
             scene.add(light);
 
             light.castShadow = true;
-            light.shadow.mapSize.width = 2048;
-            light.shadow.mapSize.height = 2048;
+            light.shadow.mapSize.width = 4096;
+            light.shadow.mapSize.height = 4096;
             light.shadow.camera.near = 10;
             light.shadow.camera.far = 200;
             light.shadow.focus = 1;

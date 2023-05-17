@@ -1,5 +1,21 @@
-@import 'colors', 'fonts', 'basic', 'scrollbar', 'preloader';
+@import 'colors', 'fonts', 'scrollbar', 'preloader';
 
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: $poppins !important;
+}
+
+html, body{
+    background: var(--bg-color);
+    color: $white;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    font-weight: 400;
+}
 main{
     section{
 
