@@ -1,6 +1,10 @@
 {
     "branding": [
-        {"name":"Brand Name", "images":"placeholder.jpg"}
+        {"name":"Respak", "images":"respak.jpg"},
+        {"name":"CBRCB  Consulting", "images":"cbrcb.jpg"},
+        {"name":"Premium Cigar Company", "images":"pcc.png"},
+        {"name":"CiSNET", "images":"cisnet.jpg"}
+        
     ],
     "digital media": [
         {"name":"Afridi Inn December 2017", "path": "afridiinn", "images": ["01_dec_17.jpg","02_dec_17.jpg","03_dec_17.jpg","04_dec_17.jpg","05_dec_17.jpg","06_dec_17.jpg","07_dec_17.jpg","08_dec_17.jpg","09_dec_17.jpg","10_dec_17.jpg","11_dec_17.jpg","12_dec_17.jpg","13_dec_17.jpg","14_dec_17.jpg","15_dec_17.jpg","16_dec_17.jpg","17_dec_17.jpg","18_dec_17.jpg","19_dec_17.jpg","20_dec_17.jpg","21_dec_17.jpg","22_dec_17.jpg","23_dec_17.jpg","24_dec_17.jpg"]},

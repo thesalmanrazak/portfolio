@@ -753,6 +753,10 @@ main section.work-category div.grid.print .item.broucher div.images img {
 main section.work-category div.grid.print .item:hover span {
   opacity: 0;
 }
+main section.work-category div.grid.branding {
+  -moz-column-count: 2;
+       column-count: 2;
+}
 main section.work-single {
   background: #fff;
   color: #000;
@@ -1456,6 +1460,10 @@ main section.slider .plane img {
   }
   main section.work-category div.grid.print .item:hover span {
     opacity: 0;
+  }
+  main section.work-category div.grid.branding {
+    -moz-column-count: 1;
+         column-count: 1;
   }
   main section.work-single {
     background: #fff;

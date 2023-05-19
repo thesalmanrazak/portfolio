@@ -178,7 +178,7 @@ function load_threejs(){
 function load_branding(){
     $.getJSON( "./assets/json/projects.json", function(data) {
         $.each(data['branding'], function (index, value) {            
-            $('section.work-category .grid.branding').append('<div class="item"><img src="./assets/media/branding/'+value.images+'" alt=""><span>'+value.name+'</span></div>');
+            $('section.work-category .grid.branding').append('<div class="item"><img src="./assets/media/branding/branding-'+value.images+'" alt=""><span>'+value.name+'</span></div>');
         });
     });
 }

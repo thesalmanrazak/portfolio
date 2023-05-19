@@ -130,7 +130,7 @@ main{
             div.grid{
                 margin: 0 1%;
                 column-count: 3;
-                column-gap: 15px;
+                column-gap: 15px;                
                 .item{
                     position: relative;
                     display: block;                    
@@ -387,6 +387,9 @@ main{
                             }
                         }
                     } 
+                }
+                &.branding{
+                    column-count: 2;
                 }
             }
         }
@@ -1164,6 +1167,9 @@ main{
                                 }
                             }
                         } 
+                    }
+                    &.branding{
+                        column-count: 1;
                     }
                 }
             }

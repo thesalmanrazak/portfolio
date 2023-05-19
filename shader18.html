@@ -40,39 +40,23 @@
         let start = Date.now();
 
         const fragmentShader = `
-        #ifdef GL_ES
-        precision highp float;
-        #endif
+            #ifdef GL_ES
+            precision highp float;
+            #endif
 
-        uniform vec2 resolution;
-        uniform float time;
+            uniform vec2 resolution;
+            uniform float time;
 
-        mat2 scale(vec2 scale){
-            return mat2(scale.x, 0.0, 0.0, scale.y);
-        }
+            void main(){            
+                vec2 coord = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
+                coord.x += sin(time) + cos(time * 2.1);
+                coord.y += cos(time) + sin(time * 1.6);
+                float color = 0.0;
 
-        float circleshape(vec2 position, float radius){
-            return step(radius, length(position - vec2(0.5)));
-        }
-
-        void main(){            
-            vec2 coord = gl_FragCoord.xy / resolution;
-            // (gl_FragCoord.xy / resolution) * 2.0 - 1.0;
-            vec3 color = vec3(0.0);
-            //coord.x *= resolution.x / resolution.y;
-
-            coord -= vec2(0.5);
-            coord = scale(vec2(sin(time))) * coord;
-            coord += vec2(0.5);
-
-            //vec2 translate = vec2(sin(time / 10.0), cos(time));
-            //coord += translate * 0.5;                        
-            
-            //float circle = circleshape(coord, 0.35);
-            color = vec3(circleshape(coord, 0.3));
-            
-            gl_FragColor = vec4(color, 1.0);
-        }
+                color += 0.1 * (abs(sin(time)) + 0.1) / length(coord);
+                
+                gl_FragColor = vec4(vec3(color), 1.0);
+            }
         `;
 
         init().then(animate);
@@ -124,7 +108,7 @@
         }
 
         function animate(time) {
-			time *= 0.0005; //convert to seconds
+			time *= 0.001; //convert to seconds
             requestAnimationFrame( animate );
 
             controls.update();
