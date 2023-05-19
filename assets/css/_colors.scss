@@ -8,4 +8,10 @@ $white: #fff;
 $black: #000;
 :root {
     --bg-color: #c9ee9b;
+    --checkbox-on: #5ddcff;
+    --checkbox-off: #4e00c2;
+    --card-height: calc(var(--card-width) / 1.8);
+    --card-width: 60vw ;
+    --vertical-height: 70vh;
+    --vertical-width: calc(var(--vertical-height) / 1.5);
 }

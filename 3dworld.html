@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Razak :|: Being creative mean be different...</title>
+    <link rel="stylesheet" href="./assets/css/three.css">
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0RNP8J0Q06"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0RNP8J0Q06');
+</script>
+<body>
+
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./assets/build/three.module.js",
+                "three/addons/": "./assets/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { TWEEN } from 'three/addons/libs/tween.module.min.js';
+
+        const container = document.getElementById('container');
+        let cube, scene, camera, renderer, controls;
+        let loader = new THREE.TextureLoader().setPath('./assets/media/3dworld/');
+        let filenames = {
+            "one" : ['trance_ft.jpg','trance_bk.jpg','trance_up.jpg','trance_dn.jpg','trance_rt.jpg','trance_lf.jpg'],
+            "two" : ['zeus_ft.jpg','zeus_bk.jpg','zeus_up.jpg','zeus_dn.jpg','zeus_rt.jpg','zeus_lf.jpg'],
+            "three" : ['ocean_ft.jpg','ocean_bk.jpg','ocean_up.jpg','ocean_dn.jpg','ocean_rt.jpg','ocean_lf.jpg'],
+            "four" : ['mystic_ft.jpg','mystic_bk.jpg','mystic_up.jpg','mystic_dn.jpg','mystic_rt.jpg','mystic_lf.jpg'],
+            "five" : ['barren_ft.jpg','barren_bk.jpg','barren_up.jpg','barren_dn.jpg','barren_rt.jpg','barren_lf.jpg'],
+            "six" : ['arid2_ft.jpg','arid2_bk.jpg','arid2_up.jpg','arid2_dn.jpg','arid2_rt.jpg','arid2_lf.jpg'],
+            "seven" : ['bay_ft.jpg','bay_bk.jpg','bay_up.jpg','bay_dn.jpg','bay_rt.jpg','bay_lf.jpg']
+        }
+
+        console.log(filenames['one'].length);
+
+        const textures = { none: null };
+
+        let params = {
+            //sets : textures['one'],
+        }
+        /*
+        for ( let i = 0; i < filenames.length; i ++ ) {
+            
+            const filename = filenames[ i ][ i ];
+
+            const texture = loader.load( filename );
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.colorSpace = THREE.SRGBColorSpace;
+
+            textures[ filename ] = texture;
+        }
+        */
+
+
+        function init(){
+            scene = new THREE.Scene();
+            
+            camera = new THREE.PerspectiveCamera(55,window.innerWidth/window.innerHeight,45,30000);
+            camera.position.set(-900,-200,-900);
+
+            renderer = new THREE.WebGLRenderer({antialias:true});
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            container.appendChild( renderer.domElement );
+            
+
+            let materialArray = [];
+            let texture_ft = loader.load( filenames["one"][0] );
+            let texture_bk = loader.load( filenames["one"][1] );
+            let texture_up = loader.load( filenames["one"][2] );
+            let texture_dn = loader.load( filenames["one"][3] );
+            let texture_rt = loader.load( filenames["one"][4] );
+            let texture_lf = loader.load( filenames["one"][5] );
+            
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_ft }));
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_bk }));
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_up }));
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_dn }));
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_rt }));
+            materialArray.push(new THREE.MeshBasicMaterial( { map: texture_lf }));
+            
+            for (let i = 0; i < 6; i++)
+            materialArray[i].side = THREE.BackSide;
+
+            let skyboxGeo = new THREE.BoxGeometry( 10000, 10000, 10000);
+            let skybox = new THREE.Mesh( skyboxGeo, materialArray );
+            scene.add( skybox );
+
+
+            const gui = new GUI();
+
+            //gui.add( params, 'sets').name('Set').onChange( function(val){
+            //    console.log(val);
+            //} );
+
+            gui.open();
+
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 500;
+            controls.maxDistance = 1500;
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        
+        init();
+
+        function animate() {
+            requestAnimationFrame( animate );
+            controls.update();
+            renderer.render( scene, camera );
+        }
+        
+        animate();
+    </script>
+
+</body>
+</html>

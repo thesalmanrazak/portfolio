@@ -1,10 +1,22 @@
 @import 'colors', 'fonts', 'scrollbar', 'preloader';
 
+@property --rotate {
+    syntax: "<angle>";
+    initial-value: 132deg;
+    inherits: false;
+}
+
 *{
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     font-family: $poppins !important;
+}
+
+:root {
+    //--card-height: 70vh;
+    //--card-width: calc(var(--card-height) / 1.5);
+    
 }
 
 html, body{
@@ -81,6 +93,176 @@ div#container{
                 height: inherit;
             }
         }
+    }
+    div.wrapper{        
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: $white; // #14151a; // #03071e;
+        width: 100vw;
+        height: 100vh;        
+        transition: 0.3s;
+        div.device{
+            transition: 0.3s;
+            width: var(--card-width);
+            height: var(--card-height);
+            display: block;
+            position: relative;
+            border-radius: 25px; 
+            overflow: hidden;           
+            z-index: 1;            
+            $color1: #5ddcff;
+            $color2: #3c67e3;
+            $color3: #4e00c2;
+            box-shadow: 0 50px 35px rgba(0,0,0,0.5);
+            /*
+            &::before {
+                content: "";
+                width: 104%;
+                height: 102%;
+                border-radius: inherit;
+                background-image: linear-gradient(var(--rotate), $color1, $color2 43%, $color3 );
+                position: absolute;
+                z-index: -1;
+                top: -1%;
+                left: -2%;
+                animation: spin 2.5s linear infinite;
+            }
+            &::after {
+                position: absolute;
+                content: "";
+                top: calc(var(--card-height) / 20);
+                left: 0;
+                right: 0;
+                z-index: -1;
+                height: 100%;
+                width: 100%;
+                margin: 0 auto;
+                transform: scale(0.8);
+                filter: blur(calc(var(--card-height) / 6));
+                background-image: linear-gradient(var(--rotate), $color1, $color2 43%, $color3 );
+                opacity: 1;
+                transition: opacity .5s;
+                animation: spin 2.5s linear infinite;
+            }
+            */
+            canvas{
+                border-radius: 25px;
+                width: 100% !important;
+                height: 100% !important;
+                position: relative;
+                z-index: 1;
+                border: 15px solid #000;
+            }
+            .deviceLoading{
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 10;
+                background-color: $white;
+            }
+            &.vertical{
+                width: var(--vertical-width);
+                height: var(--vertical-height);
+            }
+        }
+        .keyboard{
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;            
+            button[type="button"]{
+                align-items: center;
+                appearance: none;
+                background-color: #FCFCFD;
+                border-radius: 4px;
+                border: 2px solid #e6e6e6;
+                color: #36395A;
+                cursor: pointer;
+                display: inline-flex;
+                font-family: "JetBrains Mono",monospace;
+                height: 40px;
+                justify-content: center;
+                list-style: none;
+                overflow: hidden;
+                position: relative;
+                text-align: left;
+                text-decoration: none;
+                transition: box-shadow .15s,transform .15s;
+                user-select: none;
+                -webkit-user-select: none;
+                touch-action: manipulation;
+                white-space: nowrap;
+                will-change: box-shadow,transform;
+                font-size: 16px;
+                cursor: pointer;
+                &:nth-child(1){grid-area: up;}
+                &:nth-child(2){grid-area: left;}
+                &:nth-child(3){grid-area: middle;}
+                &:nth-child(4){grid-area: right;}
+                &:nth-child(5){grid-area: space;}
+                //box-shadow: rgba(45, 35, 66, 0.4) 0 0px 2px,rgba(45, 35, 66, 0.3) 0 0px 10px -2px,#D6D6E7 0 -3px 0 inset;
+                &:hover {
+                    //box-shadow: rgba(45, 35, 66, 0.4) 0 0px 3px, rgba(45, 35, 66, 0.3) 0 0px 3px -3px, #D6D6E7 0 -3px 0 inset;
+                    transform: translateY(2px);
+                }
+                &.active {
+                    //box-shadow: #D6D6E7 0 1px 4px inset;
+                    transform: translateY(2px);
+                }
+            }
+            display: grid;
+            gap: 8px;
+            grid-template-columns: 55px 55px 55px;
+            grid-template-rows: auto;
+            grid-template-areas:
+            " . up . "
+            " left middle right ";
+            //"space space space space space";            
+        }
+
+        .toggle{
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            padding: 10px;
+            z-index: 10;
+            color: $black;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+
+            input[type="checkbox"]{
+                cursor: pointer;
+                /*
+                appearance: none;
+                border: 1px solid transparent;
+                border-radius: 6px;
+                width: 20px;
+                height: 20px;
+                background: var(--checkbox-on);
+                box-shadow: 0 3px 3px rgba(0, 0, 0, 0.15);
+                transition: 0.5x;
+                &:checked{
+                    background: var(--checkbox-off);
+                    box-shadow: 0 0px 0px rgba(0, 0, 0, 0);
+                }
+                */
+            }
+        }
+
+    }
+}
+@keyframes spin {
+    0% {
+        --rotate: 0deg;
+    }
+
+    100% {
+        --rotate: 360deg;
     }
 }
 ul.textures{
