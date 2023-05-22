@@ -39,95 +39,81 @@
     <script type="module">
         import * as THREE from 'three';
 
+        import Stats from 'three/addons/libs/stats.module.js';
         import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from './assets/jsm/controls/OrbitControls.js';
+        import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
+		import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-        import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-        import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
-        import { TWEEN } from 'three/addons/libs/tween.module.min.js';
-        import { GroundProjectedSkybox } from 'three/addons/objects/GroundProjectedSkybox.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { Reflector } from 'three/addons/objects/Reflector.js';
+
+        THREE.ColorManagement.enabled = false;
 
         const container = document.getElementById('container');
         const loading = document.getElementById('loading');
 
-        let camera, controls, scene, renderer;
-        let object, car, objectPosition = 0, skybox;
-        let tyres = [], rinGroup;
-        let spotLight, lightHelper;
-        let carlight, hlight1, hlight2, lensflare1, lensflare2;
-        let material;
-        let textureLoader = new THREE.TextureLoader();
-        let textureFlare0 = textureLoader.load( './assets/media/lensflare/lensflare0_alpha.png' );
-        let textureFlare3 = textureLoader.load( './assets/media/lensflare/lensflare0_alpha.png' );
-        let textureFlare1 = textureLoader.load( './assets/media/lensflare/carlight.png' );
-        let cloudMap = textureLoader.load( './assets/media/belfast_sunset_puresky_4k.png' );
-        let camX = 0, camY = 0, camZ = 8;
-        let grid, sphere;
-        let ringSize = 2.0;
-        let axehelper = new THREE.AxesHelper(5);
+        let cube, scene, camera, renderer, controls, object, skybox, tyres = [], stats, groundMirror, hemiLight, spotLight, shadowplane, mshStdFloor;
+        const group = new THREE.Group();
 
-        const basic = {
-            axe: false,
-        }
         const params = {            
-            tonemap: 0.65,
-            punctualLightsEnabled: true,
-            color: '#dddddd',
-            break: 0,
-            headlight: 0.1,
-            tyrerotate: 0.0,
-            tyre: false,            
-            shadow: true,            
-        };
-        const glassparams = {
-            color: 0xffffff,
-            transmission: 1,
-            opacity: 1,
-            metalness: 0,
-            roughness: 0,
-            ior: 1.5,
-            thickness: 0.01,
-            specularIntensity: 1,
-            specularColor: 0xffffff,
-            envMapIntensity: 1,
-            lightIntensity: 1,
-            exposure: 1
+            color: '#7821c0',
+            floor: '#7821c0',
+            metalness: 0.15,
+            roughness: 0.05,
+            mirror: false,
+            rectanglelight: false,
+            spotlight: false,
         };
 
         init().then( animate );
 
         async function init(){
             scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0x000000 ); // 7821c0 // 411367
+            scene.fog = new THREE.FogExp2( 0xff0000, 0.0025 );
 
-            scene_camera();
+            const axe = new THREE.AxesHelper(5);
+            //scene.add(axe);
+
+            camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 10000 );
+            camera.position.set( 6, 0, 0 );
             
-            renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+            renderer = new THREE.WebGLRenderer( { antialias: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.setSize( window.innerWidth, window.innerHeight );
-            renderer.useLegacyLights = false;
+            renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+            renderer.setSize( window.innerWidth, window.innerHeight );            
             container.appendChild( renderer.domElement );
+    
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-            renderer.shadowMap.enabled = params.shadow;
-            renderer.outputColorSpace = THREE.SRGBColorSpace;
+
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = params.tonemap;
-
-            new RGBELoader().load( './assets/hdri/belfast_sunset_puresky_4k.hdr', function ( hdri ) {
-                hdri.mapping = THREE.EquirectangularReflectionMapping;
-                scene.background = hdri;
-
-                skybox = new GroundProjectedSkybox( hdri );
-                skybox.scale.setScalar( 50 );                
-                scene.add( skybox );
-
-                scene.environment = hdri;
-                //hdri.dispose();
-            });
-
+            renderer.toneMappingExposure = 1;
+            
+            RectAreaLightUniformsLib.init();
 
             function loadModel(){
                 scene.add( object );
+
+                spotlight(0xffffff,0.75,0,20,-5,0,1);
+                spotlight(0xffffff,0.75,0,20,5,0,1);
+                spotlight(0xffffff,0.75,0,1,5,0,0);
+                spotlight(0xffffff,0.75,0,1,-5,0,0);
+
+                // shadow
+                shadow(-0,0.5,50);
+                
+                guis();
+
+                //mirror(0xaaaaaa,1,200);
+
+                rectLight( 0xffffff, 3, 5, 3, -10, 5, 0, 0 ); // left
+                rectLight( 0xffffff, 3, 5, 3, 10, 5, 0, 0 ); // right
+                rectLight( 0xffffff, 1, 30, 30, 0, 10, 0, 0 ); // top
+
+                control();
             }
 
             const manager = new THREE.LoadingManager( loadModel );
@@ -153,194 +139,100 @@
                 
                 // define gltf model and add into scene
                 object = obj.scene;
-                object.name = "Car";
-                object.traverse(function (o) {
-                    if (o.isMesh) {
+                object.traverse( function( o ) {
+                    if ( o.isMesh ) {
                         o.castShadow = true;
-                        o.receiveShadow = false;
                     }
+                } );
+                object.name = "Car";
+                
+                // body paint
+                object.getObjectByName('bodypaint', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material = new THREE.MeshPhysicalMaterial({
+                            color: new THREE.Color( params.color ),
+                            metalness: params.metalness,
+                            roughness: params.roughness,
+                        });
+                        o.material.needsUpdate = true;
+                    }                    
                 });
-                object.rotation.set( 0, 0, 0 );
-                object.position.set( 0, objectPosition, 0 );                
-
-                // push tyres into variable for rotation
-                tyres.push( object.getObjectByName( 'wheel_RF' ), object.getObjectByName( 'wheel_RB' ), object.getObjectByName( 'wheel_LB' ), object.getObjectByName( 'wheel_LF' ) );
-
-                tyres[0].rotSpeed = { x: 0, y: 0};
-                tyres[1].rotSpeed = { x: 0, y: 0};
-                tyres[2].rotSpeed = { x: 0, y: 0};
-                tyres[3].rotSpeed = { x: 0, y: 0};
-
-                material = new THREE.MeshPhysicalMaterial( {
-					color: glassparams.color,
-					metalness: glassparams.metalness,
-					roughness: glassparams.roughness,
-					ior: glassparams.ior,
-					envMapIntensity: glassparams.envMapIntensity,
-					transmission: glassparams.transmission,
-					specularIntensity: glassparams.specularIntensity,
-					specularColor: glassparams.specularColor,
-					opacity: glassparams.opacity,
-					side: THREE.DoubleSide,
-					transparent: true
-				} );
 
                 // car glass color and other settings
                 object.getObjectByName('glass', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
-                        o.material = material;
+                        o.material = new THREE.MeshPhysicalMaterial( {
+                            color: 0xffffff,
+                            opacity: 0.25,
+                            transmission: 1,
+                            //metalness: 0,
+                            //roughness: 0,
+                            ior: 0.25,
+                            thickness: 1.5,
+                            //envMapIntensity: 0.1,
+                            //specularIntensity: 0.2,
+                            //side: THREE.DoubleSide,
+                            transparent: true
+                        } );
                     }
                 });
 
-                // car body paint color define
-                object.getObjectByName('bodypaint', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.color = new THREE.Color(params.color);
-                        o.material.metalness = 0.8,
-					    o.material.roughness = 0,
-                        o.material.envMap = scene.background;
-                        o.material.envMapIntensity = 0.5;
-                        o.castShadow = true;
-                        o.receiveShadow = false;
-                        o.material.needsUpdate = true;
-                    }
-                    
-                });
-
-                // car break liht color intensity
+                // break light
                 object.getObjectByName('break_light', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
-                        o.material.color = new THREE.Color(0xff000f);
-                        o.castShadow = true;
-                        o.receiveShadow = true;
-                        o.material.envMapIntensity = params.break
+                        o.material.color = new THREE.Color(0xff0000);
+                        //o.castShadow = true;
+                        //o.receiveShadow = false;
+                        o.material.envMapIntensity = 1;
                     }
                 });
-                
-                // head light bulb intensity
-                object.getObjectByName('headlight_bulb', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.color = new THREE.Color(0xffffff);
-                        o.castShadow = true;
-                        o.receiveShadow = true;
-                        o.material.envMapIntensity = params.headlight
-                    }
-                });
-
-                // right front light
-                hlight1 = new THREE.PointLight( 0xffffff, 1.5, 2000 );
-                hlight1.color.setHSL( 1, 1, 1 );
-                hlight1.position.set( -0.3, 0, 0.012 );
-
-                // left front light
-                hlight2 = new THREE.PointLight( 0xffffff, 1.5, 2000 );
-                hlight2.color.setHSL( 1, 1, 1 );
-                hlight2.position.set( 0.3, 0, 0.012 );
-
-                // add light into car
-                object.getObjectByName('headlight_bulb', true).add( hlight1 );
-                object.getObjectByName('headlight_bulb', true).add( hlight2 );
-
-                sphere = new THREE.Mesh(
-                    new THREE.SphereGeometry( 40, 64, 128 ),
-                    new THREE.MeshStandardMaterial( {
-                        map: cloudMap,
-                        envMapIntensity: 5,
-                        side: THREE.DoubleSide,
-                        opacity: 0.5,
-                        transparent: true
-                    } )
-                );
-
-                // gui settings
-                guis();
-
-                // show shadow of car
-                carshadow(1,1000,0x000000,0.4,0);
-
-                // surface rings
-                surfaceRings(5,0xffffff,0.05,0.01);
-
-                sceneLight(1,0,2048);
-
-                control();
-
-                grid_add(100, 100, 0xffffff, 0xffffff,0.1,true,true,0.01);
 
             }, onProgress, onError );
+
+            stats = new Stats();
+			//document.body.appendChild( stats.dom );
 
             window.addEventListener('resize', onWindowResize);
         }
 
-        function grid_add(width,height,color1,color2,opacity,depth,transparent,y){
-            grid = new THREE.GridHelper( width,height,color1,color2 );
-            grid.material.opacity = opacity;
-            grid.material.depthWrite = depth;
-            grid.material.transparent = transparent;
-            grid.position.y = y;
+        function shadow(y,opacity,size){
+
+            
+            const geoFloor = new THREE.BoxGeometry( size, 0.1, size );
+            const matStdFloor = new THREE.MeshStandardMaterial( { color: params.floor, roughness: 0.1, metalness: 0.05 } );// 0x7821c0
+            mshStdFloor = new THREE.Mesh( geoFloor, matStdFloor );
+            mshStdFloor.position.y = -0.5;
+            scene.add( mshStdFloor );
+            
+
+            const shadowgeometry = new THREE.PlaneGeometry( size, size );
+            shadowgeometry.rotateX( - Math.PI / 2 );
+
+            const shadowmaterial = new THREE.ShadowMaterial();
+            shadowmaterial.opacity = opacity;
+
+            shadowplane = new THREE.Mesh( shadowgeometry, shadowmaterial );
+            shadowplane.position.y = y;
+            shadowplane.receiveShadow = true;
+            scene.add(shadowplane);
+        }
+
+        function mirror(color,clipBias,size){
+            groundMirror = new Reflector( new THREE.PlaneGeometry( size, size, size, size ), {
+                clipBias: clipBias,
+                textureWidth: window.innerWidth * window.devicePixelRatio,
+                textureHeight: window.innerHeight * window.devicePixelRatio,
+                color: color,
+            } );
+            groundMirror.position.y = -0.05;
+            groundMirror.rotateX( - Math.PI / 2 );
+            groundMirror.lookAt( object.position ); // scene.add( groundMirror );
         }
 
         function guis(){
             const gui = new GUI();
-
-            gui.add( basic, 'axe').name('Axe Helper').onChange(function(val){
-
-                if(val==true){
-                    scene.add(axehelper);
-                } else {
-                    scene.remove(axehelper);
-                }
-            });
-
-            // folder 1
-            const folder1 = gui.addFolder('Glass Material Settings');
-            
-            folder1.addColor( glassparams, 'color' ).onChange( function () {
-                material.color.set( glassparams.color );
-            } );
-            folder1.add( glassparams, 'transmission', 0, 1, 0.01 ).onChange( function () {
-                material.transmission = glassparams.transmission;
-            } );
-            folder1.add( glassparams, 'opacity', 0, 1, 0.01 ).onChange( function () {
-                material.opacity = glassparams.opacity;
-            } );
-            folder1.add( glassparams, 'metalness', 0, 1, 0.01 ).onChange( function () {
-                material.metalness = glassparams.metalness;
-            } );
-            folder1.add( glassparams, 'roughness', 0, 1, 0.01 ).onChange( function () {
-                material.roughness = glassparams.roughness;
-            } );
-            folder1.add( glassparams, 'ior', 1, 2, 0.01 ).onChange( function () {
-                material.ior = glassparams.ior;
-            } );
-            folder1.add( glassparams, 'thickness', 0, 5, 0.01 ).onChange( function () {
-                material.thickness = glassparams.thickness;
-            } );
-            folder1.add( glassparams, 'specularIntensity', 0, 1, 0.01 ).onChange( function () {
-                material.specularIntensity = glassparams.specularIntensity;
-            } );
-            folder1.addColor( glassparams, 'specularColor' ).onChange( function () {
-                material.specularColor.set( glassparams.specularColor );
-            } );
-            folder1.add( glassparams, 'envMapIntensity', 0, 1, 0.01 ).name( 'envMap intensity' ).onChange( function () {
-                material.envMapIntensity = glassparams.envMapIntensity;
-            } );
-            folder1.close();
-
-            const bodycolor = {
-                color: '#ffffff',
-                metalness: 0,
-                roughness: 0,
-                enviromentmap: false,
-            }
-            // folder 2
-            const folder2 = gui.addFolder('Body Paint Settings');
-
-            // toggle scene light
-            //folder2.add( params, 'punctualLightsEnabled' ).onChange( toggleLights );
-            // car body paint replace
-            folder2.addColor( bodycolor, 'color' ).name('Body Paint').onChange(function(val){
-                car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
+            gui.addColor( params, 'color' ).name('Body Paint').onChange(function(val){
+                object.getObjectByName('bodypaint', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.color = new THREE.Color(val);
                         o.castShadow = true;
@@ -348,8 +240,18 @@
                     }
                 });
             });
-            folder2.add( bodycolor, 'metalness', 0, 1, 0.01 ).name('Metalness').onChange(function(val){
-                car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
+            gui.addColor( params, 'floor' ).name('Floor Color').onChange(function(val){
+                
+                mshStdFloor.traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.color = new THREE.Color(val);
+                        //o.castShadow = true;
+                        //o.receiveShadow = false;
+                    }
+                });
+            });
+            gui.add( params, 'metalness', 0, 0.5, 0.01 ).name('Metalness').onChange(function(val){
+                object.getObjectByName('bodypaint', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.metalness = val,
                         o.material.needsUpdate = true;
@@ -357,8 +259,8 @@
                     
                 });
             });
-            folder2.add( bodycolor, 'roughness', 0, 1, 0.01 ).name('Roughness').onChange(function(val){
-                car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
+            gui.add( params, 'roughness', 0, 0.4, 0.01 ).name('Roughness').onChange(function(val){
+                object.getObjectByName('bodypaint', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.roughness = val,
                         o.material.needsUpdate = true;
@@ -366,201 +268,98 @@
                     
                 });
             });
-            folder2.close();
-
-            const cloud = {
-                clouds: false,
-            }
-
-            var cloudsX = gui.add( cloud, 'clouds').name('Toggle Clouds').listen().onChange(function(val){
-                
-                if(val==true){                    
-                    scene.add( sphere );
+            /*
+            gui.add( params, 'mirror' ).name('Ground Mirror').onChange(function(val){
+                if(val==true){
+                    scene.add(groundMirror);
                 } else {
-                    scene.remove(sphere);
+                    scene.remove(groundMirror);
                 }
-                
             });
-
-            const other = {
-                grid: false,                
-                headlight: false,
-            }
-
-            //const others = gui.addFolder('Other Settings');
-            var headlightX = gui.add( other, 'headlight' ).name('Night Head Light').listen().onChange( function(val){
-
-                setChecked("headlight");
-                
-                if(val===true){
-
-                    // disable controls 
-                    controls.enabled = false;
-
-                    // keep controls position into variables
-                    controls.position0.x = controls.object.position.x;
-                    controls.position0.y = controls.object.position.y;
-                    controls.position0.z = controls.object.position.z;
-
-                    // camera fixed position in night
-                    new TWEEN.Tween(camera.position).to({ x: 8.0, y: 0.0, z: 0.0}, 3000).delay(10).easing(TWEEN.Easing.Cubic.InOut).start();
-
-                    // camera tone mapping exposure intensity
-                    renderer.toneMappingExposure = 0.15;
-
-                    // headlight intensity and lensflare
-                    lensflare1 = new Lensflare();
-                    lensflare1.addElement( new LensflareElement( textureFlare1, 400, 0, hlight1.color ) );
-                    lensflare1.addElement( new LensflareElement( textureFlare1, 60, -0.015 ) );
-                    
-                    lensflare2 = new Lensflare();
-                    lensflare2.addElement( new LensflareElement( textureFlare1, 400, 0, hlight2.color ) );
-                    lensflare2.addElement( new LensflareElement( textureFlare1, 60, -0.015 ) );
-
-                    hlight1.add( lensflare1 );
-                    hlight2.add( lensflare2 );
-                    
-                } else if( val === false ) {
-                    
-                    new TWEEN.Tween(camera.position).to( { x: controls.position0.x, y: controls.position0.y, z: controls.position0.z }, 3000).delay(10).easing(TWEEN.Easing.Cubic.InOut).start();
-
-                    hlight1.remove(lensflare1);
-                    hlight2.remove(lensflare2);
-
-                    renderer.toneMappingExposure = 0.65;
-                    
-                    controls.enabled = true;
-                }
-                
-            } );
-            var gridX = gui.add( other, 'grid' ).name('Grid Animation').listen().onChange( function(val){
-                
-                setChecked("grid");
+            gui.add( params, 'rectanglelight').name('Rectangle Lights').onChange( function(val){
                 
                 if(val==true){
-                    scene.add( grid );
-                    params.tyrerotate = 0.3;
-                    object.remove( rinGroup );                    
+                    scene.add( group );                    
                 } else {
-                    scene.remove( grid );
-                    params.tyrerotate = 0.0;
-                    object.add( rinGroup );
+                    scene.remove( group );
                 }
-                
-            } ); //.onFinishChange( function(value) { console.log('Grid animation Finish Change'); } );
 
-            // toggle check box in same array
-            function setChecked( prop ){
-                console.log(prop);
-                //for (let param in other){
-                    //other[param] = false;
-                //}                
-                //other[prop] = true;
+            });
+            gui.add( params, 'spotlight').name('Spot Light').onChange( function(val){
+                if(val==true){
+                    scene.add( spotLight );
+                    scene.add( shadowplane );
+                } else {
+                    scene.remove( spotLight );
+                    scene.remove( shadowplane );
+                }
+            });
+            */
+        }
+
+        function spotlight(color,intensity,x,y,z,show,shadow){
+            
+            spotLight = new THREE.SpotLight( color, intensity );
+            spotLight.position.set( x, y, z );
+            spotLight.angle = Math.PI / 6;
+            spotLight.penumbra = 1;
+            spotLight.decay = 2;
+            spotLight.distance = 200;
+
+            spotLight.shadow.mapSize.width = 4096;
+            spotLight.shadow.mapSize.height = 4096;
+            spotLight.shadow.camera.near = 0.1;
+            spotLight.shadow.camera.far = 500;
+            spotLight.shadow.focus = 30;
+            scene.add( spotLight );
+
+            if(shadow==1){
+                spotLight.castShadow = true;
             }
 
-            gui.open();
+            if(show==1){
+                const lightHelper = new THREE.SpotLightHelper( spotLight );
+                scene.add( lightHelper );
+
+                const camerahelper = new THREE.CameraHelper( spotLight.shadow.camera );
+                //scene.add( camerahelper );
+            }
+
+        }
+
+        function hemi(show){
+            hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.5 );
+            hemiLight.color.setHSL( 1.0, 1.0, 1.0 );
+            hemiLight.groundColor.setHSL( 1, 1, 1 );
+            hemiLight.position.set( 0, -0.05, 0 );
+            //scene.add( hemiLight );
+
+            if( show == 1 ){
+                const hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 5 );
+                scene.add( hemiLightHelper );
+            }
+        }
+
+        function rectLight(color,intensity,width,height,x,y,z,show){
+            const rectLight = new THREE.RectAreaLight( color, intensity, width, height );
+            rectLight.position.set( x, y, z );
+            rectLight.lookAt( 0, 0, 0 );
+            group.add( rectLight );
+            scene.add( group );
+            if(show == 1){
+                scene.add( new RectAreaLightHelper( rectLight ) );
+            }
         }
 
         function control(){
             controls = new OrbitControls( camera, renderer.domElement ); //controls.minPolarAngle = Math.PI/2;
             controls.maxPolarAngle = Math.PI/2;
             controls.enableDamping = true;
-            controls.maxDistance = 100;
-            controls.minDistance = 2;
-            controls.target.set( 0, 0.5, 0 );
-        }
-
-        function surfaceRings(totalRinghs,color,opacity,y){
-            rinGroup = new THREE.Group();
-            for(let ringCounts = 1; ringCounts <= totalRinghs; ringCounts++){                
-                const RingGeometry = new THREE.RingGeometry( ringSize, ringSize + 0.5, 64 ); 
-                const RingMaterial = new THREE.MeshBasicMaterial( { color: color, side: THREE.DoubleSide, opacity: opacity, transparent: true } );
-                const ring = new THREE.Mesh( RingGeometry, RingMaterial );
-                ring.rotation.x = Math.PI/2;
-                ring.position.y = y;
-                rinGroup.add( ring );
-                ringSize = ringSize + 1;
-            }
-            object.add( rinGroup );
-        }
-
-        function carshadow(show,size,color,opacity,y){
-            if(show==1){
-                const planeGeometry = new THREE.PlaneGeometry( size,size );
-                planeGeometry.rotateX( - Math.PI / 2 );
-                const planeMaterial = new THREE.ShadowMaterial( { color:color, opacity: opacity } );                
-                const plane = new THREE.Mesh( planeGeometry, planeMaterial );
-                plane.position.y = y;
-                plane.receiveShadow = true;
-                object.add(plane);            
-            }
+            controls.maxDistance = 20;
+            controls.minDistance = 5;            
+            controls.target.set( 0, 0.5, 0 ); // controls.update();
         }
         
-        function scene_camera(){
-            camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 0.1, 1000 );
-            camera.position.set( camX, camY, camZ );
-        }
-
-        function toggleLights( visible ) {
-            scene.traverse( function ( object ) {
-                if ( object.isLight ) {
-                    object.visible = visible;
-                }
-            } );
-            animate();
-        }
-
-        function sceneLight(show,showHelper,size){
-            if(show == 1){
-
-                scene.add( new THREE.AmbientLight( 0xffffff, 2.05 ) );
-
-                const light = new THREE.DirectionalLight(0xeeeeee, 4);            
-                light.position.set(-8,20,10);
-                scene.add(light);
-
-                light.castShadow = true;
-                light.shadow.mapSize.width = size;
-                light.shadow.mapSize.height = size;
-                light.shadow.camera.near = 10;
-                light.shadow.camera.far = 200;
-                light.shadow.focus = 1;
-
-                const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.1 );
-                hemiLight.color.setHSL( 0.6, 1, 0.6 );
-                hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-                hemiLight.position.set( 0, 0, 0 );
-                scene.add( hemiLight );
-
-                if(showHelper == 1){
-                    scene.add( new THREE.DirectionalLightHelper( light, 5 ) );
-                    scene.add( new THREE.HemisphereLightHelper( hemiLight, 5 ) );
-                }
-
-            }
-        }
-
-        document.addEventListener('keydown', function(event){
-            if(event.keyCode == 32){
-                console.log('break press');
-                object.getObjectByName('break_light', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.envMapIntensity = 5
-                    }
-                });
-            }
-        }, false);
-        document.addEventListener('keyup', function(event){
-            if(event.keyCode == 32){
-                console.log('break release');
-                object.getObjectByName('break_light', true).traverse ( ( o ) => {
-                    if ( o.isMesh ) {
-                        o.material.envMapIntensity = 0
-                    }
-                });
-            }
-        }, false);
-
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
@@ -570,25 +369,17 @@
         
         function animate() {
             requestAnimationFrame( animate );
-            TWEEN.update();
             
             if(controls){
                 controls.update();
+            }            
+            if(stats){
+                stats.update();
             }
-
-            if(grid){
-                const time = - performance.now() / 1000;
-                grid.position.z = + ( time ) % 1;
-            }
-
-            if(sphere){
-                sphere.rotation.y -= 0.001;
-            }
-
-            for ( let i = 0; i < tyres.length; i ++ ) {
-                tyres[ i ].rotation.x += params.tyrerotate;
-            }
-
+            render();            
+        }
+    
+        function render(){
             renderer.render( scene, camera );
         }
     </script>
