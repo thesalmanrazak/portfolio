@@ -176,13 +176,13 @@
 
                 const gui = new GUI();
 
-                gui.add( env, 'env' ).onChange( function(val){
-                    if(val==true){
+                gui.add( env, 'env' ).onChange( function( val ){
+                    if( val == true ){
                         scene.background = scene.environment;
                     } else {
                         scene.background = null;
                     }
-                });
+                } );
 
                 const subject = gui.addFolder('Subject Setting');
 
@@ -288,7 +288,6 @@
                 scene.add( new THREE.HemisphereLight( 0x8d7c7c, 0x494966 ) );
 
                 addShadowedLight( 1, 1, 1, 0xffffff, 1.35 );
-				//addShadowedLight( 0.5, 1, - 1, 0xffd500, 1 );
             
             }
 
@@ -296,7 +295,7 @@
 
             function onProgress( xhr ) {
                 if ( xhr.lengthComputable ) {
-                    const percentComplete = xhr.loaded / xhr.total * 100; //console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    const percentComplete = xhr.loaded / xhr.total * 100;
                     loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
                     if(Math.round( percentComplete, 2 ) == 100){
                         setTimeout(function() {
