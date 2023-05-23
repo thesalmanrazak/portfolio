@@ -36,13 +36,18 @@
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from './assets/jsm/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { FilmPass } from 'three/addons/postprocessing/FilmPass.js';
+        import { BloomPass } from 'three/addons/postprocessing/BloomPass.js';
 
         const container = document.getElementById('container');
         var camera, scene, renderer, controls, mesh, start = Date.now();
         let uniforms;
-        let sun, earth, stars;
+        let sun, earth, stars, composer;
 
         let texture = new THREE.TextureLoader();
+        let textureLoader = new THREE.TextureLoader();
 
         var planets = ['','','','','','','','','',''];
 
@@ -96,14 +101,14 @@
                 gl_FragColor = vec4( 1.0, 0.5, 0, 1.0 ) * intensity;
             }
         `;
+        
+        init().then( animate );
 
-        init();
-
-        function init(){
+        async function init(){
             scene = new THREE.Scene();
             
             camera = new THREE.PerspectiveCamera( 30, window.innerWidth/window.innerHeight, 1, 10000 ); // camera.position.z = 50; camera.position.y = 20;
-            camera.position.set( -25.753501095991325, 33.13543049798456, 38.1063882558287 );
+            camera.position.set( 32.404100047155275, 11.413777320779763, 15.295666930233446 );
             
             renderer = new THREE.WebGLRenderer({antialias:true});
             renderer.setPixelRatio( window.devicePixelRatio );
@@ -111,8 +116,9 @@
             renderer.shadowMap.enabled = true;
             renderer.gammaInput = true;
             renderer.gammaOutput = true;
-            container.appendChild( renderer.domElement );            
-
+            container.appendChild( renderer.domElement );
+            renderer.autoClear = false;
+            
             pointLight(0xffffff, 2, 100, 0, 0, 0, 0.25);
 
             sunGeometry(0,0,0);
@@ -132,6 +138,16 @@
             controls = new OrbitControls( camera, renderer.domElement );
 
             window.addEventListener('resize', onWindowResize);
+
+            const renderModel = new RenderPass( scene, camera );
+            const effectBloom = new BloomPass( 0.5 ); // 1.25
+            const effectFilm = new FilmPass( 0.05, 0.55, 512, false ); // 0.35, 0.95, 2048, false
+
+            composer = new EffectComposer( renderer );
+
+            composer.addPass( renderModel );
+            composer.addPass( effectBloom );
+            composer.addPass( effectFilm );
         }
 
         function pointLight(color,radius,size,x,y,z,ambientIntensity){
@@ -145,17 +161,30 @@
         }
 
         function sunGeometry(x,y,z){
+            
             // sun
             uniforms = { globeTexture: { value: texture.load(sunTexture) } }
+            
             sun = new THREE.Mesh( new THREE.SphereGeometry( sunRadius, 50, 50 ), new THREE.ShaderMaterial( { vertexShader, fragmentShader, uniforms }) );
             sun.position.set(x,y,z);
             sun.name = 'Sun';
+            
             // sunFireAtmosphere
-            const sunFireAtmosphere = new THREE.Mesh( new THREE.SphereGeometry( sun.geometry.parameters.radius,50,50 ), new THREE.ShaderMaterial({ vertexShader: vertexShader2, fragmentShader: fragmentShader2, blending: THREE.AdditiveBlending, side: THREE.BackSide }) );
+            const sunFireAtmosphere = new THREE.Mesh(
+                new THREE.SphereGeometry( sun.geometry.parameters.radius+0.01, 50,50 ),
+                new THREE.ShaderMaterial({
+                    vertexShader: vertexShader2,
+                    fragmentShader: fragmentShader2,
+                    side: THREE.BackSide,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true
+                })
+            );
             sunFireAtmosphere.scale.set(1.1,1.1,1.1); sunFireAtmosphere.position.set(0,0,0);
             sunFireAtmosphere.name = 'Sun Fire';
             sun.add(sunFireAtmosphere);
             scene.add(sun);
+            
         }
 
         function planetGeometry(radius,x,y,z,planet,planetTexture){
@@ -164,8 +193,7 @@
             planet.position.set(x,y,z);
             planet.castShadow = true;
             planet.receiveShadow = true;
-            planet.name = planetName;
-            console.log(planetName);
+            planet.name = planetName; //console.log(planetName);
 
             if(planetName != 'moon'){
                 scene.add(planet);
@@ -180,8 +208,7 @@
                     moon.position.set(2,0,0);
                     moon.castShadow = true;
                     moon.receiveShadow = true;
-                    moon.name = 'moon';
-                    console.log(moon.name);
+                    moon.name = 'moon'; // console.log(moon.name);
                     scene.getObjectByName('earth').add(moon);
                 }
             }
@@ -203,7 +230,7 @@
         }
 
         function starsGeometry(){
-            const radius = 2000, particles = 10000, starVertices = [], colors = [], sizes = [], color = new THREE.Color();
+            const radius = 4000, particles = 20000, starVertices = [], colors = [], sizes = [], color = new THREE.Color();
             const starGeometry = new THREE.BufferGeometry();
             for ( let i = 0; i < particles; i ++ ) {
                 const x = ( Math.random() * 1.5 - 1 ) * radius;
@@ -224,14 +251,15 @@
                 color: 0xffffff,
                 transparent: true
             }) );
-            scene.add( stars );
-            
+            scene.add( stars );            
         }
 
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
+            
             renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize( window.innerWidth, window.innerHeight );
         }
 
         var theta = 0;
@@ -258,12 +286,13 @@
         var plutoTheta = 2 * Math.PI / 1500;
 
         function animate() {
-
-            renderer.render( scene, camera );
             requestAnimationFrame( animate );
 
-            stars.rotation.y -= 0.0005;
+            scene.getObjectByName('Sun').rotation.x += 0.001;
+            scene.getObjectByName('Sun').rotation.y += 0.001;
+            scene.getObjectByName('Sun').rotation.z += 0.001;
 
+            stars.rotation.y -= 0.0005;
             theta -= dTheta;
 
             thetaMercury -= mercuryTheta;
@@ -275,9 +304,6 @@
             thetaUranus -= uranusTheta;
             thetaNeptune -= neptuneTheta;
             thetaPluto -= plutoTheta;
-
-
-            //console.log(scene.getObjectByName('earth').position.x);
 
             scene.getObjectByName('mercury').rotation.y += 0.005;
             scene.getObjectByName('mercury').position.x = 5.5 * Math.cos(thetaMercury);
@@ -319,38 +345,24 @@
             scene.getObjectByName('pluto').position.x = 42 * Math.cos(thetaPluto);
             scene.getObjectByName('pluto').position.z = 42 * Math.sin(thetaPluto);
 
-            
-
-            //earth.rotation.y += 0.001;
-            //earth.position.x = earthPosition * Math.cos(theta);
-            //earth.position.z = earthPosition * Math.sin(theta);
-
-            //mars.rotation.y += 0.003;
-            //stars.rotation.y -= 0.0001;
-            //sun.rotation.y += 0.002;
-            
-            //moon.position.x = r * Math.cos(theta);
-            //moon.position.z = r * Math.sin(theta);
-
-            /*
-            gsap.to(group.rotation, {
-                x: -mouse.y * 0.4,
-                y: mouse.x * 0.6,
-                duration: 4
-            })
-            */
-
             if(controls){
                 controls.update();
             }
-        }
-        animate();
 
+            render();
+        }
         
+        function render(){
+
+            renderer.clear();
+			composer.render( 0.01 );
+
+            //renderer.render( scene, camera );
+        }
+
         addEventListener('mousemove', ()=> {
             mouse.x = (event.clientX / innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / innerHeight) * 2 + 1;
-            //console.log(mouse);    
         });
         
     </script>

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salman Razak :|: Being creative mean be different...</title>
-<link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
     <link rel="stylesheet" href="./assets/css/three.css">
 </head>
 <!-- Google tag (gtag.js) -->
@@ -39,31 +39,47 @@
         const container = document.getElementById('container');
         let scene, camera, renderer, controls, light, hemiLight, moon, stars, particleSystem;
         let texture = new THREE.TextureLoader();
+        
+        init().then(animate);
 
-        function init(){
+        async function init(){
             scene = new THREE.Scene(); // scene.background = new THREE.Color( 144,144,144 );
             
             camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 5000 );
             camera.position.z = 5;
+            camera.position.x = -3.75;
             
             renderer = new THREE.WebGLRenderer({ antialias: true,/* alpha: true*/ });
             renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setSize( window.innerWidth, window.innerHeight );
             container.appendChild( renderer.domElement );
 
-            lights(1,-20,20,20,0);
-            moonPlanet(1);
-            starsGeometry();
+            //lights(1,-20,20,20,0);
             
-            controls = new OrbitControls( camera, renderer.domElement );
-            controls.maxDistance = 10;
-            controls.minDistance = 4;
+            lights(1,-8,0,-8,0);
+
+            moonPlanet(1.85);
+            starsGeometry();
+
+            //pointlight(-10,5,-1);
+            
+            //controls = new OrbitControls( camera, renderer.domElement );
+            //controls.maxDistance = 10;
+            //controls.minDistance = 4;
             
             window.addEventListener('resize', onWindowResize);
         }
 
+        function pointlight(x,y,z){
+            const sphere = new THREE.SphereGeometry( 0.25, 64, 128 );
+            const light1 = new THREE.PointLight( 0xffffff, 1, 100, 2 );
+            light1.add( new THREE.Mesh( sphere, new THREE.MeshStandardMaterial({ emissive: 0xffffee, emissiveIntensity: 1, color: 0xffffff, } ) ) );
+            light1.position.set(x,y,z);
+            scene.add( light1 );
+        }
+
         function starsGeometry(){
-            const radius = 200, particles = 10000, positions = [], colors = [], sizes = [], color = new THREE.Color();
+            const radius = 30, particles = 10000, positions = [], colors = [], sizes = [], color = new THREE.Color();
             const geometry = new THREE.BufferGeometry();
             for ( let i = 0; i < particles; i ++ ) {
                 positions.push( ( Math.random() * 1.5 - 1 ) * radius );
@@ -74,8 +90,8 @@
                 sizes.push( 20 );
             }
             geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-            geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-            geometry.setAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1 ).setUsage( THREE.DynamicDrawUsage ) );
+            geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 30 ) );
+            geometry.setAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 10 ).setUsage( THREE.DynamicDrawUsage ) );
             const material = new THREE.PointsMaterial({
                 size: 0.001,
                 alphaMap: new THREE.TextureLoader().load( './assets/media/lensflare/star.png' ),
@@ -91,11 +107,11 @@
                 const moonSphare = new THREE.SphereGeometry( radius, 64, 128);
                 const moonMaterial = new THREE.MeshStandardMaterial ({
                     color: 0xffffff,
-                    map: texture.load('./assets/media/planet/lroc_color_poles_2k.png'),                
-                    displacementScale: 0.01,
-                    displacementMap: texture.load('./assets/media/planet/ldem_4_uint.png'),
-                    bumpMap: texture.load('./assets/media/planet/ldem_4_uint.png'),
-                    bumpScale: 0.04,
+                    map: texture.load('./assets/media/planet/8k_moon.jpg'), // lroc_color_poles_2k.png
+                    //displacementMap: texture.load('./assets/media/planet/8k_moon.jpg'), // ldem_4_uint.png
+                    //displacementScale: 0.05,
+                    bumpMap: texture.load('./assets/media/planet/8k_moon_bump.jpg'),
+                    bumpScale: 0.01,
                 });
                 moon = new THREE.Mesh( moonSphare, moonMaterial );
                 moon.scale.set(1.5,1.5,1.5)
@@ -110,10 +126,10 @@
             scene.add(light);
 
             hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.1 );
-            hemiLight.color.setHSL( 0.6, 1, 0.6 );
-            hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+            hemiLight.color.setHSL( 1.0, 1, 1.0 );
+            hemiLight.groundColor.setHSL( 1, 1, 1 );
             hemiLight.position.set( 0, 0, 0 );
-            scene.add( hemiLight );
+            //scene.add( hemiLight );
 
             if(showHelper == 1){
                 scene.add( new THREE.DirectionalLightHelper( light, 5 ) );
@@ -127,18 +143,25 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
         
-        init();
-
         function animate() {
             requestAnimationFrame( animate );
-            moon.rotation.y += 0.001;
-            moon.rotation.x += 0.0001;
-            particleSystem.rotation.x += 0.00001;
-            particleSystem.rotation.y += 0.00001;
-            renderer.render( scene, camera );
+
+            if(moon){
+                moon.rotation.y += 0.0005;
+                moon.rotation.x += 0.00005;
+                moon.rotation.z += 0.0005;
+            }
+            
+            particleSystem.rotation.x += 0.0001;
+            particleSystem.rotation.y -= 0.0001;
+            particleSystem.rotation.z += 0.0001;
+            
+            render();
         }
         
-        animate();
+        function render(){
+            renderer.render( scene, camera );
+        }
     </script>
 
 </body>

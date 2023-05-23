@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salman Razak :|: Being creative mean be different...</title>
-<link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
     <link rel="stylesheet" href="./assets/css/three.css">
     <style>
         body{
@@ -27,9 +27,14 @@
 </script>
 <body>
 
-<div id="container">
-    <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
-</div>
+    <div id="container">
+        <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
+    </div>
+
+    <div id="loading" class="loading">
+        <span>Loading</span>
+        <h2>100%</h2>
+    </div>
 
     <script src="./assets/js/jquery.js"></script>
     <script type="importmap">
@@ -52,19 +57,48 @@
         THREE.ColorManagement.enabled = false;
 
         const container = document.getElementById('container');
+        const loading = document.getElementById('loading');
 
-        let scene, camera, controls, renderer, bandana;
+        let scene, camera, controls, renderer, bandana, object;
         let light, ambient;
-        let spotLight, lightHelper, gui;
+        let spotLight, lightHelper;
         const color =  0xffffff;
         const intensity = 1.39;
 
-        init();
+        const textureloader = new THREE.TextureLoader().setPath( './assets/media/bandana/' );
+        const filenames = [ '01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg', '07.jpg', '08.jpg', '09.jpg', '10.jpg', '11.jpg', '12.jpg' ];
+        const textures = { none: null }
 
-        function init(){
-            scene = new THREE.Scene();
-            //scene.background = new THREE.Color( 0xf7f7f7 );
-			//scene.fog = new THREE.Fog( 0x443333, 0.2, 0.5 );
+        for ( let i = 0; i < filenames.length; i ++ ) {
+            const filename = filenames[ i ];
+            const texture = textureloader.load( filename );
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.colorSpace = THREE.SRGBColorSpace;
+            textures[ filename ] = texture;
+        }
+
+        const hdriPath = './assets/hdri/';
+        const hdrifiles = [ 'industrial_sunset_puresky_4k.hdr', 'aristea_wreck_puresky_4k.hdr', 'dl.beatsnoop.com-3000-D4LK8nymIT.hdr' ];
+        const hdris = { none: null }
+        for ( let i = 0; i < hdrifiles.length; i ++ ) {
+            const filename = hdrifiles[ i ];
+            const hdri = hdriPath + filename;
+            hdris[ filename ] = hdri;
+        }
+
+        const params = {
+            hdri: hdris['industrial_sunset_puresky_4k.hdr'],
+            bandana: textures[ '01.jpg' ],
+            shadows: true,
+        };
+
+       
+        
+        init().then( animate );
+
+        async function init(){
+            scene = new THREE.Scene(); //scene.background = new THREE.Color( 0xf7f7f7 ); //scene.fog = new THREE.Fog( 0x443333, 0.2, 0.5 );
 
             camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
 			camera.position.set( 0, 5, 30 );
@@ -74,21 +108,64 @@
             renderer.setSize( window.innerWidth, window.innerHeight );
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             container.appendChild( renderer.domElement );
-           
-            const loader = new THREE.TextureLoader().setPath( './assets/media/bandana/' );
-            const filenames = [ '01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg', '07.jpg', '08.jpg', '09.jpg', '10.jpg', '11.jpg', '12.jpg' ];
-            const textures = { none: null }
-            const hdriPath = './assets/hdri/';
-            const hdrifiles = [ 'industrial_sunset_puresky_4k.hdr', 'aristea_wreck_puresky_4k.hdr' ];
-            const hdris = { none: null }
 
-            const mat = new THREE.MeshStandardMaterial({
-                map: loader.load( filenames[0] )
-            });
+            const mat = new THREE.MeshStandardMaterial({ map: textureloader.load( filenames[0] ) });
 
+            function loadModel(){
+                scene.add( object );
+            }
+
+            const manager = new THREE.LoadingManager( loadModel );
+
+            function onProgress( xhr ) {
+                if ( xhr.lengthComputable ) {
+                    const percentComplete = xhr.loaded / xhr.total * 100; //console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
+                    if(Math.round( percentComplete, 2 ) == 100){
+                        setTimeout(function() {
+                            loading.style.transition = '.5s';
+                            loading.style.opacity = '0';
+                            loading.style.visibility = 'hidden';
+                        }, 1250);
+                    }
+                }
+            }
+            function onError() {}
+
+            const loader = new GLTFLoader( manager );
+
+            loader.load( './assets/models/bandana.gltf', function ( obj ) {
+                
+                object = obj.scene;
+                object.traverse( function ( o ) {
+                    if ( o.material ) {
+                        o.material.map = textureloader.load( filenames[0] );
+                        
+                    }
+                } );
+                object.scale.set(10,10,10);
+                object.position.y = 18;
+                object.castShadow = true;
+                object.receiveShadow = true;
+                object.name = "Bandana";
+                //scene.add( object );
+
+            }, onProgress, onError );
+
+            rgbs();
+
+            lights();
+
+            guis();
+
+            control();
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function lights(){
             const light = new THREE.AmbientLight(color, intensity);
             scene.add(light);
-            console.log(light);
 
             class ColorGUIHelper {
                 constructor(object, prop) {
@@ -102,75 +179,33 @@
                     this.object[this.prop].set(hexString);
                 }
             }
+        }
 
-            //scene.add( new THREE.AmbientLight( 0x404040 ) );
-            //scene.add( new THREE.HemisphereLight( 0xffffff, 0xaaaaaa, 1 ) );
-            //sceneLight(0);
-
+        function rgbs(){
             new RGBELoader().load( './assets/hdri/'+ hdrifiles[0], function ( texture ) {
                 texture.mapping = THREE.EquirectangularReflectionMapping;
                 scene.background = texture;
                 scene.environment = texture;
                 texture.dispose();
             });
-            function changeHDRI(hdris) {                
-                new RGBELoader().load( hdris, function ( texture ) {
-                    texture.mapping = THREE.EquirectangularReflectionMapping;
-                    scene.background = texture;
-                    scene.environment = texture;
-                    texture.dispose();
-                    console.log(scene);
-                });
-            }
+        }
 
-            new GLTFLoader().load('./assets/models/bandana.gltf', function(gltf){
-                
-                bandana = gltf.scene;
-                bandana.traverse( function ( o ) {
-                    if ( o.material ) {
-                        o.material.map = loader.load( filenames[0] );
-                    }
-                } );
-                bandana.scale.set(10,10,10);
-                bandana.position.y = 18;
-                bandana.castShadow = true;
-                bandana.receiveShadow = true;
-                scene.add( bandana );
-
-            }, function ( xhr ) {
-                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-            }, function ( error ) {
-                console.log( 'An error happened' );
+        function changeHDRI(hdris) {
+            new RGBELoader().load( hdris, function ( texture ) {
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+                scene.background = texture;
+                scene.environment = texture;
+                texture.dispose();
             });
+        }
 
-            for ( let i = 0; i < hdrifiles.length; i ++ ) {
-                const filename = hdrifiles[ i ];
-                const hdri = './assets/hdri/'+ filename;
-                hdris[ filename ] = hdri;
-            }
-
-            for ( let i = 0; i < filenames.length; i ++ ) {
-                const filename = filenames[ i ];
-                const texture = loader.load( filename );
-                texture.minFilter = THREE.LinearFilter;
-                texture.magFilter = THREE.LinearFilter;
-                texture.colorSpace = THREE.SRGBColorSpace;
-                textures[ filename ] = texture;
-            }
-
-            gui = new GUI();
-
-            const params = {
-                hdri: hdris['industrial_sunset_puresky_4k.hdr'],
-                bandana: textures[ '01.jpg' ],
-                shadows: true,
-            };
-
+        function guis(){
+            const gui = new GUI();
             gui.add( params, 'hdri', hdris).onChange( function ( val ) {
                 changeHDRI(val);
             } );
             gui.add( params, 'bandana', textures ).onChange( function ( val ) {
-                bandana.traverse( function ( o ) {
+                object.traverse( function ( o ) {
                     if ( o.material ) {
                         o.material.map = val;
                     }
@@ -178,22 +213,22 @@
             } );
             gui.add( params, 'shadows' ).onChange( function ( val ) {
                 renderer.shadowMap.enabled = val;
-                bandana.traverse( function ( o ) {
+                object.traverse( function ( o ) {
                     if ( o.material ) {
                         o.material.needsUpdate = true;
                     }
                 } );
             } );
             gui.open();
+        }
 
-            const controls = new OrbitControls( camera, renderer.domElement );
+        function control(){
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
             controls.minDistance = 20;
             controls.maxDistance = 100;
             controls.maxPolarAngle = Math.PI / 2;
-            controls.target.set( 0, 18, 0 );
-            controls.update();
-
-            window.addEventListener('resize', onWindowResize);
+            controls.target.set( 0, 18, 0 );            
         }
 
         function onWindowResize() {
@@ -203,14 +238,16 @@
         }
 
         function animate() {
-            requestAnimationFrame( animate );
-            renderer.render( scene, camera );
+            requestAnimationFrame( animate );            
             if(controls){
                 controls.update();
-            }            
+            }
+            render();
         }
-        animate();
 
+        function render(){
+            renderer.render( scene, camera );
+        }
     </script>
 
 </body>

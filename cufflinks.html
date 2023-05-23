@@ -7,28 +7,6 @@
     <title>Salman Razak :|: Being creative mean be different...</title>
 <link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
     <link rel="stylesheet" href="./assets/css/three.css">
-    <style>
-        canvas{
-            background: radial-gradient( circle at top left, #222222, #181813);
-        }
-        #div1 {
-            z-index: 100;
-            position: fixed;
-            bottom: 5px;
-            left: 5px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            background: #fff;
-            color: #000;
-            border: 1px solid #000;
-            font-weight: 600;
-            font-size: 12px;
-            line-height: 40px;
-            text-align: center;
-            display: block;
-        }
-    </style>
 </head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HR8J8853HV"></script>
@@ -61,78 +39,106 @@
     </script>    
     <script type="module">
         import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
         import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+        import { OrbitControls } from './assets/jsm/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
+		import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
 
         const container = document.getElementById('container');
         const loading = document.getElementById('loading');
 
-        let camera, controls, scene, renderer, stats;
-        let hlight, light, light2, light3, light4, directionalLight, object;
-        let color = 0xf0f0f0, texture, circle, cubeRenderTarget;
-        let spotLight = new THREE.SpotLight( 0xffffff ), SpotLightHelper, cameraTarget;
+        let cube, scene, camera, renderer, controls, object, clock, tyres = [], stats, groundMirror, hemiLight, spotLight, shadowplane, mshStdFloor;
+        const group = new THREE.Group();
 
-        let files = [ 'cufflinks.gltf', 'cufflinks1.gltf' ];
-        let path = './assets/models/';
-        
-        const env = {
-            env: false,
-        }
         const art = {
-            color: new THREE.Color(0x4c6d46),
-            roughness: 0.9,
-            metalness: 0.5,
-            shininess: 200,
-            specular: new THREE.Color(0xb2a61f),
-            exposure: 1.0,
-            envMapIntensity: 0.5,
+            color: new THREE.Color( 0x006110 ),
+            roughness: 0,
+            metalness: 0.36,
+            shininess: 124,
+            specular: new THREE.Color( 0x000000 ),
+            exposure: 1.14,
+            envMapIntensity: 1,
             debug: false,
         };
         const base = {
-            color: new THREE.Color(0xf7f7f7),
-            roughness: 0.1,
-            metalness: 1,
-            envMapIntensity: 0.9,
+            color: new THREE.Color( 0x0d1211 ),
+            roughness: 0.21,
+            metalness: 0.72,
+            envMapIntensity: 0.86,
         };
 
-        init().then(animate);
+        init().then( animate );
 
         async function init(){
             scene = new THREE.Scene();
-            scene.background = new THREE.Color( 0x72645b );
-			scene.fog = new THREE.Fog( 0x72645b, 2, 0.015 );
+            scene.background = new THREE.Color( 0x1f1f1f );
 
             camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 0.01, 1000 );
-            camera.position.set( 0, 0, 10 );
-            
-            renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+            camera.position.set( 0, 0, 3 );
+
+            clock = new THREE.Clock();
+
+            renderer = new THREE.WebGLRenderer( { antialias: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+            renderer.setSize( window.innerWidth, window.innerHeight );            
+            container.appendChild( renderer.domElement );
             renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1;
             container.appendChild( renderer.domElement );
 
-            renderer.outputColorSpace = THREE.SRGBColorSpace;
-            renderer.toneMappingExposure = 1;
-            renderer.gammaOutput = true;
+            RectAreaLightUniformsLib.init();
             
-            new RGBELoader().load( './assets/hdri/snow_field_puresky_4k.hdr', function ( hdri ) {
-                hdri.mapping = THREE.EquirectangularReflectionMapping;
-                scene.background = null;
-                hdri.colorSpace = THREE.SRGBColorSpace;
-                scene.environment = hdri;
-            });
+            function loadModel(){
+                scene.add( object );
 
-            function loadModel() {
+                control();
 
-                sceneLight(1,0);
+                rgb();
 
+                //spot(0xffffff,0,-5,5,1); // front
+                //spot(0xffffff,0,-5,-5,1); // back
+
+                rectLight( 0xffffff, 2, 30, 30, 0, 2, 8, 0 ); // top
+                rectLight( 0xffffff, 2, 30, 30, 0, -2, -8, 0 ); // bottom
+
+                guis();
+                
+            }
+
+            const manager = new THREE.LoadingManager( loadModel );
+
+            function onProgress( xhr ) {
+                if ( xhr.lengthComputable ) {
+                    const percentComplete = xhr.loaded / xhr.total * 100; //console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
+                    if(Math.round( percentComplete, 2 ) == 100){
+                        setTimeout(function() {
+                            loading.style.transition = '.5s';
+                            loading.style.opacity = '0';
+                            loading.style.visibility = 'hidden';
+                        }, 1250);
+                    }
+                }
+            }
+            function onError() {}
+
+            const loader = new GLTFLoader( manager );
+
+            loader.load( './assets/models/cufflinks.gltf', function ( obj ) {
+                
+                object = obj.scene;
+                object.name = "Currlink";
                 object.castShadow = true;
 				object.receiveShadow = true;
-                object.rotation.x = -0.35;
-                scene.add( object );                
-                
+                object.position.y = 0.25;
+                object.rotation.x = -0.45;
+
                 const material = new THREE.MeshPhongMaterial( { color: 0xd5d5d5, specular: 0x494949, shininess: 200 } );
                 object.getObjectByName('art', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
@@ -152,7 +158,6 @@
                         
                     }
                 });
-
                 object.getObjectByName('base', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.color = base.color;
@@ -163,7 +168,6 @@
                         o.material.side = THREE.DoubleSide;
                     }
                 });
-
                 object.getObjectByName('capsule', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.color = base.color;
@@ -174,230 +178,160 @@
                         o.material.side = THREE.DoubleSide;
                     }
                 });
-
-                const gui = new GUI();
-
-                gui.add( env, 'env' ).onChange( function( val ){
-                    if( val == true ){
-                        scene.background = scene.environment;
-                    } else {
-                        scene.background = null;
-                    }
-                } );
-
-                const subject = gui.addFolder('Subject Setting');
-
-                subject.addColor( art, 'color' ).onChange( function(val){
-                    object.getObjectByName('art', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.color = val;
-                        }
-                    });
-                } );
-                subject.addColor( art, 'specular' ).onChange( function(val){
-                    object.getObjectByName('art', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.specular = val;
-                        }
-                    });
-                } )
-				subject.add( art, 'shininess', 0, 200, 1 ).onChange( function(val){
-                    object.getObjectByName('art', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.shininess = val;
-                        }
-                    });
-                } );
-				subject.add( art, 'roughness', 0, 1, 0.01 ).onChange( function(val){
-                    object.getObjectByName('art', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.roughness = val;
-                        }
-                    });
-                } );
-				subject.add( art, 'metalness', 0, 1, 0.01 ).onChange( function(val){
-                    object.getObjectByName('art', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.metalness = val;
-                        }
-                    });
-                } );
-				subject.add( art, 'exposure', 0, 2, 0.01 ).onChange( function(val){
-                    object.getObjectByName('art', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.exposure = val;
-                        }
-                    });
-                } );
-				subject.add( art, 'debug', false );
-
-                const metal = gui.addFolder('Metal Setting');
-
-                metal.addColor( base, 'color' ).onChange( function(val){
-                    object.getObjectByName('base', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.color = val;
-                        }
-                    });
-                    object.getObjectByName('capsule', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.color = val;
-                        }
-                    });
-                } )
-				metal.add( base, 'roughness', 0.1, 0.25, 0.01 ).onChange( function(val){
-                    object.getObjectByName('base', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.roughness = val;
-                        }
-                    });
-                    object.getObjectByName('capsule', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.roughness = val;
-                        }
-                    });
-                } );
-				metal.add( base, 'metalness', 0.5, 1, 0.01 ).onChange( function(val){
-                    object.getObjectByName('base', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.metalness = val;
-                        }
-                    });
-                    object.getObjectByName('capsule', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.metalness = val;
-                        }
-                    });
-                } );
-                metal.add( base, 'envMapIntensity', 0.5, 1, 0.01 ).onChange( function(val){
-                    object.getObjectByName('base', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.envMapIntensity = val;
-                        }
-                    });
-                    object.getObjectByName('capsule', true).traverse ( ( o ) => {
-                        if ( o.isMesh ) {
-                            o.material.envMapIntensity = val;
-                        }
-                    });
-                } );
-
-                subject.close(); metal.close();
-
-				gui.open();
-
-                scene.add( new THREE.HemisphereLight( 0x8d7c7c, 0x494966 ) );
-
-                addShadowedLight( 1, 1, 1, 0xffffff, 1.35 );
-            
-            }
-
-            const manager = new THREE.LoadingManager( loadModel );
-
-            function onProgress( xhr ) {
-                if ( xhr.lengthComputable ) {
-                    const percentComplete = xhr.loaded / xhr.total * 100;
-                    loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
-                    if(Math.round( percentComplete, 2 ) == 100){
-                        setTimeout(function() {
-                            loading.style.transition = '.5s';
-                            loading.style.opacity = '0';
-                            loading.style.visibility = 'hidden';
-                        }, 1250);
-                    }
-                }
-            }
-            function onError() {}
-
-            const loader = new GLTFLoader( manager );
-
-            loader.load( './assets/models/cufflinks.gltf', function ( obj ) {
-
-                object = obj.scene;                
-                object.name = "Currlink";
+                
+                
 
             }, onProgress, onError );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            controlSetting();
 
             window.addEventListener('resize', onWindowResize);
         }
 
-        function addShadowedLight( x, y, z, color, intensity ) {
-            const directionalLight = new THREE.DirectionalLight( color, intensity );
-            directionalLight.position.set( x, y, z );
-            scene.add( directionalLight );
-            directionalLight.castShadow = true;
-            const d = 1;
-            directionalLight.shadow.camera.left = - d;
-            directionalLight.shadow.camera.right = d;
-            directionalLight.shadow.camera.top = d;
-            directionalLight.shadow.camera.bottom = - d;
-            directionalLight.shadow.camera.near = 1;
-            directionalLight.shadow.camera.far = 4;
-            directionalLight.shadow.bias = - 0.002;
-        }
+        function rectLight(color,intensity,width,height,x,y,z,show){
+            const rectLight = new THREE.RectAreaLight( color, intensity, width, height );
+            rectLight.position.set( x, y, z );
+            rectLight.lookAt( object.position );            
+            scene.add( rectLight );
 
-        function controlSetting(){
-            controls = new OrbitControls( camera, renderer.domElement );
-            controls.enableDamping = true;
-            //controls.maxAzimuthAngle = -4;
-            //controls.minAzimuthAngle = 4;
-            controls.minDistance = 2;
-            controls.maxDistance = 20;
-            controls.minPolarAngle = Math.PI/2;
-            controls.maxPolarAngle = Math.PI/2;
-        }
-
-        function sceneLight(show,guishow){
             if(show == 1){
-
-                class ColorGUIHelper {
-                    constructor(object, prop) {
-                        this.object = object;
-                        this.prop = prop;
-                    }
-                    get value() {
-                        return `#${this.object[this.prop].getHexString()}`;
-                    }
-                    set value(hexString) {
-                        this.object[this.prop].set(hexString);
-                    }
-                }
-                
-                const color = 0xFFFFFF;
-                const intensity = 1;
-                const light = new THREE.AmbientLight(color, intensity);
-                scene.add(light);
-
-                if(guishow == 1){                
-                    const gui = new GUI();
-                    gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
-                    gui.add(light, 'intensity', 0, 2, 0.01);
-                }
+                scene.add( new RectAreaLightHelper( rectLight ) );
             }
         }
 
+        function rgb(){
+            new RGBELoader().load( './assets/hdri/snow_field_puresky_4k.hdr', function ( texture ) {
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+                //scene.background = texture;
+                scene.environment = texture;
+                render();
+            } );
+        }
+
+        function spot(color,x,y,z,show){
+            const spotLight = new THREE.SpotLight( color, 1 );
+            spotLight.position.set( x, y, z );
+            spotLight.lookAt( object.position );
+            scene.add( spotLight );
+            if( show== 1 ){
+                const spotLightHelper = new THREE.SpotLightHelper( spotLight );
+                scene.add( spotLightHelper );
+            }
+        }
+
+        function guis(){
+            const gui = new GUI();
+
+            const subject = gui.addFolder('Artwork');
+
+            subject.addColor( art, 'color' ).onChange( function(val){
+                object.getObjectByName('art', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.color = val;
+                    }
+                });
+            } );
+            subject.addColor( art, 'specular' ).onChange( function(val){
+                object.getObjectByName('art', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.specular = val;
+                    }
+                });
+            } )
+            subject.add( art, 'shininess', 0, 200, 1 ).onChange( function(val){
+                object.getObjectByName('art', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.shininess = val;
+                    }
+                });
+            } );
+            subject.add( art, 'roughness', 0, 1, 0.01 ).onChange( function(val){
+                object.getObjectByName('art', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.roughness = val;
+                    }
+                });
+            } );
+            subject.add( art, 'metalness', 0, 1, 0.01 ).onChange( function(val){
+                object.getObjectByName('art', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.metalness = val;
+                    }
+                });
+            } );
+            subject.add( art, 'exposure', 0, 2, 0.01 ).onChange( function(val){
+                object.getObjectByName('art', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.exposure = val;
+                    }
+                });
+            } );
+
+            subject.open();
+
+            const metal = gui.addFolder('Metal Setting');
+
+            metal.addColor( base, 'color' ).onChange( function(val){
+                object.getObjectByName('base', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.color = val;
+                    }
+                });
+                object.getObjectByName('capsule', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.color = val;
+                    }
+                });
+            } )
+            metal.add( base, 'roughness', 0.1, 0.25, 0.01 ).onChange( function(val){
+                object.getObjectByName('base', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.roughness = val;
+                    }
+                });
+                object.getObjectByName('capsule', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.roughness = val;
+                    }
+                });
+            } );
+            metal.add( base, 'metalness', 0.5, 1, 0.01 ).onChange( function(val){
+                object.getObjectByName('base', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.metalness = val;
+                    }
+                });
+                object.getObjectByName('capsule', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.metalness = val;
+                    }
+                });
+            } );
+            metal.add( base, 'envMapIntensity', 0.5, 1, 0.01 ).onChange( function(val){
+                object.getObjectByName('base', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.envMapIntensity = val;
+                    }
+                });
+                object.getObjectByName('capsule', true).traverse ( ( o ) => {
+                    if ( o.isMesh ) {
+                        o.material.envMapIntensity = val;
+                    }
+                });
+            } );
+
+            //subject.close(); metal.close();
+
+            gui.open();
+        }
+
+        function control(){
+            controls = new OrbitControls( camera, renderer.domElement ); //controls.minPolarAngle = Math.PI/2;
+            controls.maxPolarAngle = Math.PI/2;
+            controls.enableDamping = true;
+            controls.maxDistance = 15;
+            controls.minDistance = 1;            
+            controls.target.set( 0, 0.5, 0 ); // controls.update();
+        }
+        
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
@@ -405,21 +339,21 @@
             animate();
         }
         
-        function animate(timer) {
+        function animate(time) {
             requestAnimationFrame( animate );
 
-            timer = Date.now() * 0.0005;
-
-            camera.position.x = Math.cos( timer ) * 3;
-            camera.position.z = Math.sin( timer ) * 3;
+            time = clock.getElapsedTime() / 10; // seconds since clock was instantiated 
             
-            //camera.lookAt(  );
-
-            //stats.update();
+            object.rotation.y -= 0.005;
+            object.getObjectByName('capsule', true).rotation.x += 0.005;// * Math.PI / 180;
 
             if(controls){
-                controls.update();                
+                controls.update();
             }
+            render();            
+        }
+    
+        function render(){
             renderer.render( scene, camera );
         }
     </script>

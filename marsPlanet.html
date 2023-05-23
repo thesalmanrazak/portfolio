@@ -60,20 +60,22 @@
             renderer = new THREE.WebGLRenderer({ antialias: true});
             renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setSize( window.innerWidth, window.innerHeight );
-
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-
             container.appendChild( renderer.domElement );
 
-            pointLight = new THREE.PointLight( 0xffffff, 6, 100 );
-            pointLight.position.set( 0, 50, 50 );
-            scene.add( pointLight ); //scene.add( new THREE.PointLightHelper( pointLight, 1 ) );
-
-            pointLight = new THREE.PointLight( 0xffffff, 6, 100 );
-            pointLight.position.set( 0, -50, -50 );
-            scene.add( pointLight ); //scene.add( new THREE.PointLightHelper( pointLight, 1 ) );
+            poinlights();
             
+            model();
+
+            starsGeometry();
+
+            controlSetting();
+            
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function model(){
             geometry = new THREE.SphereGeometry( 16, 128, 64 );
             material = new THREE.MeshStandardMaterial({
                 map : loader.load( marsTexture ),
@@ -82,7 +84,18 @@
                 fog: false,
             });
             mars = new THREE.Mesh( geometry, material );
+            mars.name = "MARS";
             scene.add(mars);
+        }
+
+        function poinlights(){
+            pointLight = new THREE.PointLight( 0xffffff, 6, 100 );
+            pointLight.position.set( 0, 50, 50 );
+            scene.add( pointLight ); //scene.add( new THREE.PointLightHelper( pointLight, 1 ) );
+
+            pointLight = new THREE.PointLight( 0xffffff, 1, 100 );
+            pointLight.position.set( 0, -20, -20 );
+            scene.add( pointLight ); //scene.add( new THREE.PointLightHelper( pointLight, 1 ) );
 
             new FontLoader().load('./assets/fonts/Sigmar_Regular.json', function ( font ) {
 
@@ -94,9 +107,9 @@
                     side: THREE.DoubleSide
                 } );
 
-                const shapes = font.generateShapes( 'MARS', 3.5 );
+                const shapes = font.generateShapes( mars.name, 3.5 );
                 const geometry = new THREE.ShapeGeometry( shapes );
-                
+
                 geometry.computeBoundingBox();
 
                 const xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
@@ -107,17 +120,12 @@
                 text.position.z = 20;
                 scene.add( text );
 
-            }, function ( xhr ) {
-                console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-            }, function ( err ) {
+                }, function ( xhr ) {
+                    console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+                }, function ( err ) {
                 console.log( 'An error happened' );
             });
-            
-            starsGeometry();
 
-            controlSetting();
-            
-            window.addEventListener('resize', onWindowResize);
         }
 
         function controlSetting(){
@@ -162,16 +170,23 @@
 
         function animate() {
             requestAnimationFrame( animate );
-            renderer.render( scene, camera );
+            
             if(controls){
                 controls.update();
             }
+            
             theta -= dTheta;
             mars.rotation.y -= 0.0005;
             stars.rotation.y += 0.0002;
-            //pointLight.position.x = r * Math.cos(theta);
-            //pointLight.position.z = r * Math.sin(theta);
             
+            pointLight.position.x = r * Math.cos(theta);
+            pointLight.position.z = r * Math.sin(theta);
+
+            render();
+        }
+
+        function render(){
+            renderer.render( scene, camera );
         }
     </script>
 
