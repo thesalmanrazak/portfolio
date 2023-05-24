@@ -438,18 +438,17 @@ div.shoes-texture div {
 
 .chairColorPicker {
   position: absolute;
-  left: 50%;
+  left: 10px;
   z-index: 11;
   bottom: 10px;
-  transform: translate(-50%);
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: row;
+  align-items: center;
 }
 .chairColorPicker li {
-  padding: 0 10px;
+  padding: 0 5px;
 }
 .chairColorPicker li input[class=colorPicker] {
   -webkit-appearance: auto;
@@ -463,6 +462,23 @@ div.shoes-texture div {
   color: #30b361;
   border: 1px solid #ddd;
   padding: 1px 2px;
+}
+.chairColorPicker li button {
+  border: none;
+  display: block;
+  height: 28px;
+  border: none;
+  padding: 0 10px;
+  background: #fff;
+  color: #000;
+}
+.chairColorPicker li button.reset {
+  font-size: 12px;
+  font-weight: 500;
+}
+.chairColorPicker li button.reset:hover {
+  background: var(--bg-color);
+  color: #fff;
 }
 
 .annotation {

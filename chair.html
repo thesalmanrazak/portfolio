@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salman Razak :|: Being creative mean be different...</title>
-<link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
     <link rel="stylesheet" href="./assets/css/three.css">
 </head>
 <!-- Google tag (gtag.js) -->
@@ -21,6 +21,7 @@
 
     <ul class="chairColorPicker">
         <li><input type="color" value="#ffffff" class="colorPicker" id="body-color"></li>
+        <li><button type="button" class="reset" id="reset">Reset Position</button></li>
     </ul>
 
     <div id="container">
@@ -45,19 +46,21 @@
         import * as THREE from 'three';        
 
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { TWEEN } from 'three/addons/libs/tween.module.min.js';
         import { GroundProjectedSkybox } from 'three/addons/objects/GroundProjectedSkybox.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
         const container = document.getElementById('container');
         const loading = document.getElementById('loading');
-        let basicColor = "#054226"; //"#7f6653";
+        let basicColor = "#054226";
         const plastiColor = document.getElementById( 'body-color' );
         plastiColor.value = basicColor;
+        const reset = document.getElementById( 'reset' );
 
         let stats, object;
         let camera, scene, renderer, controls, chair1, chair2, chair3, chair4;
-        let hemiLight, light, skybox;
+        let hemiLight, light, skybox, plane;
         const group = new THREE.Group(), chairs = [];
 
         init().then( animate );
@@ -70,31 +73,28 @@
             
             renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.setSize( window.innerWidth, window.innerHeight );            
-            container.appendChild( renderer.domElement );
-
+            renderer.setSize( window.innerWidth, window.innerHeight );
             renderer.shadowMap.enabled = true;
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            container.appendChild( renderer.domElement );
             
-            new RGBELoader().load( './assets/hdri/snow_field_puresky_4k.hdr', function ( hdri ) {
-                hdri.mapping = THREE.EquirectangularReflectionMapping; //scene.background = hdri;
-
-                skybox = new GroundProjectedSkybox( hdri );
-                skybox.scale.setScalar( 100 );
-                skybox.radius = 50;
-			    skybox.height = 541;
-                scene.add( skybox );
-
-                scene.environment = hdri;
-            });
-
             function loadModel(){
-                group.children[0].position.set(0,0,0.7);
-                group.children[1].position.set(-1,0,-1);
-                group.children[1].rotation.set(0,-0.65,0);
-                group.children[2].position.set(1,0,-1);
-                group.children[2].rotation.set(0,0.65,0);
+                //group.children[1].rotation.set(0,-0.65,0);
+                //group.children[2].rotation.set(0,0.65,0);
+
+                new TWEEN.Tween(group.children[0].position).to( { x: 0, y: 0, z: 1. }, 3000).delay(100).easing(TWEEN.Easing.Cubic.InOut).start();
+                
+                new TWEEN.Tween(group.children[1].position).to( { x: -1, y: 0, z: -1 }, 3000).delay(100).easing(TWEEN.Easing.Cubic.InOut).start();
+                new TWEEN.Tween(group.children[1].rotation).to( { x: 0, y: -0.65, z: 0 }, 3000).delay(100).easing(TWEEN.Easing.Cubic.InOut).start();
+
+                new TWEEN.Tween(group.children[2].position).to( { x: 1, y: 0, z: -1 }, 3000).delay(100).easing(TWEEN.Easing.Cubic.InOut).start();
+                new TWEEN.Tween(group.children[2].rotation).to( { x: 0, y: 0.65, z: 0 }, 3000).delay(100).easing(TWEEN.Easing.Cubic.InOut).start();
+                
+                //group.children[0].position.set(0,0,0.7);
+                //group.children[1].position.set(-1,0,-1);                
+                //group.children[2].position.set(1,0,-1);
+                
                 scene.add( group );
             }
 
@@ -102,7 +102,7 @@
 
             function onProgress( xhr ) {
                 if ( xhr.lengthComputable ) {
-                    const percentComplete = xhr.loaded / xhr.total * 100; //console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    const percentComplete = xhr.loaded / xhr.total * 100;
                     loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
                     if(Math.round( percentComplete, 2 ) == 100){
                         setTimeout(function() {
@@ -116,46 +116,72 @@
             function onError() {}
 
             const loader = new GLTFLoader( manager );
-
+            
             for(let x = 1; x <= 3; x++){
                 loader.load('./assets/models/chair.gltf', function (obj) {
                     object = obj.scene;
+                    
+                    object.name = "Chair_" + x;
+                    
                     object.traverse ( ( o ) => {
                         if ( o.isMesh ) {
                             o.castShadow = true;
                             o.receiveShadow = false;
                         }
                     });
+                
                     object.children[1].traverse ( ( o ) => {
                         if ( o.isMesh ) {
                             o.material.color = new THREE.Color( basicColor );
                         }
                     });
-                    chairs.push(object);
-                    
-                    object.name = "Chair_" + x;
-                    group.add( object );
-                    
-                }, onProgress, onError );
+
+                    group.add( object );                                    
+
+                }, onProgress, onError );            
             }
-
-            const planeGeometry = new THREE.PlaneGeometry( 100, 100 );
-            planeGeometry.rotateX( - Math.PI / 2 );
-            const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.2 } );
-            
-            const plane = new THREE.Mesh( planeGeometry, planeMaterial );
-            plane.position.y = -0.40;
-            plane.receiveShadow = true;
-            scene.add(plane);            
-
+                
             controlSetting();
             sceneLight(0);
+            rgbs();
+            addPlane(1000);
 
             window.addEventListener('resize', onWindowResize);
         }
 
+        
+        reset.addEventListener('click', function(event) {            
+            new TWEEN.Tween(camera.position).to( { x: 0, y: 0, z: 2.75 }, 1500).delay(1000).easing(TWEEN.Easing.Cubic.InOut).start();
+        }, false);
+        
+
+        function addPlane(size){
+            const planeGeometry = new THREE.PlaneGeometry( size, size );
+            planeGeometry.rotateX( - Math.PI / 2 );
+            const planeMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.2 } );
+            
+            plane = new THREE.Mesh( planeGeometry, planeMaterial );
+            plane.position.y = -0.40;
+            plane.receiveShadow = true;
+            plane.name = "Zameen";
+            scene.add(plane);
+        }
+
+        function rgbs(){
+            new RGBELoader().load( './assets/hdri/snow_field_puresky_4k.hdr', function ( hdri ) {
+                hdri.mapping = THREE.EquirectangularReflectionMapping; //scene.background = hdri;
+
+                skybox = new GroundProjectedSkybox( hdri );
+                skybox.scale.setScalar( 100 );
+                skybox.radius = 50;
+			    skybox.height = 541;
+                scene.add( skybox );
+
+                scene.environment = hdri;
+            });
+        }
+
         plastiColor.addEventListener( 'input', function () {
-            //group.children[0].children[0].material.color
             group.children[0].children[1].material.color = new THREE.Color(this.value);
             group.children[1].children[1].material.color = new THREE.Color(this.value);
             group.children[2].children[1].material.color = new THREE.Color(this.value);
@@ -200,7 +226,7 @@
 
         function rotateCube(e){
             var target = (e.target) ? e.target : e.srcElement;
-            chair.rotation.y = target.value;
+            object.rotation.y = target.value;
         }
 
         function onWindowResize() {
@@ -210,8 +236,11 @@
         }
 
         function animate() {
-            requestAnimationFrame( animate );            
-            controls.update();
+            requestAnimationFrame( animate );
+            TWEEN.update();
+            if(controls){
+                controls.update();
+            }
             renderer.render( scene, camera );
         }
         
