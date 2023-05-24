@@ -22,7 +22,7 @@
     <div id="container">
         <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
     </div>
-
+    
     <script type="importmap">
         {
             "imports": {
@@ -34,469 +34,119 @@
 
     <script type="module">
         import * as THREE from 'three';
-
-        import Stats from 'three/addons/libs/stats.module.js';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { Octree } from 'three/addons/math/Octree.js';
-        import { OctreeHelper } from 'three/addons/helpers/OctreeHelper.js';
-        import { Capsule } from 'three/addons/math/Capsule.js';
-        import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
         const container = document.getElementById('container');
-        let cube, scene, camera, renderer, light;
-        let clock = new THREE.Clock();
-        let STEPS_PER_FRAME;
-
-
-
-new THREE.AxesHelper(1000);
-
-scene = new THREE.Scene();
-scene.background = new THREE.Color( 0x88ccee );
-scene.fog = new THREE.Fog( 0x88ccee, 0, 50 );
-
-camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-camera.rotation.order = 'YXZ';
-
-const fillLight1 = new THREE.HemisphereLight( 0x8dc1de, 0x00668d, 0.5 );
-fillLight1.position.set( 2, 1, 1 );
-scene.add( fillLight1 );
-
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
-directionalLight.position.set( - 5, 25, - 1 );
-directionalLight.castShadow = true;
-directionalLight.shadow.camera.near = 0.01;
-directionalLight.shadow.camera.far = 500;
-directionalLight.shadow.camera.right = 30;
-directionalLight.shadow.camera.left = - 30;
-directionalLight.shadow.camera.top	= 30;
-directionalLight.shadow.camera.bottom = - 30;
-directionalLight.shadow.mapSize.width = 1024;
-directionalLight.shadow.mapSize.height = 1024;
-directionalLight.shadow.radius = 4;
-directionalLight.shadow.bias = - 0.00006;
-scene.add( directionalLight );
-
-renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-renderer.setPixelRatio( window.devicePixelRatio );
-renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.VSMShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-container.appendChild( renderer.domElement );
-
-const stats = new Stats();
-stats.domElement.style.position = 'absolute';
-stats.domElement.style.top = '0px';
-container.appendChild( stats.domElement );
-
-const GRAVITY = 30;
-
-const NUM_SPHERES = 100;
-const SPHERE_RADIUS = 0.2;
-
-STEPS_PER_FRAME = 5;
-
-const sphereGeometry = new THREE.IcosahedronGeometry( SPHERE_RADIUS, 5 );
-const sphereMaterial = new THREE.MeshLambertMaterial( { color: 0xdede8d } );
-
-const spheres = [];
-let sphereIdx = 0;
-
-for ( let i = 0; i < NUM_SPHERES; i ++ ) {
-
-    const sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
-    sphere.castShadow = true;
-    sphere.receiveShadow = true;
-
-    scene.add( sphere );
-
-    spheres.push( {
-        mesh: sphere,
-        collider: new THREE.Sphere( new THREE.Vector3( 0, - 100, 0 ), SPHERE_RADIUS ),
-        velocity: new THREE.Vector3()
-    } );
-
-}
-
-const worldOctree = new Octree();
-
-const playerCollider = new Capsule( new THREE.Vector3( 0, 0.35, 0 ), new THREE.Vector3( 0, 1, 0 ), 0.35 );
-
-const playerVelocity = new THREE.Vector3();
-const playerDirection = new THREE.Vector3();
-
-let playerOnFloor = false;
-let mouseTime = 0;
-
-const keyStates = {};
-
-const vector1 = new THREE.Vector3();
-const vector2 = new THREE.Vector3();
-const vector3 = new THREE.Vector3();
-
-document.addEventListener( 'keydown', ( event ) => {
-
-    keyStates[ event.code ] = true;
-    console.log(event);
-
-} );
-
-document.addEventListener( 'keyup', ( event ) => {
-
-    keyStates[ event.code ] = false;
-
-} );
-
-container.addEventListener( 'mousedown', () => {
-
-    document.body.requestPointerLock();
-
-    mouseTime = performance.now();
-
-} );
-
-document.addEventListener( 'mouseup', () => {
-
-    if ( document.pointerLockElement !== null ) throwBall();
-
-} );
-
-document.body.addEventListener( 'mousemove', ( event ) => {
-
-    if ( document.pointerLockElement === document.body ) {
-
-        camera.rotation.y -= event.movementX / 500;
-        camera.rotation.x -= event.movementY / 500;
-
-    }
-
-} );
-
-window.addEventListener( 'resize', onWindowResize );
-
-function onWindowResize() {
-
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-
-    renderer.setSize( window.innerWidth, window.innerHeight );
-
-}
-
-function throwBall() {
-
-    const sphere = spheres[ sphereIdx ];
-
-    camera.getWorldDirection( playerDirection );
-
-    sphere.collider.center.copy( playerCollider.end ).addScaledVector( playerDirection, playerCollider.radius * 1.5 );
-
-    // throw the ball with more force if we hold the button longer, and if we move forward
-
-    const impulse = 15 + 30 * ( 1 - Math.exp( ( mouseTime - performance.now() ) * 0.001 ) );
-
-    sphere.velocity.copy( playerDirection ).multiplyScalar( impulse );
-    sphere.velocity.addScaledVector( playerVelocity, 2 );
-
-    sphereIdx = ( sphereIdx + 1 ) % spheres.length;
-
-}
-
-function playerCollisions() {
-
-    const result = worldOctree.capsuleIntersect( playerCollider );
-
-    playerOnFloor = false;
-
-    if ( result ) {
-
-        playerOnFloor = result.normal.y > 0;
-
-        if ( ! playerOnFloor ) {
-
-            playerVelocity.addScaledVector( result.normal, - result.normal.dot( playerVelocity ) );
-
-        }
-
-        playerCollider.translate( result.normal.multiplyScalar( result.depth ) );
-
-    }
-
-}
-
-function updatePlayer( deltaTime ) {
-
-    let damping = Math.exp( - 4 * deltaTime ) - 1;
-
-    if ( ! playerOnFloor ) {
-
-        playerVelocity.y -= GRAVITY * deltaTime;
-
-        // small air resistance
-        damping *= 0.1;
-
-    }
-
-    playerVelocity.addScaledVector( playerVelocity, damping );
-
-    const deltaPosition = playerVelocity.clone().multiplyScalar( deltaTime );
-    playerCollider.translate( deltaPosition );
-
-    playerCollisions();
-
-    camera.position.copy( playerCollider.end );
-
-}
-
-function playerSphereCollision( sphere ) {
-
-    const center = vector1.addVectors( playerCollider.start, playerCollider.end ).multiplyScalar( 0.5 );
-
-    const sphere_center = sphere.collider.center;
-
-    const r = playerCollider.radius + sphere.collider.radius;
-    const r2 = r * r;
-
-    // approximation: player = 3 spheres
-
-    for ( const point of [ playerCollider.start, playerCollider.end, center ] ) {
-
-        const d2 = point.distanceToSquared( sphere_center );
-
-        if ( d2 < r2 ) {
-
-            const normal = vector1.subVectors( point, sphere_center ).normalize();
-            const v1 = vector2.copy( normal ).multiplyScalar( normal.dot( playerVelocity ) );
-            const v2 = vector3.copy( normal ).multiplyScalar( normal.dot( sphere.velocity ) );
-
-            playerVelocity.add( v2 ).sub( v1 );
-            sphere.velocity.add( v1 ).sub( v2 );
-
-            const d = ( r - Math.sqrt( d2 ) ) / 2;
-            sphere_center.addScaledVector( normal, - d );
-
-        }
-
-    }
-
-}
-
-function spheresCollisions() {
-
-    for ( let i = 0, length = spheres.length; i < length; i ++ ) {
-
-        const s1 = spheres[ i ];
-
-        for ( let j = i + 1; j < length; j ++ ) {
-
-            const s2 = spheres[ j ];
-
-            const d2 = s1.collider.center.distanceToSquared( s2.collider.center );
-            const r = s1.collider.radius + s2.collider.radius;
-            const r2 = r * r;
-
-            if ( d2 < r2 ) {
-
-                const normal = vector1.subVectors( s1.collider.center, s2.collider.center ).normalize();
-                const v1 = vector2.copy( normal ).multiplyScalar( normal.dot( s1.velocity ) );
-                const v2 = vector3.copy( normal ).multiplyScalar( normal.dot( s2.velocity ) );
-
-                s1.velocity.add( v2 ).sub( v1 );
-                s2.velocity.add( v1 ).sub( v2 );
-
-                const d = ( r - Math.sqrt( d2 ) ) / 2;
-
-                s1.collider.center.addScaledVector( normal, d );
-                s2.collider.center.addScaledVector( normal, - d );
-
+        let plane, scene, camera, renderer, uniforms, controls;
+        let start = Date.now();
+
+        const fragmentShader = `
+            #ifdef GL_ES
+            precision highp float;
+            #endif
+
+            uniform vec2 resolution;
+            uniform vec2 mouse;
+            uniform float time;
+            varying vec2 surfacePosition;
+
+            float snoise(vec3 uv, float res){
+                const vec3 s = vec3(1e0, 1e2, 1e3);
+                
+                uv *= res;
+                
+                vec3 uv0 = floor(mod(uv, res))*s;
+                vec3 uv1 = floor(mod(uv+vec3(1.), res))*s;
+                
+                vec3 f = fract(uv); f = f*f*(3.0-2.0*f);
+
+                vec4 v = vec4(uv0.x+uv0.y+uv0.z, uv1.x+uv0.y+uv0.z,
+                            uv0.x+uv1.y+uv0.z, uv1.x+uv1.y+uv0.z);
+
+                vec4 r = fract(sin(v*1e-1)*1e3);
+                float r0 = mix(mix(r.x, r.y, f.x), mix(r.z, r.w, f.x), f.y);
+                
+                r = fract(sin((v + uv1.z - uv0.z)*1e-1)*1e3);
+                float r1 = mix(mix(r.x, r.y, f.x), mix(r.z, r.w, f.x), f.y);
+                
+                return mix(r0, r1, f.z)*2.-1.;
             }
 
-        }
-
-    }
-
-}
-
-function updateSpheres( deltaTime ) {
-
-    spheres.forEach( sphere => {
-
-        sphere.collider.center.addScaledVector( sphere.velocity, deltaTime );
-
-        const result = worldOctree.sphereIntersect( sphere.collider );
-
-        if ( result ) {
-
-            sphere.velocity.addScaledVector( result.normal, - result.normal.dot( sphere.velocity ) * 1.5 );
-            sphere.collider.center.add( result.normal.multiplyScalar( result.depth ) );
-
-        } else {
-
-            sphere.velocity.y -= GRAVITY * deltaTime;
-
-        }
-
-        const damping = Math.exp( - 1.5 * deltaTime ) - 1;
-        sphere.velocity.addScaledVector( sphere.velocity, damping );
-
-        playerSphereCollision( sphere );
-
-    } );
-
-    spheresCollisions();
-
-    for ( const sphere of spheres ) {
-
-        sphere.mesh.position.copy( sphere.collider.center );
-
-    }
-
-}
-
-function getForwardVector() {
-
-    camera.getWorldDirection( playerDirection );
-    playerDirection.y = 0;
-    playerDirection.normalize();
-
-    return playerDirection;
-
-}
-
-function getSideVector() {
-
-    camera.getWorldDirection( playerDirection );
-    playerDirection.y = 0;
-    playerDirection.normalize();
-    playerDirection.cross( camera.up );
-
-    return playerDirection;
-
-}
-
-function controls( deltaTime ) {
-
-    // gives a bit of air control
-    const speedDelta = deltaTime * ( playerOnFloor ? 25 : 8 );
-
-    if ( keyStates[ 'ArrowUp' ] ) {
-
-        playerVelocity.add( getForwardVector().multiplyScalar( speedDelta ) );
-
-    }
-
-    if ( keyStates[ 'ArrowDown' ] ) {
-
-        playerVelocity.add( getForwardVector().multiplyScalar( - speedDelta ) );
-
-    }
-
-    if ( keyStates[ 'ArrowLeft' ] ) {
-
-        playerVelocity.add( getSideVector().multiplyScalar( - speedDelta ) );
-
-    }
-
-    if ( keyStates[ 'ArrowRight' ] ) {
-
-        playerVelocity.add( getSideVector().multiplyScalar( speedDelta ) );
-
-    }
-
-    if ( playerOnFloor ) {
-
-        if ( keyStates[ 'Space' ] ) {
-
-            playerVelocity.y = 15;
-
-        }
-
-    }
-
-}
-
-const loader = new GLTFLoader().setPath( './assets/models/' );
-
-loader.load( 'collision-world1.gltf', ( gltf ) => {
-
-    scene.add( gltf.scene );
-
-    worldOctree.fromGraphNode( gltf.scene );
-
-    gltf.scene.traverse( child => {
-
-        if ( child.isMesh ) {
-
-            child.castShadow = true;
-            child.receiveShadow = true;
-
-            if ( child.material.map ) {
-
-                child.material.map.anisotropy = 4;
-
+            void main(){
+                vec2 p = surfacePosition;
+                float color = 3.0 - (3.*length(2.*p));
+                vec3 coord = vec3(atan(p.x,p.y)/6.2832+.5, length(p)*.4, .5);                
+                for(int i = 1; i <= 7; i++){
+                    float power = pow(2.0, float(i));
+                    color += (1.5 / power) * snoise(coord + vec3(0.,-time*.05, time*.01), power*16.);
+                }
+                gl_FragColor = vec4( color, pow(max(color,0.),2.)*0.4, pow(max(color,0.),3.)*0.15 , 1.0);
             }
+        `;
+
+        init().then(animate);
+
+        async function init(){
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0xffffff );
+            
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+            camera.position.z = 5;
+            
+            renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            container.appendChild( renderer.domElement );
+            
+            uniforms = {
+                time: { value: 0.0 },                
+                resolution:  { value: new THREE.Vector2() },
+                mouse:  { value: new THREE.Vector2() },
+            };
+            //console.log(uniforms);
+            const geometry = new THREE.PlaneGeometry( window.innerWidth, window.innerHeight, 10, 10 );
+            //const geometry = new THREE.SphereGeometry( 3.95, 64, 128 ); 
+            geometry.startTime = Date.now();
+            geometry.uniforms = uniforms;            
+            const material = new THREE.ShaderMaterial( {
+                fragmentShader,
+				uniforms,
+				side: THREE.FrontSide,
+				//depthWrite: false,
+				//blending: THREE.AdditiveBlending,
+				transparent: true,
+				//blendEquation: THREE.AddEquation,
+            } );
+            plane = new THREE.Mesh( geometry, material );
+            scene.add( plane );
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            uniforms.resolution.value.x = renderer.domElement.width;
+            uniforms.resolution.value.y = renderer.domElement.height;
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
 
         }
 
-    } );
+        function animate(time) {
+			requestAnimationFrame( animate );
 
-    const helper = new OctreeHelper( worldOctree );
-    helper.visible = false;
-    scene.add( helper );
+            time *= 0.0002;
 
-    const gui = new GUI( { width: 200 } );
-    gui.add( { debug: false }, 'debug' )
-        .onChange( function ( value ) {
-
-            helper.visible = value;
-
-        } );
-
-    animate();
-
-} );
-
-function teleportPlayerIfOob() {
-
-    if ( camera.position.y <= - 25 ) {
-
-        playerCollider.start.set( 0, 0.35, 0 );
-        playerCollider.end.set( 0, 1, 0 );
-        playerCollider.radius = 0.35;
-        camera.position.copy( playerCollider.end );
-        camera.rotation.set( 0, 0, 0 );
-
-    }
-
-}
-
-function animate() {
-
-    const deltaTime = Math.min( 0.05, clock.getDelta() ) / STEPS_PER_FRAME;
-
-        // we look for collisions in substeps to mitigate the risk of
-        // an object traversing another too quickly for detection.
-
-        for ( let i = 0; i < STEPS_PER_FRAME; i ++ ) {
-
-            controls( deltaTime );
-
-            updatePlayer( deltaTime );
-
-            updateSpheres( deltaTime );
-
-            teleportPlayerIfOob();
-
+            uniforms.resolution.value.set(window.innerWidth, window.innerHeight, 1);
+            var elapsedMilliseconds = Date.now() - plane.startTime;
+            var elapsedSeconds = elapsedMilliseconds / 1000.;
+            plane.material.uniforms.time.value = time;
+            
+            renderer.render( scene, camera );
         }
-
-        renderer.render( scene, camera );
-
-        stats.update();
-
-        requestAnimationFrame( animate );
-
-}
     </script>
 
 </body>
