@@ -97,24 +97,6 @@
 
             function loadModel(){
                 scene.add( object );
-
-                spotlight(0xffffff,0.75,0,20,-5,0,1);
-                spotlight(0xffffff,0.75,0,20,5,0,1);
-                spotlight(0xffffff,0.75,0,1,5,0,0);
-                spotlight(0xffffff,0.75,0,1,-5,0,0);
-
-                // shadow
-                shadow(-0,0.5,50);
-                
-                guis();
-
-                //mirror(0xaaaaaa,1,200);
-
-                rectLight( 0xffffff, 3, 5, 3, -10, 5, 0, 0 ); // left
-                rectLight( 0xffffff, 3, 5, 3, 10, 5, 0, 0 ); // right
-                rectLight( 0xffffff, 1, 30, 30, 0, 10, 0, 0 ); // top
-
-                control();
             }
 
             const manager = new THREE.LoadingManager( loadModel );
@@ -187,6 +169,24 @@
                         o.material.envMapIntensity = 1;
                     }
                 });
+
+                spotlight(0xffffff,0.75,0,20,-5,0,1);
+                spotlight(0xffffff,0.75,0,20,5,0,1);
+                spotlight(0xffffff,0.75,0,1,5,0,0);
+                spotlight(0xffffff,0.75,0,1,-5,0,0);
+
+                // shadow
+                shadow(-0,0.5,50);
+                
+                guis();
+
+                //mirror(0xaaaaaa,1,200);
+
+                rectLight( 0xffffff, 3, 5, 3, -10, 5, 0, 0 ); // left
+                rectLight( 0xffffff, 3, 5, 3, 10, 5, 0, 0 ); // right
+                rectLight( 0xffffff, 1, 30, 30, 0, 10, 0, 0 ); // top
+
+                control();
 
             }, onProgress, onError );
 
@@ -358,7 +358,8 @@
             controls.enableDamping = true;
             controls.maxDistance = 20;
             controls.minDistance = 5;            
-            controls.target.set( 0, 0.5, 0 ); // controls.update();
+            controls.target.set( 0, 0.5, 0 );
+            controls.update();
         }
         
         function onWindowResize() {
