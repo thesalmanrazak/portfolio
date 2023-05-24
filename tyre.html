@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salman Razak :|: Being creative mean be different...</title>
-<link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
     <link rel="stylesheet" href="./assets/css/three.css">
     <style>
         canvas{
@@ -28,12 +28,12 @@
     <div id="container">
         <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
     </div>
-
+    <!--
     <div id="loading" class="loading">
         <span>Loading</span>
         <h2></h2>
     </div>
-
+    -->
     <script src="./assets/js/jquery.js"></script>
     <script type="importmap">
         {
@@ -79,12 +79,6 @@
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             renderer.toneMappingExposure = 1;
 
-            new RGBELoader().load( './assets/hdri/industrial_sunset_puresky_4k.hdr', function ( hdri ) {
-                hdri.mapping = THREE.EquirectangularReflectionMapping;
-                scene.background = hdri;
-                scene.environment = hdri;
-            });
-
             function loadModel(){                
                 scene.add( object );
             }
@@ -93,7 +87,9 @@
 
             function onProgress( xhr ) {
                 if ( xhr.lengthComputable ) {
-                    const percentComplete = xhr.loaded / xhr.total * 100; //console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    const percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    /*
                     loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
                     if(Math.round( percentComplete, 2 ) == 100){
                         setTimeout(function() {
@@ -102,6 +98,7 @@
                             loading.style.visibility = 'hidden';
                         }, 1250);
                     }
+                    */
                 }
             }
             function onError() {}
@@ -120,13 +117,17 @@
                 
             }, onProgress, onError );
 
+            new RGBELoader().load( './assets/hdri/industrial_sunset_puresky_4k.hdr', function ( hdri ) {
+                hdri.mapping = THREE.EquirectangularReflectionMapping;
+                scene.background = hdri;
+                scene.environment = hdri;
+            });
+
             controlSetting();
 
             sceneLight(0);
 
             window.addEventListener('resize', onWindowResize);
-
-            //canvas.addEventListener('mousemove', onMouseMove);
         }
 
         function controlSetting(){
@@ -178,10 +179,9 @@
         }
         
         function animate() {
-            requestAnimationFrame( animate );            
-            //const time = performance.now() / 100;
-            if(watch){
-                watch.rotation.z += 0.1; // Math.cos( time ) * 0.05;
+            requestAnimationFrame( animate );
+            if(object){
+                object.rotation.z += 0.1; // Math.cos( time ) * 0.05;
             }
             if(controls){
                 controls.update();                

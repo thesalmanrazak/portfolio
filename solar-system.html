@@ -136,6 +136,7 @@
             starsGeometry();
 
             controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
 
             window.addEventListener('resize', onWindowResize);
 

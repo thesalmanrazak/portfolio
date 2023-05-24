@@ -77,7 +77,7 @@
             varying vec3 vertexNormal;
             void main(){
                 float intensity = pow(0.4 - dot(vertexNormal, vec3(0,0,1.0)), 1.5);
-                gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+                gl_FragColor = vec4( 1.0, 1.0, 0.8, 1.0 ) * intensity;
             }
         `;
 
@@ -86,16 +86,14 @@
         async function init(){
             scene = new THREE.Scene();
 
-            camera = new THREE.PerspectiveCamera( 30, window.innerWidth/window.innerHeight, 1, 10000 ); // camera.position.z = 50; camera.position.y = 20;
-            camera.position.set( -25.753501095991325, 33.13543049798456, 38.1063882558287 );
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.01, 1000 ); // camera.position.z = 50; camera.position.y = 20;
+            //camera.position.set( -25.753501095991325, 33.13543049798456, 38.1063882558287 );
+            camera.position.set( 0, 13.13543049798456, 50 );
             
             renderer = new THREE.WebGLRenderer({antialias:true});
             renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.setSize( window.innerWidth, window.innerHeight );
-            renderer.shadowMap.enabled = true;
-            //renderer.gammaInput = true;
-            //renderer.gammaOutput = true;
-            container.appendChild( renderer.domElement );            
+            renderer.setSize( window.innerWidth, window.innerHeight );            
+            container.appendChild( renderer.domElement );
 
             pointLight(0xffffff, 2, 100, 0, 0, 0, 0.25);
 
@@ -103,9 +101,14 @@
 
             starsGeometry();
 
-            controls = new OrbitControls( camera, renderer.domElement );
+            controlSetting();
 
             window.addEventListener('resize', onWindowResize);
+        }
+
+        function controlSetting(){
+            controls = new OrbitControls( camera, renderer.domElement );
+            controls.enableDamping = true;
         }
 
         function pointLight(color,radius,size,x,y,z,ambientIntensity){
@@ -122,7 +125,7 @@
             // moon
             uniforms = { globeTexture: { value: texture.load(moonTexture) } }
             moon = new THREE.Mesh(
-                new THREE.SphereGeometry( 18, 50, 50 ),
+                new THREE.SphereGeometry( 10, 64, 128 ),
                 new THREE.ShaderMaterial( {
                     vertexShader,
                     fragmentShader,
@@ -139,7 +142,8 @@
                     fragmentShader: fragmentShader2,
                     blending: THREE.AdditiveBlending,
                     side: THREE.BackSide,
-                    fog: true
+                    fog: true,
+                    transparent: true,
                 })
             );
             moonFireAtmosphere.scale.set(1.1,1.1,1.1); moonFireAtmosphere.position.set(0,0,0);
@@ -213,21 +217,20 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        var theta = 0;
-        var dTheta = 2 * Math.PI / 3000;
-
         function animate() {
-
-            renderer.render( scene, camera );
             requestAnimationFrame( animate );
 
-            theta -= dTheta;
-            //moon.rotation.y += 0.001;
-            //earth.position.x = earthPosition * Math.cos(theta);
-            //earth.position.z = earthPosition * Math.sin(theta);
+            moon.rotation.y += 0.005;
+            //moon.rotation.z -= 0.005;
+
             if(controls){
                 controls.update();
             }
+            render();
+        }
+
+        function render(){
+            renderer.render( scene, camera );
         }
     </script>
 

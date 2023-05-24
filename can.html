@@ -22,12 +22,12 @@
     <div id="container">
         <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
     </div>
-
+    <!--
     <div id="loading" class="loading">
         <span>Loading</span>
         <h2></h2>
     </div>
-
+    -->
     <script src="./assets/js/jquery.js"></script>
     <script type="importmap">
         {
@@ -110,13 +110,13 @@
 
             }
 
-
-
             const manager = new THREE.LoadingManager( loadModel );
 
             function onProgress( xhr ) {
                 if ( xhr.lengthComputable ) {
-                    const percentComplete = xhr.loaded / xhr.total * 100; //console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    const percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+                    /*
                     loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
                     if(Math.round( percentComplete, 2 ) == 100){
                         setTimeout(function() {
@@ -125,6 +125,7 @@
                             loading.style.visibility = 'hidden';
                         }, 1250);
                     }
+                    */
                 }
             }
             function onError() {}
