@@ -590,6 +590,10 @@ main section.work-category div.grid.logo {
   -moz-column-count: 4;
        column-count: 4;
 }
+main section.work-category div.grid.logo .item {
+  background: url("../media/loading.gif") center center no-repeat;
+  min-height: 200px;
+}
 main section.work-category div.grid.logo .item:hover span {
   opacity: 1;
 }

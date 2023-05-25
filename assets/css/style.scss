@@ -207,6 +207,8 @@ main{
                 &.logo{
                     column-count: 4;
                     .item{
+                        background: url('../media/loading.gif') center center no-repeat;
+                        min-height: 200px;
                         &:hover{
                             span{
                                 opacity: 1;

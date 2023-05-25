@@ -162,7 +162,7 @@ function load_uiux(){
 function load_logos(){
     $.getJSON( "./assets/json/projects.json", function(data) {
         $.each(data['logo designing'], function (index, value) {
-            $('section.work-category .grid.logo').append('<div class="item"><img src="./assets/media/logos/logo-'+value.images+'" alt="'+value.name+'"><span>'+value.name+'</span></div>');
+            $('section.work-category .grid.logo').append('<div class="item item'+index+'"><img class="image" src="./assets/media/logos/logo-'+value.images+'" alt="'+value.name+'"><span>'+value.name+'</span></div>');
         });
     });
 }
