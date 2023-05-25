@@ -18,7 +18,7 @@ $(document).ready(function(){
     } else if(day==3){
         document.body.style.setProperty('--bg-color', '#fe2b01');
     } else if(day==4){
-        document.body.style.setProperty('--bg-color', 'magenta');
+        document.body.style.setProperty('--bg-color', '#fb2470');
     } else if(day==5){
         document.body.style.setProperty('--bg-color', '#27ddb0');
     } else if(day==6){
