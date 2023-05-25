@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salman Razak :|: Being creative mean be different...</title>
-<link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="./assets/media/favicon.png">
     <link rel="stylesheet" href="./assets/css/three.css">
 </head>
 <!-- Google tag (gtag.js) -->
@@ -22,12 +22,12 @@
     <div id="container">
         <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
     </div>
-    <!--
+    
     <div id="loading" class="loading">
         <span>Loading</span>
         <h2></h2>
     </div>
-    -->
+    
     <script src="./assets/js/jquery.js"></script>
     <script type="importmap">
         {
@@ -47,14 +47,13 @@
 		import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { Reflector } from 'three/addons/objects/Reflector.js';
 
         THREE.ColorManagement.enabled = false;
 
         const container = document.getElementById('container');
         const loading = document.getElementById('loading');
 
-        let cube, scene, camera, renderer, controls, object, skybox, tyres = [], stats, groundMirror, hemiLight, spotLight, shadowplane, mshStdFloor;
+        let cube, scene, camera, renderer, controls, object, skybox, tyres = [], stats, hemiLight, spotLight, shadowplane, mshStdFloor;
         const group = new THREE.Group();
 
         const params = {            
@@ -87,25 +86,23 @@
             container.appendChild( renderer.domElement );
     
             renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1;
-            
+            //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            //renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            //renderer.toneMappingExposure = 1;            
             RectAreaLightUniformsLib.init();
 
+            /*
             function loadModel(){
                 scene.add( object );
             }
 
             const manager = new THREE.LoadingManager( loadModel );
-
+            */
             function onProgress( xhr ) {
                 if ( xhr.lengthComputable ) {
                     const percentComplete = xhr.loaded / xhr.total * 100;
                     console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
-                    /*
+                    
                     loading.querySelector('h2').innerHTML = Math.round( percentComplete, 2 ) + '%';
                     if(Math.round( percentComplete, 2 ) == 100){
                         setTimeout(function() {
@@ -114,12 +111,12 @@
                             loading.style.visibility = 'hidden';
                         }, 1250);
                     }
-                    */
+                    
                 }
             }
             function onError() {}
 
-            const loader = new GLTFLoader( manager );
+            const loader = new GLTFLoader();
 
             loader.load( './assets/models/car.gltf', function ( obj ) {
                 
@@ -149,12 +146,12 @@
                     if ( o.isMesh ) {
                         o.material = new THREE.MeshPhysicalMaterial( {
                             color: 0xffffff,
-                            opacity: 0.25,
-                            transmission: 1,
+                            opacity: 0.5,
+                            transmission: 0.8,
                             //metalness: 0,
                             //roughness: 0,
-                            ior: 0.25,
-                            thickness: 1.5,
+                            ior: 0.05,
+                            //thickness: 1.5,
                             //envMapIntensity: 0.1,
                             //specularIntensity: 0.2,
                             //side: THREE.DoubleSide,
@@ -173,23 +170,25 @@
                     }
                 });
 
-                spotlight(0xffffff,0.75,0,20,-5,0,1);
-                spotlight(0xffffff,0.75,0,20,5,0,1);
-                spotlight(0xffffff,0.75,0,1,5,0,0);
-                spotlight(0xffffff,0.75,0,1,-5,0,0);
-
+                
+                //spotlight(0xffffff,0.75,0,20,-5,0,1);
+                spotlight( 0xffffff, 2, 0, 20, 5, 0, 1 );
+                spotlight( 0xffffff, 2, 0, 1, 5, 0, 0 );
+                //spotlight(0xffffff,0.75,0,1,-5,0,0);
+                
+                //hemi(0);
                 // shadow
-                shadow(-0,0.5,50);
+                shadow(-0.1,0.5,100);
                 
                 guis();
 
-                //mirror(0xaaaaaa,1,200);
-
-                rectLight( 0xffffff, 3, 5, 3, -10, 5, 0, 0 ); // left
-                rectLight( 0xffffff, 3, 5, 3, 10, 5, 0, 0 ); // right
+                //rectLight( 0xffffff, 3, 5, 3, -10, 5, 0, 0 ); // left
+                //rectLight( 0xffffff, 3, 5, 3, 10, 5, 0, 0 ); // right
                 rectLight( 0xffffff, 1, 30, 30, 0, 10, 0, 0 ); // top
 
                 control();
+
+                scene.add( object );
 
             }, onProgress, onError );
 
@@ -200,8 +199,6 @@
         }
 
         function shadow(y,opacity,size){
-
-            
             const geoFloor = new THREE.BoxGeometry( size, 0.1, size );
             const matStdFloor = new THREE.MeshStandardMaterial( { color: params.floor, roughness: 0.1, metalness: 0.05 } );// 0x7821c0
             mshStdFloor = new THREE.Mesh( geoFloor, matStdFloor );
@@ -221,18 +218,6 @@
             scene.add(shadowplane);
         }
 
-        function mirror(color,clipBias,size){
-            groundMirror = new Reflector( new THREE.PlaneGeometry( size, size, size, size ), {
-                clipBias: clipBias,
-                textureWidth: window.innerWidth * window.devicePixelRatio,
-                textureHeight: window.innerHeight * window.devicePixelRatio,
-                color: color,
-            } );
-            groundMirror.position.y = -0.05;
-            groundMirror.rotateX( - Math.PI / 2 );
-            groundMirror.lookAt( object.position ); // scene.add( groundMirror );
-        }
-
         function guis(){
             const gui = new GUI();
             gui.addColor( params, 'color' ).name('Body Paint').onChange(function(val){
@@ -244,13 +229,10 @@
                     }
                 });
             });
-            gui.addColor( params, 'floor' ).name('Floor Color').onChange(function(val){
-                
+            gui.addColor( params, 'floor' ).name('Floor Color').onChange(function(val){                
                 mshStdFloor.traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.color = new THREE.Color(val);
-                        //o.castShadow = true;
-                        //o.receiveShadow = false;
                     }
                 });
             });
@@ -272,33 +254,6 @@
                     
                 });
             });
-            /*
-            gui.add( params, 'mirror' ).name('Ground Mirror').onChange(function(val){
-                if(val==true){
-                    scene.add(groundMirror);
-                } else {
-                    scene.remove(groundMirror);
-                }
-            });
-            gui.add( params, 'rectanglelight').name('Rectangle Lights').onChange( function(val){
-                
-                if(val==true){
-                    scene.add( group );                    
-                } else {
-                    scene.remove( group );
-                }
-
-            });
-            gui.add( params, 'spotlight').name('Spot Light').onChange( function(val){
-                if(val==true){
-                    scene.add( spotLight );
-                    scene.add( shadowplane );
-                } else {
-                    scene.remove( spotLight );
-                    scene.remove( shadowplane );
-                }
-            });
-            */
         }
 
         function spotlight(color,intensity,x,y,z,show,shadow){
@@ -313,7 +268,7 @@
             spotLight.shadow.mapSize.width = 4096;
             spotLight.shadow.mapSize.height = 4096;
             spotLight.shadow.camera.near = 0.1;
-            spotLight.shadow.camera.far = 500;
+            spotLight.shadow.camera.far = 1000;
             spotLight.shadow.focus = 30;
             scene.add( spotLight );
 
@@ -332,14 +287,14 @@
         }
 
         function hemi(show){
-            hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.5 );
+            hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 4 );
             hemiLight.color.setHSL( 1.0, 1.0, 1.0 );
             hemiLight.groundColor.setHSL( 1, 1, 1 );
-            hemiLight.position.set( 0, -0.05, 0 );
+            hemiLight.position.set( 0, -0.5, 0 );
             //scene.add( hemiLight );
 
             if( show == 1 ){
-                const hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 5 );
+                const hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
                 scene.add( hemiLightHelper );
             }
         }
