@@ -57,13 +57,10 @@
         const group = new THREE.Group();
 
         const params = {            
-            color: '#7821c0',
-            floor: '#7821c0',
-            metalness: 0.15,
-            roughness: 0.05,
-            mirror: false,
-            rectanglelight: false,
-            spotlight: false,
+            color: '#21c07b',
+            floor: '#064c31',
+            metalness: 0.5,
+            roughness: 0.0,
         };
 
         init().then( animate );
@@ -71,7 +68,7 @@
         async function init(){
             scene = new THREE.Scene();
             scene.background = new THREE.Color( 0x000000 ); // 7821c0 // 411367
-            scene.fog = new THREE.FogExp2( 0xff0000, 0.0025 );
+            //scene.fog = new THREE.FogExp2( 0xff0000, 0.0025 );
 
             const axe = new THREE.AxesHelper(5);
             //scene.add(axe);
@@ -82,22 +79,15 @@
             renderer = new THREE.WebGLRenderer( { antialias: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
             renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-            renderer.setSize( window.innerWidth, window.innerHeight );            
-            container.appendChild( renderer.domElement );
-    
+            renderer.setSize( window.innerWidth, window.innerHeight );
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             renderer.toneMappingExposure = 1;
+            container.appendChild( renderer.domElement );
+    
             RectAreaLightUniformsLib.init();
 
-            /*
-            function loadModel(){
-                scene.add( object );
-            }
-
-            const manager = new THREE.LoadingManager( loadModel );
-            */
             function onProgress( xhr ) {
                 if ( xhr.lengthComputable ) {
                     const percentComplete = xhr.loaded / xhr.total * 100;
@@ -124,9 +114,11 @@
                 object = obj.scene;
                 object.traverse( function( o ) {
                     if ( o.isMesh ) {
-                        o.castShadow = true;
+                        //o.castShadow = true;
+                        //o.receiveShadow = false;
                     }
                 } );
+                object.castShadow = true;
                 object.name = "Car";
                 
                 // body paint
@@ -170,30 +162,23 @@
                     }
                 });
 
+                spotlight( 0xffffff, 1, 5, 5, 0, 0, 1 ); // right
+                spotlight( 0xffffff, 1, -5, 5, 0, 0, 1 ); // left
+                spotlight( 0xffffff, 2, 0, 5, -10, 0, 1 ); // back
+                spotlight( 0xffffff, 2, 0, 5, 10, 0, 1 ); // front
                 
-                //spotlight(0xffffff,0.75,0,20,-5,0,1);
-                spotlight( 0xffffff, 2, 0, 20, 5, 0, 1 );
-                spotlight( 0xffffff, 2, 0, 1, 5, 0, 0 );
-                //spotlight(0xffffff,0.75,0,1,-5,0,0);
-                
-                //hemi(0);
-                // shadow
-                shadow(-0.1,0.5,100);
+
+                shadow(-0.5,1,100);
                 
                 guis();
 
-                //rectLight( 0xffffff, 3, 5, 3, -10, 5, 0, 0 ); // left
-                //rectLight( 0xffffff, 3, 5, 3, 10, 5, 0, 0 ); // right
-                rectLight( 0xffffff, 1, 30, 30, 0, 10, 0, 0 ); // top
-
-                control();
+                rectLight( 0xffffff, 1, 30, 30, 0, 10, 0, 0 ); // top //rectLight( 0xffffff, 3, 5, 3, -10, 5, 0, 0 ); // left //rectLight( 0xffffff, 3, 5, 3, 10, 5, 0, 0 ); // right
 
                 scene.add( object );
 
             }, onProgress, onError );
 
-            stats = new Stats();
-			//document.body.appendChild( stats.dom );
+            control();
 
             window.addEventListener('resize', onWindowResize);
         }
@@ -202,16 +187,13 @@
             const geoFloor = new THREE.BoxGeometry( size, 0.1, size );
             const matStdFloor = new THREE.MeshStandardMaterial( { color: params.floor, roughness: 0.1, metalness: 0.05 } );// 0x7821c0
             mshStdFloor = new THREE.Mesh( geoFloor, matStdFloor );
-            mshStdFloor.position.y = -0.5;
-            scene.add( mshStdFloor );
-            
+            mshStdFloor.position.y = y + 0.2;
+            scene.add( mshStdFloor );            
 
             const shadowgeometry = new THREE.PlaneGeometry( size, size );
             shadowgeometry.rotateX( - Math.PI / 2 );
-
             const shadowmaterial = new THREE.ShadowMaterial();
             shadowmaterial.opacity = opacity;
-
             shadowplane = new THREE.Mesh( shadowgeometry, shadowmaterial );
             shadowplane.position.y = y;
             shadowplane.receiveShadow = true;
@@ -256,7 +238,7 @@
             });
         }
 
-        function spotlight(color,intensity,x,y,z,show,shadow){
+        function spotlight( color, intensity, x, y, z, show, shadow ){
             
             spotLight = new THREE.SpotLight( color, intensity );
             spotLight.position.set( x, y, z );
@@ -265,25 +247,22 @@
             spotLight.decay = 2;
             spotLight.distance = 200;
 
+            
+
             spotLight.shadow.mapSize.width = 4096;
             spotLight.shadow.mapSize.height = 4096;
             spotLight.shadow.camera.near = 0.1;
             spotLight.shadow.camera.far = 1000;
             spotLight.shadow.focus = 30;
-            scene.add( spotLight );
-
+            
             if(shadow==1){
-                spotLight.castShadow = true;
+                spotLight.castShadow = true;                
             }
-
+            scene.add( spotLight );
             if(show==1){
-                const lightHelper = new THREE.SpotLightHelper( spotLight );
-                scene.add( lightHelper );
-
-                const camerahelper = new THREE.CameraHelper( spotLight.shadow.camera );
-                //scene.add( camerahelper );
+                const lightHelper = new THREE.SpotLightHelper( spotLight ); scene.add( lightHelper );
+                const camerahelper = new THREE.CameraHelper( spotLight.shadow.camera ); //scene.add( camerahelper );
             }
-
         }
 
         function hemi(show){
