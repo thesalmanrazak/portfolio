@@ -1,60 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 <!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
 
 <url>
   <loc>https://thesalmanrazak.github.io/portfolio/</loc>
   <lastmod>2024-01-02T12:43:03+00:00</lastmod>
-  <priority>1.00</priority>
 </url>
 <url>
   <loc>https://thesalmanrazak.github.io/portfolio/index.html</loc>
   <lastmod>2024-01-02T12:43:03+00:00</lastmod>
-  <priority>0.80</priority>
 </url>
 <url>
   <loc>https://thesalmanrazak.github.io/portfolio/work.html</loc>
   <lastmod>2024-01-02T12:43:03+00:00</lastmod>
-  <priority>0.45</priority>
 </url>
 <url>
   <loc>https://thesalmanrazak.github.io/portfolio/branding.html</loc>
   <lastmod>2024-01-02T12:43:03+00:00</lastmod>
-  <priority>0.40</priority>
 </url>
 <url>
   <loc>https://thesalmanrazak.github.io/portfolio/digital-media.html</loc>
   <lastmod>2024-01-02T12:43:03+00:00</lastmod>
-  <priority>0.35</priority>
 </url>
 <url>
   <loc>https://thesalmanrazak.github.io/portfolio/logo-designing.html</loc>
   <lastmod>2024-01-02T12:43:03+00:00</lastmod>
-  <priority>0.30</priority>
 </url>
 <url>
   <loc>https://thesalmanrazak.github.io/portfolio/print.html</loc>
   <lastmod>2024-01-02T12:43:03+00:00</lastmod>
-  <priority>0.25</priority>
 </url>
 <url>
   <loc>https://thesalmanrazak.github.io/portfolio/three-js.html</loc>
   <lastmod>2024-01-02T12:43:03+00:00</lastmod>
-  <priority>0.20</priority>
 </url>
 <url>
   <loc>https://thesalmanrazak.github.io/portfolio/ui-ux-designing.html</loc>
   <lastmod>2024-01-02T12:43:03+00:00</lastmod>
-  <priority>0.15</priority>
 </url>
 <url>
   <loc>https://thesalmanrazak.github.io/portfolio/whats-up.html</loc>
   <lastmod>2024-01-02T12:43:03+00:00</lastmod>
-  <priority>0.10</priority>
 </url>
 
 </urlset>
