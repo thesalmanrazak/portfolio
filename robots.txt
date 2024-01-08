@@ -1,0 +1,22 @@
+# ---------------------------
+User-Agent: *
+Disallow:
+Allow: /
+Sitemap: https://thesalmanrazak.github.io/portfolio/sitemap.xml
+
+User-agent: Googlebot
+Allow: /
+Sitemap: https://thesalmanrazak.github.io/portfolio/sitemap.xml
+
+User-agent: Googlebot-image
+Allow: /
+Sitemap: https://thesalmanrazak.github.io/portfolio/sitemap.xml
+
+User-agent: Twitterbot
+Allow: /
+Sitemap: https://thesalmanrazak.github.io/portfolio/sitemap.xml
+
+User-agent: facebookexternalhit
+Allow: /
+Sitemap: https://thesalmanrazak.github.io/portfolio/sitemap.xml
+# ---------------------------
