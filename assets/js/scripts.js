@@ -12,7 +12,7 @@ $(document).ready(function(){
     if(day==0){
         document.body.style.setProperty('--bg-color', '#FF5733'); // a70606e0
     } else if(day==1){
-        document.body.style.setProperty('--bg-color', '#c9ee9b');
+        document.body.style.setProperty('--bg-color', '#a70606e0'); // c9ee9b
     } else if(day==2){
         document.body.style.setProperty('--bg-color', '#ec5f5f');
     } else if(day==3){
