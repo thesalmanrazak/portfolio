@@ -10,19 +10,19 @@ $(document).ready(function(){
     const day = daycolor.getDay();
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     if(day==0){
-        document.body.style.setProperty('--bg-color', '#FF5733'); // a70606e0
+        document.body.style.setProperty('--bg-color', '#5c4d7d'); // a70606e0
     } else if(day==1){
-        document.body.style.setProperty('--bg-color', '#a70606e0'); // c9ee9b
+        document.body.style.setProperty('--bg-color', '#ff36ab'); // c9ee9b
     } else if(day==2){
-        document.body.style.setProperty('--bg-color', '#ec5f5f');
+        document.body.style.setProperty('--bg-color', '#6d597a');
     } else if(day==3){
-        document.body.style.setProperty('--bg-color', '#fe2b01');
+        document.body.style.setProperty('--bg-color', '#2b9348');
     } else if(day==4){
-        document.body.style.setProperty('--bg-color', '#fb2470');
+        document.body.style.setProperty('--bg-color', '#7209b7');
     } else if(day==5){
-        document.body.style.setProperty('--bg-color', '#27ddb0');
+        document.body.style.setProperty('--bg-color', '#3d405b');
     } else if(day==6){
-        document.body.style.setProperty('--bg-color', '#08d7e6');
+        document.body.style.setProperty('--bg-color', '#fb5607');
     }
 });
 
