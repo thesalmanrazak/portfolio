@@ -10,7 +10,7 @@ $(document).ready(function(){
     const day = daycolor.getDay();
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     if(day==0){
-        document.body.style.setProperty('--bg-color', '#a70606e0');
+        document.body.style.setProperty('--bg-color', '#FF5733'); // a70606e0
     } else if(day==1){
         document.body.style.setProperty('--bg-color', '#c9ee9b');
     } else if(day==2){
