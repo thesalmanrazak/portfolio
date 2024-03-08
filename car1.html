@@ -23,7 +23,8 @@
     <!-- End Google Tag Manager (noscript) -->
     <div id="container">
         <button type="button" class="backBtn" onclick="window.location.replace('three-js.html');">Back</button>
-    </div>
+        <div class="note" style="position: fixed; left: 50%; bottom: 5px; z-index: 100; background-color: white; color: #000; font-size: 12px; transform: translateX(-50%); padding: 5px 15px;">Press Spacebar for <strong>Break Lights</strong> :)</div>
+    </div>    
     <!--
     <div id="loading" class="loading">
         <span>Loading</span>
@@ -157,6 +158,8 @@
 
             loader.load( './assets/models/car.gltf', function ( obj ) {
                 
+                console.log(obj);
+
                 // define gltf model and add into scene
                 object = obj.scene;
                 object.name = "Car";
@@ -346,7 +349,7 @@
             //folder2.add( params, 'punctualLightsEnabled' ).onChange( toggleLights );
             // car body paint replace
             folder2.addColor( bodycolor, 'color' ).name('Body Paint').onChange(function(val){
-                car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
+                object.getObjectByName('bodypaint', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.color = new THREE.Color(val);
                         o.castShadow = true;
@@ -355,7 +358,7 @@
                 });
             });
             folder2.add( bodycolor, 'metalness', 0, 1, 0.01 ).name('Metalness').onChange(function(val){
-                car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
+                object.getObjectByName('bodypaint', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.metalness = val,
                         o.material.needsUpdate = true;
@@ -364,7 +367,7 @@
                 });
             });
             folder2.add( bodycolor, 'roughness', 0, 1, 0.01 ).name('Roughness').onChange(function(val){
-                car.getObjectByName('bodypaint', true).traverse ( ( o ) => {
+                object.getObjectByName('bodypaint', true).traverse ( ( o ) => {
                     if ( o.isMesh ) {
                         o.material.roughness = val,
                         o.material.needsUpdate = true;
@@ -412,7 +415,7 @@
                     new TWEEN.Tween(camera.position).to({ x: 8.0, y: 0.0, z: 0.0}, 3000).delay(10).easing(TWEEN.Easing.Cubic.InOut).start();
 
                     // camera tone mapping exposure intensity
-                    renderer.toneMappingExposure = 0.15;
+                    renderer.toneMappingExposure = 0.30;
 
                     // headlight intensity and lensflare
                     lensflare1 = new Lensflare();
