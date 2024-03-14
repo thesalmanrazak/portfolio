@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./assets/css/scrollsmooth-gsap.css">
+</head>
+
+<body>
+
+    <div id="wrapper">
+        <section id="content">
+            <!--  smooth scrolling biz goes in here -->
+            <div class="heading" aria-hidden="true">
+                <p>unleash</p>
+                <div class="text-container">
+                    <p>your</p>
+                    <p data-speed="0.97">inner</p>
+                    <p data-speed="0.92">inner</p>
+                    <p data-speed="0.85">beast</p>
+                    <p data-speed="0.7">and</p>
+                    <p data-speed="0.55">hit the</p>
+                    <p data-speed="0.4">journey</p>
+                </div>
+            </div>
+
+            <section class="image-grid container">
+                <div class="image_cont" data-speed="1">
+                    <img data-speed="auto" src="https://source.unsplash.com/black-and-red-motorcycle-helmet-ZAFpiVgZNng"
+                        alt="">
+                </div>
+                <div class="image_cont" data-speed="1.7">
+                    <img data-speed="auto"
+                        src="https://source.unsplash.com/red-and-black-yamaha-sports-bike-macro-photography-wwIWZwVJgBc"
+                        alt="">
+                </div>
+                <div class="image_cont" data-speed="1.5">
+                    <img data-speed="auto" src="https://source.unsplash.com/black-and-orange-motorcycle-52UeZUkp3Hs"
+                        alt="">
+                </div>
+            </section>
+
+            <section class="title container flow--lg">
+                <h1><span class="eyebrow" aria-hidden="true">with </span>GSAP scrollsmoother</h1>
+                <p>Seamlessly integrated with GSAP and ScrollTrigger. Leveraging native scrolling - no "fake" scrollbars
+                    or event hijacking.</p>
+            </section>
+
+            <section class="bars container">
+
+                <div class="bars-text">
+                    <div class="flow content">
+                        <h2>Speed Control</h2>
+                        <p>Animate elements along at different speeds, slow them down or make them whizz past.</p>
+                    </div>
+
+                </div>
+
+                <div class="bars-cont">
+                    <div class="bar" data-speed="0.8">
+                        <p>0.8</p>
+                    </div>
+
+                    <div class="bar" data-speed="0.9">
+                        <p>0.9</p>
+                    </div>
+
+                    <div class="bar" data-speed="1">
+                        <p>1</p>
+                    </div>
+
+                    <div class="bar" data-speed="1.1">
+                        <p>1.1</p>
+                    </div>
+
+                    <div class="bar" data-speed="1.2">
+                        <p>1.2</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <section class="v-center">
+                <div class="parallax-slab">
+                    <img data-speed="auto"
+                        src="https://source.unsplash.com/orange-and-black-harley-davidson-motorcycle-9yx3FyexTOU"
+                        alt="">
+                </div>
+            </section>
+
+            <section class="staggered container">
+
+                <div class="staggered_text">
+                    <div class="flow content">
+                        <h2>Add some lag (the good kind!)</h2>
+                        <p>loosen the connection to the scroll to give a feeling of 'follow through.'</p>
+                    </div>
+
+                </div>
+
+                <div class="staggered_demo">
+                    <h3 id="split-stagger">stagger...</h3>
+                </div>
+
+            </section>
+
+            <section class="parallax-images container">
+                <div class="parallax-text">
+                    <div class="flow content">
+                        <h2>Easy parallax image effects</h2>
+                        <p>Pop your images in a container with overflow hidden, size them a little larger than the
+                            container and set data-speed to auto. GSAP does the rest.</p>
+                    </div>
+                </div>
+
+                <div class="image_cont">
+                    <img data-speed="auto"
+                        src="https://source.unsplash.com/man-in-black-motorcycle-helmet-riding-motorcycle-sz8nF9Fo73g"
+                        alt="">
+                </div>
+                <div class="image_cont">
+                    <img data-speed="auto"
+                        src="https://source.unsplash.com/black-and-orange-sports-bike-parked-beside-white-wall-wjmDIOf7Tps"
+                        alt="">
+                </div>
+            </section>
+
+            <section class="spacer"></section>
+        </section>
+    </div>
+
+    <script src="https://assets.codepen.io/16327/gsap-latest-beta.min.js?r=v3.11.3"></script>
+    <script src="https://assets.codepen.io/16327/ScrollTrigger.min.js"></script>
+    <script src="https://assets.codepen.io/16327/ScrollSmoother.min.js?v=94387867"></script>
+    <script src="https://assets.codepen.io/16327/SplitText3.min.js"></script>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText);
+
+        // create the smooth scroller FIRST!
+        const smoother = ScrollSmoother.create({
+            wrapper: "#wrapper",
+            content: "#content",
+            smooth: 1,
+            normalizeScroll: true, // prevents address bar from showing/hiding on most devices, solves various other browser inconsistencies
+            ignoreMobileResize: true, // skips ScrollTrigger.refresh() on mobile resizes from address bar showing/hiding
+            effects: true,
+            preventDefault: true
+        });
+
+        gsap.set(".heading", {
+            yPercent: -180,
+            opacity: 1
+        });
+
+        let tl = gsap.timeline();
+        let mySplitText = new SplitText("#split-stagger", { type: "words,chars" });
+        let chars = mySplitText.chars;
+
+        chars.forEach((char, i) => {
+            smoother.effects(char, { speed: 1, lag: (i + 1) * 0.1 });
+        });
+
+    </script>
+</body>
+
+</html>
