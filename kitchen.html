@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Poppins", serif;
+            font-weight: 200;
+        }
+        html, body {
+            width: 100vw;
+            height: auto;
+            overflow-x: hidden;
+            position: relative;
+            z-index: 0;
+        }
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            background-color: black;
+            height: 55px;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 1.5vw;
+        }
+        footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            background-color: black;
+            height: 55px;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        footer button {
+            border: none;
+            background-color: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            font-weight: 400;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        footer button:hover {
+            background-color: #fff;            
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <header>Design by Salman Razak</header>
+    <footer>
+        <button data-link="93506b82aee44e429e92bba692c99fa9">M-1</button>
+        <button data-link="fe18ffa6cda54458a877105970aef23f">M-2</button>
+        <button data-link="cd536811b6e046d2b8e32e4ae354f276">M-3</button>
+        <button data-link="ea1fdc05acc84e02b5030283f2a8bc23">M-4</button>
+        <button data-link="60d3ebcb68414e9cb21a531104c68847">M-5</button>
+        <button data-link="a7cb9256070f4f97ac5d4a5f82a355e7">M-6</button>
+        <button data-link="01addf6c21304a26a9634cbf725230ef">M-7</button>
+        <button data-link="fe2944834f6b4988b6eeb767f844b556">M-8</button>
+        <button data-link="721438b1b581441b94684440b483bb4b">M-9</button>
+        <button data-link="8b0fcd836eac43c18af4bc55c2cb9208">M-10</button>
+
+    </footer>
+
+    <!--iframe src="https://sketchfab.com/models/cd536811b6e046d2b8e32e4ae354f276/embed?autostart=1&internal=1&tracking=0&ui_ar=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_theatre=1&ui_watermark=0" frameborder="0"></iframe-->
+    <!-- fe18ffa6cda54458a877105970aef23f  -->
+    <iframe src="https://sketchfab.com/models/93506b82aee44e429e92bba692c99fa9/embed?autostart=1&internal=1&tracking=0&ui_ar=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_theatre=1&ui_watermark=0" frameborder="0"></iframe>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){            
+            $('footer button').on('click', function(e){
+                var link = $(this).data('link');
+                console.clear();
+                $('iframe').attr('src','https://sketchfab.com/models/'+link+'/embed?autostart=1&internal=1&tracking=0&ui_ar=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_theatre=1&ui_watermark=0');
+            })
+        })
+    </script>
+</body>
+</html>
